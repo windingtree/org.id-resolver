@@ -1,5 +1,8 @@
 const Web3 = require('web3');
-const ganache = require('ganache-cli');
+const ganache = require('ganache-core');
+
+// Setup global web3 instance
+global.web3 = new Web3();
 
 // Ganache port counter
 let portNumber = 9000;
@@ -9,8 +12,8 @@ module.exports.ganache = (options = {}) => new Promise((resolve, reject) => {
     const provider = ganache.provider(options);
     provider.setMaxListeners(Infinity);
 
-    // Setup global web3 instance
-    global.web3 = new Web3(provider);
+    // Set web3 provider
+    web3.setProvider(provider);
         
     server.listen(options.port ? options.port : portNumber++, error => {
 

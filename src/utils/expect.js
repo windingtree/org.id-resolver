@@ -47,7 +47,21 @@ const all = (options = {}, model = {}) => {
             return acc && acc[part] !== undefined ? acc[part] : null;
         }, options);
 
+        if (options[key] === undefined &&
+            (model[key].required === true || model[key].required === undefined)) {
+
+            throw new ExpectError(
+                `The "${key}" property not found`,
+                {
+                    expected: model[key].type,
+                    key,
+                    value
+                }
+            );
+        }
+
         switch (model[key].type) {
+
             case 'enum':
 
                 if (!model[key].values || !Array.isArray(model[key].values)) {
@@ -178,7 +192,7 @@ const all = (options = {}, model = {}) => {
                     (model[key].required === true || model[key].required === undefined)) {
 
                     throw new ExpectError(
-                        `The value type of the "${key}" property is not valid: ${value}`,
+                        `The "${key}" property value has a wrong type: ${typeof value}`,
                         {
                             expected: model[key].type,
                             key,

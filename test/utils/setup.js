@@ -13,17 +13,13 @@ const organizationalUnitJson = require('../../assets/organizationalUnit.json');
 const contractsPath = path.join(__dirname, '../../node_modules/@windingtree/wt-contracts/contracts');
 const artifactsPath = path.join(__dirname, '../../build');
 
-module.exports.setupContracts = async () => {
+module.exports.setupContracts = async (solcVersion = '0.5.16') => {
     Contracts.setLocalContractsDir(contractsPath);
     Contracts.setLocalBuildDir(artifactsPath);
-    Contracts.setArtifactsDefaults({
-        gas: 0xfffffffffff
-    });
-    ZWeb3.initialize(web3.currentProvider);
 
-    // Using compiler settings from the truffle.js
+    // Compile contracts from the source
     await commands.compile.action({
-        solcVersion: '0.5.16',
+        solcVersion,
         optimizer: true,
         optimizerRuns: 200
     });
@@ -45,7 +41,10 @@ module.exports.setupOrganizations = async (
 
     const project = await AppProject.fetchOrDeploy(
         'Organization',
-        '0.1.0'
+        '0.1.0',
+        {
+            from: legalEntityOwner
+        }
     );
 
     const legalEntity = await createOrganization(

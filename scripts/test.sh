@@ -18,5 +18,12 @@ if [ "$COVERAGE" = true ]; then
     npx istanbul cover _mocha --report lcovonly --  --exit -R spec --timeout 70000 ./test/spec/**/*.js
 else 
     echo "Running tests without coverage"
-    npx mocha --exit -R spec --timeout 70000 ./test/spec/**/*.js    
+
+    if [ -z "$@" ]; then
+        testDir="./test/spec/**/*.js"
+    else
+        testDir="$@"
+    fi
+
+    npx mocha --exit -R spec --timeout 70000 "$testDir"    
 fi

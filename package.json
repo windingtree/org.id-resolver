@@ -40,6 +40,7 @@
     "coveralls": "3.0.9",
     "ganache-cli": "6.4.5",
     "@openzeppelin/upgrades": "2.7.1",
-    "@openzeppelin/cli": "2.7.1"
+    "@openzeppelin/cli": "2.7.1",
+    "husky": "4.2.3"
   }
 }

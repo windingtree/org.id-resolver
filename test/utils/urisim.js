@@ -11,8 +11,12 @@ class UriSimulator {
         return Math.random().toString(36).substr(2, 9);
     }
 
-    set(source) {
+    async set(source) {
         let uid;
+
+        if (source === undefined) {
+            throw new Error('Cannot set an undefined resource source');
+        }
 
         while (!uid) {
             const newUid = UriSimulator.uid;
@@ -26,11 +30,11 @@ class UriSimulator {
         return uid;
     }
 
-    get(uid) {
+    async get(uid) {
         return this.resources[uid];
     }
 
-    update(uid, source) {
+    async update(uid, source) {
 
         if (!this.resources[uid]) {
             throw new Error(`Unknown resource: ${uid}`);
@@ -39,6 +43,15 @@ class UriSimulator {
         this.resources[uid] = source;
         return uid;
     }
+
+    fetchMethod() {
+        return {
+            name: 'urisim',
+            pattern: '^[a-zA-Z0-9]{9}$',
+            fetch: uid => this.get(uid)
+        };
+    }
 }
 
 module.exports = new UriSimulator();
+module.exports.UriSimulator = UriSimulator;

@@ -30,7 +30,7 @@ module.exports.createOrganization = async (
 
     // Initial set of resource
     let jsonString = JSON.stringify(orgidJson);
-    const uri = uriSimulator.set(jsonString);
+    const uri = await uriSimulator.set(jsonString);
     let hash = makeHash(jsonString);
 
     // Initial deployment
@@ -47,7 +47,7 @@ module.exports.createOrganization = async (
     });
 
     // Update DID in the json file
-    const storedJson = JSON.parse(uriSimulator.get(uri));
+    const storedJson = JSON.parse(await uriSimulator.get(uri));
     storedJson.id = `did:orgid:${orgProxy.address}`;
     jsonString = JSON.stringify(storedJson);
 
@@ -55,7 +55,7 @@ module.exports.createOrganization = async (
     hash = makeHash(jsonString);
 
     // Source updated so update the resource
-    uriSimulator.update(uri, jsonString);
+    await uriSimulator.update(uri, jsonString);
 
     // Update has on the contract
     await orgProxy
@@ -73,7 +73,7 @@ module.exports.createSubsidiary = async (
 ) => {
     // Initial set of resource
     let jsonString = JSON.stringify(orgidJson);
-    const uri = uriSimulator.set(jsonString);
+    const uri = await uriSimulator.set(jsonString);
     let hash = makeHash(JSON.stringify(orgidJson));
 
     // Get actual owner of the parent organization
@@ -94,7 +94,7 @@ module.exports.createSubsidiary = async (
     const subsidiaryProxy = await Organization.at(result.events.SubsidiaryCreated.returnValues.subsidiary);
 
     // Update DID in the json file
-    const storedJson = JSON.parse(uriSimulator.get(uri));
+    const storedJson = JSON.parse(await uriSimulator.get(uri));
     storedJson.id = `did:orgid:${subsidiaryProxy.address}`;
     jsonString = JSON.stringify(storedJson);
 
@@ -102,7 +102,7 @@ module.exports.createSubsidiary = async (
     hash = makeHash(jsonString);
 
     // Source updated so update the resource
-    uriSimulator.update(uri, jsonString);
+    await uriSimulator.update(uri, jsonString);
 
     // Update has on the contract
     await subsidiaryProxy

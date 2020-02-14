@@ -17,6 +17,8 @@ describe('Tests environment', () => {
         await setupContracts();
     });
 
+    after(() => server.close());
+
     beforeEach(async () => {
         const orgs = await setupOrganizations(accounts, uriSimulator);
         legalEntity = orgs.legalEntity;
@@ -53,6 +55,4 @@ describe('Tests environment', () => {
             (makeHash(orgUnitJsonString)).should.equal(orgUnitHash);
         });
     });
-
-    afterEach(() => server.close());
 });

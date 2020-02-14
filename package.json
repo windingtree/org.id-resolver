@@ -1,0 +1,45 @@
+{
+  "name": "@windingtree/org.id-resolver",
+  "version": "0.1.0",
+  "description": "ORG.ID DID resolver",
+  "keywords": [
+    "org.id",
+    "did",
+    "resolver",
+    "javascript"
+  ],
+  "author": "Kostiantyn Smyrnov <kostysh@gmail.com>",
+  "homepage": "https://github.com/windingtree/org.id-resolver#README",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:windingtree/org.id-resolver.git"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "build": "rm -rf dist/ && npx babel src --out-dir dist",
+    "test": "./scripts/test.sh",
+    "lint": "npx eslint './src/**/*.js' && npx eslint './test/**/*.js'",
+    "ganache": "./scripts/ganache.sh"
+  },
+  "dependencies": {
+    "@truffle/contract": "4.1.8",
+    "@babel/polyfill": "7.8.3",
+    "@windingtree/wt-contracts": "0.9.1"
+  },
+  "devDependencies": {
+    "@babel/core": "7.8.4",
+    "@babel/cli": "7.8.4",
+    "@babel/preset-env": "7.8.4",
+    "eslint": "6.8.0",
+    "mocha": "7.0.1",
+    "chai": "4.2.0",
+    "istanbul": "1.1.0-alpha.1",
+    "coveralls": "3.0.9",
+    "ganache-cli": "6.4.5",
+    "@openzeppelin/upgrades": "2.7.1",
+    "@openzeppelin/cli": "2.7.1"
+  }
+}

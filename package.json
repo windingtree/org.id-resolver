@@ -27,7 +27,10 @@
   "dependencies": {
     "@truffle/contract": "4.1.8",
     "@babel/polyfill": "7.8.3",
-    "@windingtree/wt-contracts": "0.9.1"
+    "@windingtree/wt-contracts": "0.9.1",
+    "@windingtree/org.json-schema": "git@github.com:kostysh/org.json-schema.git",
+    "axios": "0.19.2",
+    "ajv": "6.11.0"
   },
   "devDependencies": {
     "@babel/core": "7.8.4",

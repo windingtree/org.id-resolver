@@ -45,7 +45,19 @@ const generateIdSet = async (
     );
     const jsonString = JSON.stringify(orgJson);
     const hash = generateJsonHash(jsonString);
-    const uri = await uriSimulator.set(jsonString);
+
+    let uri;
+    
+    if (uriSimulator.port) {
+        uri = `http://localhost:${uriSimulator.port}/${hash}.json`;
+        await uriSimulator.addFile({
+            content: jsonString,
+            type: 'json',
+            path: `${hash}.json`
+        });
+    } else {
+        uri = await uriSimulator.set(jsonString);
+    }
 
     return {
         id,

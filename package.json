@@ -8,6 +8,7 @@
     "resolver",
     "javascript"
   ],
+  "main": "dist/index.js",
   "author": "Kostiantyn Smyrnov <kostysh@gmail.com>",
   "homepage": "https://github.com/windingtree/org.id-resolver#README",
   "license": "MIT",

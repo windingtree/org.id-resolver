@@ -1,5 +1,6 @@
 const { ganache, defaults } = require('../utils/ganache');
 const uriSimulator = require('../utils/urisim');
+const { HttpFileServer } = require('../utils/httpServer');
 const { assertFailure } = require('../utils/assertions');
 const { setupOrgId, setupOrganizations } = require('../utils/setup');
 const validJson = require('../../assets/legalEntity.json');
@@ -8,7 +9,10 @@ const {
     notExistedAddress,
     organizationHash: unknownId
 } = require('../utils/constants');
-const { OrgIdResolver } = require('../../src');
+const {
+    OrgIdResolver,
+    httpFetchMethod
+} = require('../../src');
 
 require('chai').should();
 
@@ -19,23 +23,31 @@ describe('Resolver', () => {
     let orgUnitOwner;
 
     let server;
+    let fileServer;
     let legalEntity;
     let legalEntityInvalidJson;
+    let legalEntityHttp;
     let resolver;
     let orgId;
 
     before(async () => {
         server = await ganache(defaults);
         const accounts = await web3.eth.getAccounts();
+        fileServer = new HttpFileServer();
+        await fileServer.start();
         orgIdOwner = accounts[1];
         legalEntityOwner = accounts[2];
         orgUnitOwner = accounts[3];
     });
 
-    after(() => server.close());
+    after(() => {
+        server.close();
+        fileServer.close();
+    });
 
     beforeEach(async () => {
         orgId = await setupOrgId(orgIdOwner);
+
         const orgs = await setupOrganizations(
             orgId,
             legalEntityOwner,
@@ -43,6 +55,7 @@ describe('Resolver', () => {
             uriSimulator
         );
         legalEntity = orgs.legalEntity;
+
         const orgsInvalidJson = await setupOrganizations(
             orgId,
             legalEntityOwner,
@@ -55,8 +68,17 @@ describe('Resolver', () => {
         );
         legalEntityInvalidJson = orgsInvalidJson.legalEntity;
 
+        const orgsHttp = await setupOrganizations(
+            orgId,
+            legalEntityOwner,
+            orgUnitOwner,
+            fileServer
+        );
+        legalEntityHttp = orgsHttp.legalEntity;
+
         resolver = new OrgIdResolver({ web3, orgId: orgId.address });
         resolver.registerFetchMethod(uriSimulator.fetchMethod());
+        resolver.registerFetchMethod(httpFetchMethod);
     });
 
     describe('Constructor', () => {
@@ -128,7 +150,7 @@ describe('Resolver', () => {
         });
     });
 
-    describe('#fetchDidDocumentByUri', () => {
+    describe('#fetchFileByUri', () => {
         const fakeFetchMethod = {
             name: 'fake',
             pattern: 'fake://',
@@ -148,14 +170,14 @@ describe('Resolver', () => {
 
         it('should fail if uri not a string', async () => {
             await assertFailure(
-                resolver.fetchDidDocumentByUri(undefined),
+                resolver.fetchFileByUri(undefined),
                 'property not found'
             );
         });
 
         it('should fail if fetching methods not been registered', async () => {
             await assertFailure(
-                resolver.fetchDidDocumentByUri(uri),
+                resolver.fetchFileByUri(uri),
                 'At least one fetching method should be registered'
             );
         });
@@ -163,7 +185,7 @@ describe('Resolver', () => {
         it('should fail if registered method not suitable for the given uri', async () => {
             resolver.registerFetchMethod(fakeFetchMethod);
             await assertFailure(
-                resolver.fetchDidDocumentByUri(uri),
+                resolver.fetchFileByUri(uri),
                 'Unable to determine the fetching method for uri'
             );
         });
@@ -171,7 +193,7 @@ describe('Resolver', () => {
         it('should fetch content by the uri', async () => {
             resolver.registerFetchMethod(fakeFetchMethod);
             resolver.registerFetchMethod(uriSimulator.fetchMethod());
-            (await resolver.fetchDidDocumentByUri(uri)).should.equal(content);
+            (await resolver.fetchFileByUri(uri)).should.equal(content);
         });
     });
 
@@ -320,10 +342,7 @@ describe('Resolver', () => {
 
         it('should resolve a did', async () => {
             const result = await resolver.resolve(`did:orgid:${legalEntity}`);
-            (result).should.be.an('object')
-                .that.include.property('errors')
-                .that.an('array')
-                .that.is.empty;
+            (result).should.be.an('object');
         });
 
         it('should resolve a did with errors in the document', async () => {
@@ -332,6 +351,11 @@ describe('Resolver', () => {
                 .that.include.property('errors')
                 .that.an('array')
                 .that.is.not.empty;
+        });
+
+        it('should resolve a did from the http uri', async () => {
+            const result = await resolver.resolve(`did:orgid:${legalEntityHttp}`);
+            (result).should.be.an('object');
         });
     });
 });

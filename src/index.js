@@ -1,5 +1,5 @@
-// const axios = require('axios');
 const Ajv = require('ajv');
+const httpFetchMethod = require('./http');
 const expect = require('./utils/expect');
 const { createContract } = require('./utils/contracts');
 const { makeHash } = require('./utils/document');
@@ -51,18 +51,16 @@ class OrgIdResolver {
         this.resolutionStart = Date.now();
         const id = await this.validateDidSyntax(did);
         const didDocument = await this.getDidDocumentUri(id);
+        this.result.didDocument = didDocument;
         await this.validateDidDocument(didDocument);
         await this.verifyTrustRecords(didDocument);
-
-        // Prepare result
-        this.result.didDocument = didDocument;
         this.result.resolverMetadata.retrieved = new Date().toISOString();
         this.result.resolverMetadata.duration = Date.now() - this.resolutionStart;
 
         return this.result;
     }
 
-    async fetchDidDocumentByUri(uri) {
+    async fetchFileByUri(uri) {
         expect.all({ uri }, {
             uri: {
                 type: 'string'
@@ -92,7 +90,7 @@ class OrgIdResolver {
         const document = await fetch(uri);
 
         if (!document) {
-            throw new Error('DID document not found by the given uri');
+            throw new Error('File not found by the given uri');
         }
 
         return  document;
@@ -147,19 +145,80 @@ class OrgIdResolver {
 
     async verifyTrustRecords(didDocument) {
 
+        if (!didDocument.trust || !Array.isArray(didDocument.trust.assertions)) {
+            return;
+        }
+
+        let assertion;
+
+        for (let i = 0; i < didDocument.trust.assertions.length; i++) {
+            assertion = didDocument.trust.assertions[i];
+            let assertionContent;
+
+            switch (assertion.type) {
+                case 'dns':
+                    // @todo Get dns records from the assertion.claim domain
+                    // Look for did in the assertion.proof records list
+                    break;
+
+                case 'post':
+                case 'domain':
+                    // Validate assertion.proof record
+                    // should be in the assertion.claim namespace
+                    
+                    if (!RegExp(`(^http://|https://)${assertion.claim}`)
+                        .test(assertion.proof)) {
+                        
+                        this.result.errors.push(
+                            `Failed assertion trust.assertions[${i}]: Clain is not in the domain namespace`
+                        );
+                        break;
+                    }
+
+                    // Fetch file by uri
+                    try {
+                        assertionContent = await this.fetchFileByUri(assertion.proof);
+                        assertionContent = typeof assertionContent === 'object'
+                            ? JSON.stringify(assertionContent)
+                            : assertionContent;
+                    } catch (err) {
+
+                        this.result.errors.push(
+                            `Failed assertion trust.assertions[${i}]: Cannot get the proof`
+                        );
+                        break;
+                    }
+                    
+                    // Look for did inside the file obtained
+                    if (!RegExp(`(^http://|https://)${didDocument.id}`)
+                        .test(assertionContent)) {
+                        
+                        this.result.errors.push(
+                            `Failed assertion trust.assertions[${i}]: DID not found in the claim`
+                        );
+                        break;
+                    }
+
+                    break;
+
+                default:
+            }
+        }
     }
 
     async getDidDocumentUri(id) {
         const contract = createContract(OrgIdContract, this.web3);
         const orgId = await contract.at(this.orgId);
         const organization = await orgId.methods['getOrganization(bytes32)'].call(id);
-        const didDocument = await this.fetchDidDocumentByUri(organization.orgJsonUri);
+        const didDocument = await this.fetchFileByUri(organization.orgJsonUri);
 
         if (makeHash(didDocument, this.web3) !== organization.orgJsonHash) {
             throw new Error('Invalid DID Document hash');
         }
 
-        const didObject = JSON.parse(didDocument);
+        const didObject = typeof didDocument === 'string'
+            ? JSON.parse(didDocument)
+            : didDocument;
 
         if (`did:${this.methodName}:${id}` !== didObject.id) {
             throw new Error(
@@ -192,3 +251,4 @@ class OrgIdResolver {
 }
 
 module.exports.OrgIdResolver = OrgIdResolver;
+module.exports.httpFetchMethod = httpFetchMethod;

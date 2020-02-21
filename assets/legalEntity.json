@@ -32,9 +32,9 @@
     "trust": {
         "assertions": [
             {
-                "type": "domain",
+                "type": "dns",
                 "claim": "test.com",
-                "proof": "dns"
+                "proof": "TXT"
             },
             {
                 "type": "domain",
@@ -47,9 +47,9 @@
                 "proof": "http://test3.com/orgid.txt"
             },
             {
-                "type": "twitter",
-                "claim": "jack",
-                "proof": "https://twitter.com/status/123456789/"
+                "type": "post",
+                "claim": "twitter.com/jack",
+                "proof": "https://twitter.com/jack/status/123456789/"
             }
         ],
         "credentials": [

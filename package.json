@@ -19,7 +19,7 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "rm -rf dist/ && npx babel src --out-dir dist",
+    "build": "rm -rf dist/ && npx babel --source-type module --minified --source-maps inline src --out-dir dist",
     "test": "./scripts/test.sh",
     "lint": "npx eslint './src/**/*.js' && npx eslint './test/**/*.js'",
     "ganache": "./scripts/ganache.sh"

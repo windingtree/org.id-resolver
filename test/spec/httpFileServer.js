@@ -149,7 +149,7 @@ describe('HTTP fetch method', () => {
 
         it('should get file from server', async () => {
             const response = await axios.get(`http://localhost:${server.port}/${file.path}`);
-            (JSON.stringify(response)).should.equal(file.content);
+            (JSON.stringify(response.data)).should.equal(file.content);
         });
     });
 

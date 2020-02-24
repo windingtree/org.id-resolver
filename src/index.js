@@ -161,7 +161,7 @@ class OrgIdResolver {
                     // Look for did in the assertion.proof records list
                     break;
 
-                case 'post':
+                case 'social':
                 case 'domain':
                     // Validate assertion.proof record
                     // should be in the assertion.claim namespace
@@ -188,10 +188,9 @@ class OrgIdResolver {
                         );
                         break;
                     }
-                    
+
                     // Look for did inside the file obtained
-                    if (!RegExp(`(^http://|https://)${didDocument.id}`)
-                        .test(assertionContent)) {
+                    if (!RegExp(didDocument.id, 'g').test(assertionContent)) {
                         
                         this.result.errors.push(
                             `Failed assertion trust.assertions[${i}]: DID not found in the claim`

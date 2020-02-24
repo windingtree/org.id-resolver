@@ -47,7 +47,7 @@
                 "proof": "http://test3.com/orgid.txt"
             },
             {
-                "type": "post",
+                "type": "social",
                 "claim": "twitter.com/jack",
                 "proof": "https://twitter.com/jack/status/123456789/"
             }

@@ -6,7 +6,6 @@ node_js:
 
 env:
 - COVERAGE=true
-- CONTINUOUS_INTEGRATION=true
 
 script:
 - set -e

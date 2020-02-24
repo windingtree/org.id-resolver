@@ -255,7 +255,18 @@ describe('Resolver', () => {
         });
     });
 
-    describe.skip('#verifyTrustRecords', () => {});
+    describe('#verifyTrustRecords', () => {
+        let didDocument;
+
+        beforeEach(async () => {
+            didDocument = await resolver.getDidDocumentUri(legalEntityHttp);
+        });
+
+        it('should verify trust assertions', async () => {
+            await resolver.verifyTrustRecords(didDocument);
+            (resolver.result.errors).should.be.an('array').that.is.empty;
+        });
+    });
 
     describe('#getDidDocumentUri', () => {
 

@@ -22,6 +22,35 @@ const generateJsonHash = jsonString => web3.utils.soliditySha3(jsonString);
 module.exports.generateJsonHash = generateJsonHash;
 
 /**
+ * Generates trus assertions records
+ * @param {string} did DID
+ * @param {Object} uriSimulator URI simulator instance
+ * @param {Object[]} config Assertions config
+ * @returns {Promise<{Object}>}
+ */
+const generateTrustAssertions = (did, uriSimulator, config = []) => Promise.all(config.map(async (t) => {
+    const content = `This is my DID: ${did}`;
+    let record = {
+        type: t.type
+    };
+
+    if (uriSimulator.port) {
+        record.proof = `http://localhost:${uriSimulator.port}/${did}.txt`;
+        record.claim = `localhost:${uriSimulator.port}`;
+        await uriSimulator.addFile({
+            content,
+            type: 'txt',
+            path: `${did}.txt`
+        });
+    } else {
+        record.proof = await uriSimulator.set(content);
+        record.claim = '';
+    }
+
+    return record;
+}));
+
+/**
  * Generates a set of value: Id, Uri and Hash
  * @param {string} from The address of the organization owner
  * @param {Object} uriSimulator URI simulator instance
@@ -36,13 +65,27 @@ const generateIdSet = async (
     fakeId = false
 ) => {
     const id = generateId(`${from}${Math.random().toString()}`);
+    const did = `did:orgid:${fakeId ? fakeId : id}`;
     const orgJson = Object.assign(
         {},
         jsonObject,
         {
-            id: `did:orgid:${fakeId ? fakeId : id}`
+            id: did
         }
     );
+    const trustAssertions = await generateTrustAssertions(
+        did,
+        uriSimulator,
+        [
+            {
+                type: 'domain'
+            },
+            {
+                type: 'social'
+            }
+        ]
+    );
+    orgJson.trust.assertions = trustAssertions;
     const jsonString = JSON.stringify(orgJson);
     const hash = generateJsonHash(jsonString);
 

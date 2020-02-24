@@ -1,5 +1,5 @@
 const Ajv = require('ajv');
-const schema = require('../../assets/did.json');
+const schema = require('@windingtree/org.json-schema');
 const jsonFile = require('../../assets/legalEntity.json');
 const jsonFileNotValid = require('../../assets/legalEntityNotValid.json');
 

@@ -27,12 +27,12 @@
     "ganache": "./scripts/ganache.sh"
   },
   "dependencies": {
-    "@truffle/contract": "4.1.9",
+    "@truffle/contract": "4.1.10",
     "@babel/polyfill": "7.8.3",
     "@windingtree/org.id": "0.10.0",
     "@windingtree/org.json-schema": "0.3.0",
     "axios": "0.19.2",
-    "ajv": "6.11.0"
+    "ajv": "6.12.0"
   },
   "devDependencies": {
     "@babel/core": "7.8.4",

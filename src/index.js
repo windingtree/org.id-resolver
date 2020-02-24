@@ -3,7 +3,7 @@ const httpFetchMethod = require('./http');
 const expect = require('./utils/expect');
 const { createContract } = require('./utils/contracts');
 const { makeHash } = require('./utils/document');
-const didDocumentSchema = require('../assets/did.json');
+const didDocumentSchema = require('@windingtree/org.json-schema');
 const { OrgIdContract } = require('@windingtree/org.id');
 
 // ORG.ID resolver class

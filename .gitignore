@@ -3,6 +3,7 @@ node_modules
 coverage
 coverage.json
 coverageEnv
+.nyc_output
 
 logs
 .logs
@@ -26,14 +27,12 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 build
-<<<<<<< HEAD
-=======
 dist
->>>>>>> b267c0fa88290109997fd4d58a099424678b7bed
 
 localkeys.json
 .accounts
 
 .openzeppelin/dev-*.json
 .openzeppelin/.session
+contracts
 

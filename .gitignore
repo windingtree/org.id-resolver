@@ -3,6 +3,7 @@ node_modules
 coverage
 coverage.json
 coverageEnv
+.nyc_output
 
 logs
 .logs

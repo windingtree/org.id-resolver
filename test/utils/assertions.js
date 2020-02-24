@@ -11,10 +11,11 @@ module.exports.assertFailure = async (promise, reason = false) => {
         await promise;
         assert.fail('The assertion is fulfilled although failure was expected');
     } catch (error) {
-        const reasonFoundByString = error.message
-            .toLowerCase().search(reason.toLowerCase()) >= 0;
         
         if (reason) {
+            const reasonFoundByString = error.message
+                .toLowerCase().search(reason.toLowerCase()) >= 0;
+
             assert(
                 reasonFoundByString,
                 `Expected "error"${reason ? ' with message "'+reason+'"' : ''}, got ${error} instead`

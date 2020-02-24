@@ -15,7 +15,12 @@ cleanup() {
 
 if [ "$COVERAGE" = true ]; then 
     echo "Running tests with coverage"
-    npx istanbul cover _mocha --report lcovonly --  --exit -R spec --timeout 70000 ./test/spec/**/*.js
+    npx nyc --reporter lcov mocha --exit -R spec --timeout 70000 ./test/spec/**/*.js
+
+    if [ "$CONTINUOUS_INTEGRATION" = true ]; then
+        cat coverage/lcov.info | npx coveralls
+    fi
+
 else 
     echo "Running tests without coverage"
 

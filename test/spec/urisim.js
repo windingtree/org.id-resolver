@@ -1,5 +1,9 @@
+const Web3 = require('web3');
 const { assertFailure } = require('../utils/assertions');
 const uriSimulator = require('../utils/urisim');
+const { generateJsonHash } = require('../utils/setup');
+
+global.web3 = new Web3();
 
 require('chai').should();
 
@@ -46,6 +50,20 @@ describe('URI simulator', () => {
             const source = 'aaa';
             const uri = await uriSimulator.set(source);
             (await uriSimulator.get(uri)).should.equal(source);
+        });
+
+        it('should return consistent content', async () => {
+            const source = {
+                id: '123',
+                prop: {
+                    test: 'qwerty'
+                }
+            };
+            const sourceString = JSON.stringify(source);
+            const hash = generateJsonHash(sourceString);
+            const uri = await uriSimulator.set(sourceString);
+            const getBack = await uriSimulator.get(uri);
+            (generateJsonHash(getBack)).should.equal(hash);
         });
     });
 

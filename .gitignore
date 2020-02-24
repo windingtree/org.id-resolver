@@ -26,6 +26,10 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 build
+<<<<<<< HEAD
+=======
+dist
+>>>>>>> b267c0fa88290109997fd4d58a099424678b7bed
 
 localkeys.json
 .accounts

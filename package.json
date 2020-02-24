@@ -47,5 +47,8 @@
     "@openzeppelin/upgrades": "2.7.1",
     "@openzeppelin/cli": "2.7.1",
     "husky": "4.2.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

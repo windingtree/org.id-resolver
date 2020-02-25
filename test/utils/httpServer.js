@@ -38,7 +38,7 @@ class HttpFileServer {
 
     requestHandler(request, response) {
         const link = url.parse(request.url);
-        const path = link.pathname.replace(/^\//, '');
+        const path = link.path.replace(/^\//, '');
 
         if (!this.files[path]) {
             response.statusCode = 404;

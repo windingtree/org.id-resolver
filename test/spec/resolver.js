@@ -1,8 +1,10 @@
 const { ganache, defaults } = require('../utils/ganache');
-const uriSimulator = require('../utils/urisim');
-const { HttpFileServer } = require('../utils/httpServer');
 const { assertFailure } = require('../utils/assertions');
-const { setupOrgId, setupOrganizations } = require('../utils/setup');
+const {
+    setupOrgId,
+    setupOrganizations,
+    setupHttpServer
+} = require('../utils/setup');
 const validJson = require('../../assets/legalEntity.json');
 const invalidJson = require('../../assets/legalEntityNotValid.json');
 const {
@@ -13,6 +15,7 @@ const {
     OrgIdResolver,
     httpFetchMethod
 } = require('../../src');
+const { ResourceRecordTypes } = require('../../src/dns');
 
 require('chai').should();
 
@@ -26,15 +29,13 @@ describe('Resolver', () => {
     let fileServer;
     let legalEntity;
     let legalEntityInvalidJson;
-    let legalEntityHttp;
     let resolver;
     let orgId;
 
     before(async () => {
         server = await ganache(defaults);
         const accounts = await web3.eth.getAccounts();
-        fileServer = new HttpFileServer();
-        await fileServer.start();
+        fileServer = await setupHttpServer();
         orgIdOwner = accounts[1];
         legalEntityOwner = accounts[2];
         orgUnitOwner = accounts[3];
@@ -51,8 +52,7 @@ describe('Resolver', () => {
         const orgs = await setupOrganizations(
             orgId,
             legalEntityOwner,
-            orgUnitOwner,
-            uriSimulator
+            orgUnitOwner
         );
         legalEntity = orgs.legalEntity;
 
@@ -60,7 +60,6 @@ describe('Resolver', () => {
             orgId,
             legalEntityOwner,
             orgUnitOwner,
-            uriSimulator,
             false,
             false,
             false,
@@ -68,16 +67,7 @@ describe('Resolver', () => {
         );
         legalEntityInvalidJson = orgsInvalidJson.legalEntity;
 
-        const orgsHttp = await setupOrganizations(
-            orgId,
-            legalEntityOwner,
-            orgUnitOwner,
-            fileServer
-        );
-        legalEntityHttp = orgsHttp.legalEntity;
-
         resolver = new OrgIdResolver({ web3, orgId: orgId.address });
-        resolver.registerFetchMethod(uriSimulator.fetchMethod());
         resolver.registerFetchMethod(httpFetchMethod);
     });
 
@@ -118,14 +108,13 @@ describe('Resolver', () => {
             );
         });
 
-        it('should register a custom fetch method', async () => {
+        it('should register a fetch method', async () => {
             const resolver = new OrgIdResolver({
                 web3,
                 orgId: orgId.address
             });
-            const methodConfig = uriSimulator.fetchMethod();
-            resolver.registerFetchMethod(methodConfig);
-            (resolver.getFetchMethods()).should.include(methodConfig.name);
+            resolver.registerFetchMethod(httpFetchMethod);
+            (resolver.getFetchMethods()).should.include(httpFetchMethod.name);
         });
     });
 
@@ -144,9 +133,8 @@ describe('Resolver', () => {
                 web3,
                 orgId: orgId.address
             });
-            const methodConfig = uriSimulator.fetchMethod();
-            resolver.registerFetchMethod(methodConfig);
-            (resolver.getFetchMethods()).should.include(methodConfig.name);
+            resolver.registerFetchMethod(httpFetchMethod);
+            (resolver.getFetchMethods()).should.include(httpFetchMethod.name);
         });
     });
 
@@ -165,7 +153,12 @@ describe('Resolver', () => {
                 web3,
                 orgId: orgId.address
             });
-            uri = await uriSimulator.set(content);
+            uri = `http://localhost:${global.httpFileServer.port}/file.txt`;
+            await global.httpFileServer.addFile({
+                content,
+                type: 'txt',
+                path: 'file.txt'
+            });
         });
 
         it('should fail if uri not a string', async () => {
@@ -192,7 +185,7 @@ describe('Resolver', () => {
 
         it('should fetch content by the uri', async () => {
             resolver.registerFetchMethod(fakeFetchMethod);
-            resolver.registerFetchMethod(uriSimulator.fetchMethod());
+            resolver.registerFetchMethod(httpFetchMethod);
             (await resolver.fetchFileByUri(uri)).should.equal(content);
         });
     });
@@ -259,7 +252,40 @@ describe('Resolver', () => {
         let didDocument;
 
         beforeEach(async () => {
-            didDocument = await resolver.getDidDocumentUri(legalEntityHttp);
+            didDocument = await resolver.getDidDocumentUri(legalEntity);
+        });
+
+        it('should return an error if dns proof value not in the allowed range', async () => {
+            didDocument.trust.assertions[0].proof = 'UNKNOWN';
+            await resolver.verifyTrustRecords(didDocument);
+            (resolver.result.errors).should.be.an('array').that.is.not.empty;
+            (resolver.result.errors[0]).should.equal(
+                `Failed assertion trust.assertions[0]: proof value "UNKNOWN" not in the range of [${Object.keys(ResourceRecordTypes).join(',')}]`
+            );
+        });
+
+        it('should return an error if dns proof not found', async () => {
+            didDocument.trust.assertions[0].proof = 'HINFO';
+            await resolver.verifyTrustRecords(didDocument);
+            (resolver.result.errors).should.be.an('array').that.is.not.empty;
+            (resolver.result.errors[0]).should.equal(
+                'Failed assertion trust.assertions[0]: Cannot get the proof'
+            );
+        });
+
+        it('should return an error if getting the dns proof is not possible', async () => {
+            didDocument.trust.assertions[0].claim = 'UNKNOWN';
+            await resolver.verifyTrustRecords(didDocument);
+            (resolver.result.errors).should.be.an('array').that.is.not.empty;
+            (resolver.result.errors[0]).should.equal(
+                'Failed assertion trust.assertions[0]: Cannot get the proof'
+            );
+        });
+
+        it('should not return errors if trust sections not containing assertions', async () => {
+            delete didDocument.trust.assertions;
+            await resolver.verifyTrustRecords(didDocument);
+            (resolver.result.errors).should.be.an('array').that.is.empty;
         });
 
         it('should verify trust assertions', async () => {
@@ -293,13 +319,12 @@ describe('Resolver', () => {
                 orgId,
                 legalEntityOwner,
                 orgUnitOwner,
-                uriSimulator,
-                'fakefakee'
+                `${process.env.FAKE_WEB_SERVER_URI}/fake.txt`
             );
             const brokenLegalEntity = brokenOrgs.legalEntity;
             await assertFailure(
                 resolver.getDidDocumentUri(brokenLegalEntity),
-                'not found'
+                'Request failed with status code 404'
             );
         });
 
@@ -308,7 +333,6 @@ describe('Resolver', () => {
                 orgId,
                 legalEntityOwner,
                 orgUnitOwner,
-                uriSimulator,
                 false,
                 unknownId
             );
@@ -324,7 +348,6 @@ describe('Resolver', () => {
                 orgId,
                 legalEntityOwner,
                 orgUnitOwner,
-                uriSimulator,
                 false,
                 false,
                 unknownId
@@ -365,7 +388,7 @@ describe('Resolver', () => {
         });
 
         it('should resolve a did from the http uri', async () => {
-            const result = await resolver.resolve(`did:orgid:${legalEntityHttp}`);
+            const result = await resolver.resolve(`did:orgid:${legalEntity}`);
             (result).should.be.an('object');
         });
     });

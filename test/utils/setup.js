@@ -3,6 +3,47 @@ const { Contracts, ZWeb3 } = require('@openzeppelin/upgrades');
 
 const legalEntityJson = require('../../assets/legalEntity.json');
 const organizationalUnitJson = require('../../assets/organizationalUnit.json');
+const { HttpFileServer } = require('./httpServer');
+const { ResourceRecordTypes } = require('../../src/dns');
+
+// Template for fake Google public DNS API response
+const publicDnsResponse = {
+    'Status': 0,
+    'TC': false,
+    'RD': true,
+    'RA': true,
+    'AD': false,
+    'CD': false,
+    'Question': [{
+        'name': 'windingtree.com.',
+        'type': 16
+    }],
+    'Answer': [
+        {
+            'name': 'windingtree.com.',
+            'type': 16,
+            'TTL': 299,
+            'data': '\'orgid=0xE61d952f077EfF0C022cC0FEC841059DA2289526\''
+        }
+    ],
+    'Comment': 'Response from 2606:4700:50::adf5:3acf.'
+};
+
+/**
+ * Initialize HTTP server and set testing environment
+ * @returns {Promise<{Object}>} Server instance
+ */
+module.exports.setupHttpServer = async () => {
+    const httpFileServer = new HttpFileServer();
+    await httpFileServer.start();
+    process.env.FAKE_PUBLIC_DNS_URI =
+        `http://localhost:${httpFileServer.port}/resolve`;
+    process.env.FAKE_WEB_SERVER_URI =
+        `http://localhost:${httpFileServer.port}`;
+    
+    global.httpFileServer = httpFileServer;
+    return httpFileServer;
+};
 
 /**
  * Generates an id on the base of string and solt
@@ -28,23 +69,59 @@ module.exports.generateJsonHash = generateJsonHash;
  * @param {Object[]} config Assertions config
  * @returns {Promise<{Object}>}
  */
-const generateTrustAssertions = (did, uriSimulator, config = []) => Promise.all(config.map(async (t) => {
-    const content = `This is my DID: ${did}`;
+const generateTrustAssertions = (
+    did,
+    config = []
+) => Promise.all(config.map(async (t) => {
+    
     let record = {
         type: t.type
     };
 
-    if (uriSimulator.port) {
-        record.proof = `http://localhost:${uriSimulator.port}/${did}.txt`;
-        record.claim = `localhost:${uriSimulator.port}`;
-        await uriSimulator.addFile({
-            content,
-            type: 'txt',
-            path: `${did}.txt`
-        });
-    } else {
-        record.proof = await uriSimulator.set(content);
-        record.claim = '';
+    switch (t.type) {
+        case 'dns':
+
+            record.proof = t.proof;
+            record.claim = t.claim;
+            await global.httpFileServer.addFile({
+                content: JSON.stringify(Object.assign(
+                    publicDnsResponse,
+                    {
+                        Question: [
+                            {
+                                'name': `${t.claim}.`,
+                                'type': ResourceRecordTypes[t.proof]
+                            }
+                        ],
+                        Answer: [
+                            {
+                                'name': `${t.claim}.`,
+                                'type': ResourceRecordTypes[t.proof],
+                                'TTL': 299,
+                                'data': `'orgid=${did}'`
+                            }
+                        ]
+                    }
+                )),
+                type: 'json',
+                path: `resolve?name=${t.claim}&type=${t.proof}`
+            });
+
+            break;
+        
+        case 'social':
+        case 'domain':
+
+            record.proof = `${process.env.FAKE_WEB_SERVER_URI}/${did}.txt`;
+            record.claim = `localhost:${global.httpFileServer.port}`;
+            await global.httpFileServer.addFile({
+                content: `This is my DID: ${did}`,
+                type: 'txt',
+                path: `${did}.txt`
+            });
+
+            break;
+        default:
     }
 
     return record;
@@ -53,14 +130,12 @@ const generateTrustAssertions = (did, uriSimulator, config = []) => Promise.all(
 /**
  * Generates a set of value: Id, Uri and Hash
  * @param {string} from The address of the organization owner
- * @param {Object} uriSimulator URI simulator instance
  * @param {Object} jsonObject Organization json object
  * @param {string} fakeId Fake id to set
  * @returns {Promise<{Object}>}
  */
 const generateIdSet = async (
     from,
-    uriSimulator,
     jsonObject,
     fakeId = false
 ) => {
@@ -73,10 +148,15 @@ const generateIdSet = async (
             id: did
         }
     );
+    // Create some trust assertions records
     const trustAssertions = await generateTrustAssertions(
         did,
-        uriSimulator,
         [
+            {
+                type: 'dns',
+                claim: did,
+                proof: 'TXT'
+            },
             {
                 type: 'domain'
             },
@@ -91,16 +171,12 @@ const generateIdSet = async (
 
     let uri;
     
-    if (uriSimulator.port) {
-        uri = `http://localhost:${uriSimulator.port}/${hash}.json`;
-        await uriSimulator.addFile({
-            content: jsonString,
-            type: 'json',
-            path: `${hash}.json`
-        });
-    } else {
-        uri = await uriSimulator.set(jsonString);
-    }
+    uri = `${process.env.FAKE_WEB_SERVER_URI}/${hash}.json`;
+    await global.httpFileServer.addFile({
+        content: jsonString,
+        type: 'json',
+        path: `${hash}.json`
+    });
 
     return {
         id,
@@ -142,7 +218,6 @@ module.exports.setupOrgId = setupOrgId;
 /**
  * Create an organizations
  * @param {Object} orgId OrgId contract instance
- * @param {Object} uriSimulator URI simulator instance
  * @param {string} from The address of the organization owner
  * @param {Object} jsonFile Custom json file
  * @param {string} fakeUri Fake uri to set
@@ -152,7 +227,6 @@ module.exports.setupOrgId = setupOrgId;
  */
 const createOrganization = async (
     orgId,
-    uriSimulator,
     from,
     jsonFile = null,
     fakeUri = false,
@@ -161,7 +235,6 @@ const createOrganization = async (
 ) => {
     const { id, uri, hash } = await generateIdSet(
         from,
-        uriSimulator,
         jsonFile ? jsonFile : legalEntityJson,
         fakeId
     );
@@ -180,7 +253,6 @@ module.exports.createOrganization = createOrganization;
 /**
  * Create subsidiary organization
  * @param {Object} orgId OrgId contract instance
- * @param {Object} uriSimulator URI simulator instance
  * @param {string} from The address of the organization owner
  * @param {string} parentId  Parent Organization Id
  * @param {string} director Organization director address
@@ -192,7 +264,6 @@ module.exports.createOrganization = createOrganization;
  */
 const createSubsidiary = async (
     orgId,
-    uriSimulator,
     from,
     parentId,
     director,
@@ -203,7 +274,6 @@ const createSubsidiary = async (
 ) => {
     const { id, uri, hash } = await generateIdSet(
         from,
-        uriSimulator,
         jsonFile ? jsonFile : organizationalUnitJson,
         fakeId
     );
@@ -225,7 +295,6 @@ module.exports.createSubsidiary = createSubsidiary;
  * Setup organizations (main and subsidiary)
  * @param {string} legalEntityOwner  Entity Owner Account addresses
  * @param {string} orgUnitOwner  Unit OwnerAccount addresses
- * @param {Object} uriSimulator URI simulator instance
  * @param {string} fakeUri Fake uri to set
  * @param {string} fakeHash Fake hash to set
  * @param {string} fakeId Fake id to set
@@ -236,7 +305,6 @@ module.exports.setupOrganizations = async (
     orgId,
     legalEntityOwner,
     orgUnitOwner,
-    uriSimulator,
     fakeUri = false,
     fakeHash = false,
     fakeId = false,
@@ -244,7 +312,6 @@ module.exports.setupOrganizations = async (
 ) => {
     const legalEntity = await createOrganization(
         orgId,
-        uriSimulator,
         legalEntityOwner,
         fakeJson,
         fakeUri,
@@ -254,7 +321,6 @@ module.exports.setupOrganizations = async (
 
     const orgUnit = await createSubsidiary(
         orgId,
-        uriSimulator,
         legalEntityOwner,
         legalEntity,
         orgUnitOwner,
@@ -269,4 +335,3 @@ module.exports.setupOrganizations = async (
         orgUnit
     };
 };
-

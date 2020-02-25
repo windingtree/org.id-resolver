@@ -1,8 +1,9 @@
 const Ajv = require('ajv');
-const httpFetchMethod = require('./http');
 const expect = require('./utils/expect');
 const { createContract } = require('./utils/contracts');
 const { makeHash } = require('./utils/document');
+const httpFetchMethod = require('./http');
+const { getDnsData, ResourceRecordTypes } = require('./dns');
 const didDocumentSchema = require('@windingtree/org.json-schema');
 const { OrgIdContract } = require('@windingtree/org.id');
 
@@ -154,11 +155,51 @@ class OrgIdResolver {
         for (let i = 0; i < didDocument.trust.assertions.length; i++) {
             assertion = didDocument.trust.assertions[i];
             let assertionContent;
+            let proofFound = false;
 
             switch (assertion.type) {
                 case 'dns':
-                    // @todo Get dns records from the assertion.claim domain
                     // Look for did in the assertion.proof records list
+
+                    if (!ResourceRecordTypes[assertion.proof]) {
+                        this.result.errors.push(
+                            `Failed assertion trust.assertions[${i}]: proof value "${assertion.proof}" not in the range of [${Object.keys(ResourceRecordTypes).join(',')}]`
+                        );
+                        break;
+                    }
+
+                    try {
+                        assertionContent = await getDnsData(assertion.claim, assertion.proof);
+                        
+                        if (assertionContent.length === 0) {
+                            this.result.errors.push(
+                                `Failed assertion trust.assertions[${i}]: proof not found`
+                            );
+                            break;
+                        }
+
+                        for (const record of assertionContent) {
+
+                            if (RegExp(didDocument.id, 'g').test(record.data)) {
+                                proofFound = true;
+                                break;
+                            }
+                        }
+
+                        if (!proofFound) {
+                            this.result.errors.push(
+                                `Failed assertion trust.assertions[${i}]: proof not found`
+                            );
+                        }
+
+                    } catch (err) {
+
+                        this.result.errors.push(
+                            `Failed assertion trust.assertions[${i}]: Cannot get the proof`
+                        );
+                        break;
+                    }
+
                     break;
 
                 case 'social':
@@ -170,7 +211,7 @@ class OrgIdResolver {
                         .test(assertion.proof)) {
                         
                         this.result.errors.push(
-                            `Failed assertion trust.assertions[${i}]: Clain is not in the domain namespace`
+                            `Failed assertion trust.assertions[${i}]: Claim is not in the domain namespace`
                         );
                         break;
                     }

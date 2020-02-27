@@ -11,11 +11,16 @@ const {
     notExistedAddress,
     organizationHash: unknownId
 } = require('../utils/constants');
+const { toWeiEther } = require('../utils/common');
 const {
     OrgIdResolver,
     httpFetchMethod
 } = require('../../src');
 const { ResourceRecordTypes } = require('../../src/dns');
+const {
+    lifTokenAtAddress,
+    distributeLifTokens
+} = require('../utils/lif');
 
 require('chai').should();
 
@@ -259,8 +264,8 @@ describe('Resolver', () => {
             didDocument.trust.assertions[0].proof = 'UNKNOWN';
             await resolver.verifyTrustRecords(didDocument);
             (resolver.result.errors).should.be.an('array').that.is.not.empty;
-            (resolver.result.errors[0]).should.equal(
-                `Failed assertion trust.assertions[0]: proof value "UNKNOWN" not in the range of [${Object.keys(ResourceRecordTypes).join(',')}]`
+            (resolver.result.errors[0]).should.has.property('detail').to.equal(
+                `proof value "UNKNOWN" not in the range of [${Object.keys(ResourceRecordTypes).join(',')}]`
             );
         });
 
@@ -268,8 +273,8 @@ describe('Resolver', () => {
             didDocument.trust.assertions[0].proof = 'HINFO';
             await resolver.verifyTrustRecords(didDocument);
             (resolver.result.errors).should.be.an('array').that.is.not.empty;
-            (resolver.result.errors[0]).should.equal(
-                'Failed assertion trust.assertions[0]: Cannot get the proof'
+            (resolver.result.errors[0]).should.has.property('detail').to.equal(
+                'cannot get the proof'
             );
         });
 
@@ -277,8 +282,8 @@ describe('Resolver', () => {
             didDocument.trust.assertions[0].claim = 'UNKNOWN';
             await resolver.verifyTrustRecords(didDocument);
             (resolver.result.errors).should.be.an('array').that.is.not.empty;
-            (resolver.result.errors[0]).should.equal(
-                'Failed assertion trust.assertions[0]: Cannot get the proof'
+            (resolver.result.errors[0]).should.has.property('detail').to.equal(
+                'cannot get the proof'
             );
         });
 
@@ -362,6 +367,50 @@ describe('Resolver', () => {
         it('should return didDocument', async () => {
             const document = await resolver.getDidDocumentUri(legalEntity);
             (document).should.be.an('object').that.include.property('id');
+        });
+    });
+
+    describe('#getLifStakeStatus', () => {
+        let lifToken;
+
+        beforeEach(async () => {
+            const tokenAddress = await orgId
+                .methods['getLifTokenAddress()']().call();
+            lifToken = await lifTokenAtAddress(tokenAddress);
+            await distributeLifTokens(
+                lifToken,
+                orgIdOwner,
+                '2000',
+                [ legalEntityOwner ]
+            );
+            await lifToken
+                .methods['approve(address,uint256)'](
+                    orgId.address,
+                    toWeiEther('1000')
+                )
+                .send({ from: legalEntityOwner });
+            await orgId
+                .methods['addDeposit(bytes32,uint256)'](
+                    legalEntity,
+                    toWeiEther('1000')
+                )
+                .send({ from: legalEntityOwner });
+        });
+
+        it('should fail if id not been provided', async () => {
+            await assertFailure(
+                resolver.getLifStakeStatus(undefined)
+            );
+        });
+
+        it('should fail if unknown id has been provided', async () => {
+            await assertFailure(
+                resolver.getLifStakeStatus(unknownId)
+            );
+        });
+
+        it('should return Lif stake status', async () => {
+            const info = await resolver.getLifStakeStatus(legalEntity);
         });
     });
 

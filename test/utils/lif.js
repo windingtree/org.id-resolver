@@ -24,6 +24,16 @@ module.exports.setupLifToken = async (
 };
 
 /**
+ * Get Lif token instance by the address
+ * @param {string} tokenAddress Lif token address
+ * @returns {Promise<{Object}>}
+ */
+module.exports.lifTokenAtAddress = async (tokenAddress) => {
+    const LifToken = Contracts.getFromNodeModules('@windingtree/org.id', 'LifTest');
+    return await LifToken.at(tokenAddress);
+};
+
+/**
  * Sends tokens to the list of address
  * @param {Object} token The token instance
  * @param {string} from The token owner address

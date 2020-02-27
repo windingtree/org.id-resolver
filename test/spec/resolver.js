@@ -411,6 +411,9 @@ describe('Resolver', () => {
 
         it('should return Lif stake status', async () => {
             const info = await resolver.getLifStakeStatus(legalEntity);
+            (info).should.be.an('object');
+            (info).should.has.property('deposit');
+            (info).should.has.property('withdrawalRequest');
         });
     });
 

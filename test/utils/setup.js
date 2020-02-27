@@ -3,6 +3,7 @@ const { Contracts, ZWeb3 } = require('@openzeppelin/upgrades');
 
 const legalEntityJson = require('../../assets/legalEntity.json');
 const organizationalUnitJson = require('../../assets/organizationalUnit.json');
+const { setupLifToken } = require('./lif');
 const { HttpFileServer } = require('./httpServer');
 const { ResourceRecordTypes } = require('../../src/dns');
 
@@ -197,6 +198,8 @@ const setupOrgId = async (owner) => {
     });
     ZWeb3.initialize(web3.currentProvider);
 
+    const lifToken = await setupLifToken(owner);
+
     const OrgId = Contracts.getFromNodeModules('@windingtree/org.id', 'OrgId');
     const project = await TestHelper({
         from: owner
@@ -209,7 +212,8 @@ const setupOrgId = async (owner) => {
     return await project.createProxy(OrgId, {
         initMethod: 'initialize',
         initArgs: [
-            owner
+            owner,
+            lifToken.address
         ]
     });
 };

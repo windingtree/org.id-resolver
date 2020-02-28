@@ -1,4 +1,4 @@
-const expect = require('../../src/utils/expect');
+const expect = require('../../dist/utils/expect');
 const Web3 = require('web3');
 
 require('chai').should();

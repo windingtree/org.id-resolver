@@ -1,4 +1,4 @@
-const { getDnsData } = require('../../src/dns');
+const { getDnsData } = require('../../dist/dns');
 const { setupFakePublicDNS, addRecord } = require('../utils/fakePublicDns');
 
 require('chai').should();

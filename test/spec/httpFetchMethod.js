@@ -1,6 +1,6 @@
 const { assertFailure } = require('../utils/assertions');
 const { HttpFileServer } = require('../utils/httpServer');
-const httpFetchMethod = require('../../src/http');
+const httpFetchMethod = require('../../dist/http');
 
 require('chai').should();
 

@@ -16,7 +16,7 @@ const {
     OrgIdResolver,
     httpFetchMethod
 } = require('../../dist');
-const { ResourceRecordTypes } = require('../../src/dns');
+const { ResourceRecordTypes } = require('../../dist/dns');
 const {
     lifTokenAtAddress,
     distributeLifTokens

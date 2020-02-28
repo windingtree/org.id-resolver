@@ -1,13 +1,17 @@
+const didDocumentSchema = require('@windingtree/org.json-schema');
+const { OrgIdContract } = require('@windingtree/org.id');
 const Ajv = require('ajv');
+
+// Utilities
 const expect = require('./utils/expect');
 const { createContract } = require('./utils/contracts');
 const { makeHash } = require('./utils/document');
+
+// Modules
 const httpFetchMethod = require('./http');
 const { getDnsData, ResourceRecordTypes } = require('./dns');
-const didDocumentSchema = require('@windingtree/org.json-schema');
-const { OrgIdContract } = require('@windingtree/org.id');
 
-// Errors definitions
+// Errors types definitions
 const errors = {
     'CORE_ERROR': 'Core error',
     'FETCHER_ERROR': 'URI fetcher error',
@@ -17,9 +21,17 @@ const errors = {
     'ORG_ID_ERROR': 'ORG.ID error'
 };
 
-// ORG.ID resolver class
+/**
+ * ORG.ID resolver class
+ * @class OrgIdResolver
+ */
 class OrgIdResolver {
 
+    /**
+     * Creates an instance of OrgIdResolver.
+     * @param {Obejct} options Contructor parameters
+     * @memberof OrgIdResolver
+     */
     constructor(options = {}) {
         expect.all(options, {
             web3: {
@@ -34,10 +46,20 @@ class OrgIdResolver {
         this.fetchMethods = {};
         this.web3 = options.web3;
         this.orgIdAddress = options.orgId;
-        this.cache = {};
+
+        this.validator = null;
+        this.resolutionStart = null;
+        this.resultTemplate = null;
+        this.cache = null;
+        this.result = null;
+
         this.reset();
     }
 
+    /**
+     * Sets defaults
+     * @memberof OrgIdResolver
+     */
     reset() {
         this.validator = new Ajv();
         this.resolutionStart = null;
@@ -54,6 +76,13 @@ class OrgIdResolver {
         this.result = Object.assign({}, this.resultTemplate);
     }
 
+    /**
+     * Resolvs DID into its document
+     * and makes proper validations and verifications
+     * @memberof OrgIdResolver
+     * @param {string} did DID
+     * @returns {Promise<{Object}>} Resolving result
+     */
     async resolve(did) {
         expect.all({ did }, {
             did: {
@@ -86,6 +115,12 @@ class OrgIdResolver {
         return this.result;
     }
 
+    /**
+     * Validates the given DID syntax
+     * @memberof OrgIdResolver
+     * @param {string} did DID
+     * @returns {Promise<{string}>} Organization Id
+     */
     async validateDidSyntax(did) {
         expect.all({ did }, {
             did: {
@@ -131,6 +166,12 @@ class OrgIdResolver {
         return subParts[0];
     }
 
+    /**
+     * Validates the given DID document
+     * @memberof OrgIdResolver
+     * @param {Object} didDocument DID document
+     * @returns {Promise<{boolean}>} Validation result
+     */
     async validateDidDocument(didDocument) {
         expect.all({ didDocument }, {
             didDocument: {
@@ -138,6 +179,8 @@ class OrgIdResolver {
             }
         });
 
+        // Use the Ajv validator
+        // didDocumentSchema is obtained from @windingtree/org.json-schema
         const result = this.validator.validate(didDocumentSchema, didDocument);
 
         if (this.validator.errors !== null) {
@@ -152,6 +195,12 @@ class OrgIdResolver {
         return result;
     }
 
+    /**
+     * Verifies trust objects from the DID document
+     * @memberof OrgIdResolver
+     * @param {Object} didDocument DID document
+     * @returns {Promise}
+     */
     async verifyTrustRecords(didDocument) {
 
         if (!didDocument.trust || !Array.isArray(didDocument.trust.assertions)) {
@@ -167,6 +216,9 @@ class OrgIdResolver {
             let proofFound = false;
 
             switch (assertion.type) {
+
+                // For proof records that placed into DNS textual records
+                // HINFO,SPF,TXT records types are supported
                 case 'dns':
                     
                     if (!ResourceRecordTypes[assertion.proof]) {
@@ -220,12 +272,14 @@ class OrgIdResolver {
                     }
 
                     break;
-
+                
+                // These types are used for handle proofs that related to
+                // web sites and social accounts
                 case 'social':
                 case 'domain':
+
                     // Validate assertion.proof record
                     // should be in the assertion.claim namespace
-                    
                     if (!RegExp(`(^http://|https://)${assertion.claim}`)
                         .test(assertion.proof)) {
                         
@@ -237,7 +291,7 @@ class OrgIdResolver {
                         break;
                     }
 
-                    // Fetch file by uri
+                    // Fetch file by URI
                     try {
                         assertionContent = await this.fetchFileByUri(assertion.proof);
                         assertionContent = typeof assertionContent === 'object'
@@ -268,6 +322,7 @@ class OrgIdResolver {
 
                 default:
 
+                    // For cases where unknown assertion type has been provided
                     this.addErrorMessage({
                         type: 'TRUST_ASSERTION_ERROR',
                         pointer: `trust.assertions[${i}]`,
@@ -277,6 +332,12 @@ class OrgIdResolver {
         }
     }
 
+    /**
+     * Fetch a file by the given URI
+     * @memberof OrgIdResolver
+     * @param {string} uri The file URI
+     * @returns {Promise<{Object|string}>} Fetched file
+     */
     async fetchFileByUri(uri) {
         expect.all({ uri }, {
             uri: {
@@ -296,6 +357,7 @@ class OrgIdResolver {
             });
         }
 
+        // Choosing of the proper fetching method
         for (const f in this.fetchMethods) {
 
             if (RegExp(this.fetchMethods[f].pattern).test(uri)) {
@@ -314,6 +376,7 @@ class OrgIdResolver {
             });
         }
 
+        // Trying to fetch the file
         const document = await fetch(uri);
 
         if (!document) {
@@ -329,6 +392,12 @@ class OrgIdResolver {
         return  document;
     }
 
+    /**
+     * Fetch a DID document by the given Id
+     * @memberof OrgIdResolver
+     * @param {string} id The organization Id
+     * @returns {Promise<{Object}>} DID document
+     */
     async getDidDocumentUri(id) {
         expect.all({ id }, {
             id: {
@@ -339,6 +408,7 @@ class OrgIdResolver {
         const organization = await this.getOrganization(id);
         const didDocument = await this.fetchFileByUri(organization.orgJsonUri);
 
+        // Comparing of the stored and actual hash
         if (makeHash(didDocument, this.web3) !== organization.orgJsonHash) {
             
             this.addErrorMessage({
@@ -353,6 +423,7 @@ class OrgIdResolver {
             ? JSON.parse(didDocument)
             : didDocument;
 
+        // DID document should containing a proper DID
         if (`did:${this.methodName}:${id}` !== didObject.id) {
 
             this.addErrorMessage({
@@ -366,6 +437,12 @@ class OrgIdResolver {
         return didObject;
     }
 
+    /**
+     * Gets a status of the Lif deposit
+     * @memberof OrgIdResolver
+     * @param {string} id The organization Id
+     * @returns {Promise<{Object}>} Lif deposit status
+     */
     async getLifStakeStatus(id) {
         expect.all({ id }, {
             id: {
@@ -400,6 +477,12 @@ class OrgIdResolver {
         };
     }
 
+    /**
+     * Register a fetching method
+     * @memberof OrgIdResolver
+     * @param {Object} methodConfig The fetching method configuration config
+     * @returns {Promise}
+     */
     async registerFetchMethod(methodConfig = {}) {
         expect.all(methodConfig, {
             name: {
@@ -416,10 +499,11 @@ class OrgIdResolver {
         this.fetchMethods[methodConfig.name] = methodConfig;
     }
 
-    getFetchMethods() {
-        return Object.keys(this.fetchMethods);
-    }
-
+    /**
+     * Get the OrgId contract instance
+     * @memberof OrgIdResolver
+     * @returns {Promise<Object>} The OrgId contract instance
+     */
     async getOrgIdContract() {
 
         if (this.cache.orgIdContract) {
@@ -431,6 +515,12 @@ class OrgIdResolver {
         return this.cache.orgIdContract;
     }
 
+    /**
+     * Get the organization data
+     * @memberof OrgIdResolver
+     * @param {string} id The organization Id
+     * @returns {Promise<Object>} The OrgId contract instance
+     */
     async getOrganization(id) {
         expect.all({ id }, {
             id: {
@@ -448,6 +538,21 @@ class OrgIdResolver {
         return this.cache.organization;
     }
 
+    /**
+     * Get the list of registered fetching methods names
+     * @memberof OrgIdResolver
+     * @returns {string[]} Registered fetching nethods names
+     */
+    getFetchMethods() {
+        return Object.keys(this.fetchMethods);
+    }
+
+    /**
+     * Adds the error message to the errors set
+     * and throws a error if this behaviour is set in the options
+     * @memberof OrgIdResolver
+     * @returns {string[]} Registered fetching nethods names
+     */
     addErrorMessage(options) {
         expect.all(options, {
             type: {

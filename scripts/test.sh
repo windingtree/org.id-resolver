@@ -13,6 +13,9 @@ cleanup() {
     echo "Testing environment is cleaned"
 }
 
+# Build library before the testing
+npm run build
+
 if [ "$COVERAGE" = true ]; then 
     echo "Running tests with coverage"
     npx nyc --reporter lcov mocha --exit -R spec --timeout 70000 ./test/spec/**/*.js

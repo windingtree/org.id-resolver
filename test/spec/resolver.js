@@ -15,7 +15,7 @@ const { toWeiEther } = require('../utils/common');
 const {
     OrgIdResolver,
     httpFetchMethod
-} = require('../../src');
+} = require('../../dist');
 const { ResourceRecordTypes } = require('../../src/dns');
 const {
     lifTokenAtAddress,

@@ -30,6 +30,7 @@ build
 dist
 
 localkeys.json
+keys.json
 .accounts
 
 .openzeppelin/dev-*.json

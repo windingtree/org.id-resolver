@@ -26,6 +26,9 @@
     "coverage": "COVERAGE=true ./scripts/test.sh",
     "ganache": "./scripts/ganache.sh"
   },
+  "bin": {
+    "did-resolver": "./dist/cli.js"
+  },
   "dependencies": {
     "@truffle/contract": "4.1.10",
     "@babel/polyfill": "7.8.3",

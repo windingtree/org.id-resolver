@@ -459,8 +459,15 @@ class OrgIdResolver {
             const organization = await this.getOrganization(id);
             deposit = organization.deposit.toString();
             const orgId = await this.getOrgIdContract();
-            withdrawalRequest = await orgId
+            const requestSource = await orgId
                 .methods['getWithdrawalRequest(bytes32)'].call(id);
+            
+            if (typeof requestSource === 'object') {
+
+                withdrawalRequest.value = requestSource.value.toString();
+                withdrawalRequest.withdrawTime =
+                    requestSource.withdrawTime.toString();
+            }
         } catch (err) {
 
             if (!RegExp('Withdrawal request not found').test(err.message)) {

@@ -56,7 +56,7 @@ describe('HTTP fetch method', () => {
 
         it('should get file from server', async () => {
             const response = await httpFetchMethod.fetch(`http://localhost:${server.port}/${file.path}`);
-            (JSON.stringify(response)).should.equal(file.content);
+            (response).should.equal(file.content);
         });
     });
 });

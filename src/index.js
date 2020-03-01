@@ -419,9 +419,7 @@ class OrgIdResolver {
             });
         }
 
-        const didObject = typeof didDocument === 'string'
-            ? JSON.parse(didDocument)
-            : didDocument;
+        const didObject = JSON.parse(didDocument);
 
         // DID document should containing a proper DID
         if (`did:${this.methodName}:${id}` !== didObject.id) {

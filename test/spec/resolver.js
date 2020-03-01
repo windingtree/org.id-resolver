@@ -418,6 +418,31 @@ describe('Resolver', () => {
     });
 
     describe('#resolve', () => {
+        let lifToken;
+
+        beforeEach(async () => {
+            const tokenAddress = await orgId
+                .methods['getLifTokenAddress()']().call();
+            lifToken = await lifTokenAtAddress(tokenAddress);
+            await distributeLifTokens(
+                lifToken,
+                orgIdOwner,
+                '2000',
+                [ legalEntityOwner ]
+            );
+            await lifToken
+                .methods['approve(address,uint256)'](
+                    orgId.address,
+                    toWeiEther('1000')
+                )
+                .send({ from: legalEntityOwner });
+            await orgId
+                .methods['addDeposit(bytes32,uint256)'](
+                    legalEntity,
+                    toWeiEther('1000')
+                )
+                .send({ from: legalEntityOwner });
+        });
 
         it('should fail if did not been provided', async () => {
             await assertFailure(

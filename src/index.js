@@ -1,3 +1,4 @@
+const packageJson = require('../package.json');
 const didDocumentSchema = require('@windingtree/org.json-schema');
 const { OrgIdContract } = require('@windingtree/org.id');
 const Ajv = require('ajv');
@@ -99,6 +100,8 @@ class OrgIdResolver {
                 await this.getDidDocumentUri(this.result.id);
             await this.validateDidDocument(this.result.didDocument);
             await this.verifyTrustRecords(this.result.didDocument);
+            this.result.lifDeposit =
+                await this.getLifStakeStatus(this.result.id);
         } catch(err) {
 
             this.addErrorMessage({
@@ -108,6 +111,7 @@ class OrgIdResolver {
             });
         }
         
+        this.result.resolverMetadata.version = packageJson.version;
         this.result.resolverMetadata.retrieved = new Date().toISOString();
         this.result.resolverMetadata.duration =
             Date.now() - this.resolutionStart;
@@ -453,7 +457,7 @@ class OrgIdResolver {
 
         try {
             const organization = await this.getOrganization(id);
-            deposit = organization.deposit;
+            deposit = organization.deposit.toString();
             const orgId = await this.getOrgIdContract();
             withdrawalRequest = await orgId
                 .methods['getWithdrawalRequest(bytes32)'].call(id);

@@ -1,26 +1,30 @@
 #!/usr/bin/env node
 const Web3 = require('web3');
+const { addresses } = require('@windingtree/org.id');
 const { OrgIdResolver, httpFetchMethod } = require('../src');
 const { parseArgv } = require('./utils/cli');
 
 let web3Endpoint;
-let orgIdAddress;
 
-try {
-    const keys = require('../keys.json');
-    web3Endpoint = keys.endpoint;
-    orgIdAddress = keys.orgId;
-    
-} catch (err) {}// eslint-disable-line no-empty
+// Default orgId address, can be overrided by orgid command line property
+let orgIdAddress = addresses.ropsten;
 
-const main = async () => {
-    const args = parseArgv(process.argv, 0);
+if (!process.env.TESTING) {
+
+    try {
+        const keys = require('../keys.json');
+        web3Endpoint = keys.endpoint;
+    } catch (err) {}// eslint-disable-line no-empty
+}
+
+const main = async (options) => {
+    const args = parseArgv(options || process.argv, 0);
 
     if (args.endpoint) {
         web3Endpoint = args.endpoint;
     }
 
-    if (!web3Endpoint) {
+    if (!web3Endpoint || web3Endpoint === 'fake') {
         throw new Error(
             'Web3 endpoint not defined neither in the keys.json or command line "endpoint" option'
         );
@@ -30,13 +34,17 @@ const main = async () => {
         orgIdAddress = args.orgid;
     }
 
-    if (!orgIdAddress) {
+    if (!orgIdAddress || orgIdAddress === 'fake') {
         throw new Error(
             'OrgId instance address not defined neither in the keys.json or command line "orgid" option'
         );
     }
 
-    const web3 = new Web3(web3Endpoint);
+    const web3 = new Web3(
+        !process.env.TESTING
+            ? web3Endpoint
+            : global.web3.currentProvider
+    );
     const resolver = new OrgIdResolver({
         web3,
         orgId: orgIdAddress
@@ -48,10 +56,21 @@ const main = async () => {
             'DID have to be provided with command: "did=<DID>"'
         );
     }
-    
-    console.log(`Resolving of the DID: ${args.did}`);
-    const result = await resolver.resolve(args.did);
-    console.log(JSON.stringify(result, null, 2));
-};
 
-main().catch(console.error);
+    if (!process.env.TESTING) {
+        console.log(`Resolving of the DID: ${args.did}`);
+    }
+    
+    const result = await resolver.resolve(args.did);
+
+    if (!process.env.TESTING) {
+        console.log(JSON.stringify(result, null, 2));
+    }
+    
+    return result;
+};
+module.exports = main;
+
+if (!process.env.TESTING) {
+    main().catch(console.error);
+}

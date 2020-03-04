@@ -115,7 +115,7 @@ class OrgIdResolver {
         this.result.resolverMetadata.retrieved = new Date().toISOString();
         this.result.resolverMetadata.duration =
             Date.now() - this.resolutionStart;
-
+        this.result.resolverMetadata.orgIdAddress = this.orgIdAddress;
         return this.result;
     }
 

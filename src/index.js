@@ -410,6 +410,17 @@ class OrgIdResolver {
         });
 
         const organization = await this.getOrganization(id);
+
+        if (!organization.exist) {
+
+            this.addErrorMessage({
+                type: 'DID_DOCUMENT_ERROR',
+                pointer: `Organization: ${id}`,
+                detail: 'Organization not found',
+                throw: true
+            });
+        }
+
         const didDocument = await this.fetchFileByUri(organization.orgJsonUri);
 
         // Comparing of the stored and actual hash
@@ -464,9 +475,10 @@ class OrgIdResolver {
             
             if (typeof requestSource === 'object') {
 
-                withdrawalRequest.value = requestSource.value.toString();
-                withdrawalRequest.withdrawTime =
-                    requestSource.withdrawTime.toString();
+                withdrawalRequest = {
+                    value: requestSource.value.toString(),
+                    withdrawTime: requestSource.withdrawTime.toString()
+                };
             }
         } catch (err) {
 

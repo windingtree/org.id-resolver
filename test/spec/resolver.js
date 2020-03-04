@@ -315,7 +315,7 @@ describe('Resolver', () => {
         it('should fail if unknown organization id has been provided', async () => {
             await assertFailure(
                 resolver.getDidDocumentUri(unknownId),
-                'OrgId: Organization with given orgId not found'
+                'Organization not found'
             );
         });
 

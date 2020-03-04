@@ -207,3 +207,17 @@ module.exports = {
     }
 };
 ```
+
+## CLI
+
+The resolver can be used as a simple CLI. 
+
+```bash
+$ ./src/cli.js endpoint=<WEB3_PROVIDER_ENTRYPOINT> orgid=<ORG_ID_ADDRESS> did=did:orgid:0x6d98103810d50b3711ea81c187a48245109ba094644ddbc54f8d0c4c
+```
+
+- WEB3_PROVIDER_ENTRYPOINT: http/https link to you web3 ethereum provider, for example, `https://ropsten.infura.io/v3/<API_KEY>`
+- ORG_ID_ADDRESS: The address of an ORG.ID smart contract
+- did: unique identifier in the DID format
+
+The code of CLI is placed in the [./src](./src/cli.js) directory. You can use this code as a good example of the ORG.ID resolver library usage

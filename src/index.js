@@ -410,17 +410,6 @@ class OrgIdResolver {
         });
 
         const organization = await this.getOrganization(id);
-
-        if (!organization.exist) {
-
-            this.addErrorMessage({
-                type: 'DID_DOCUMENT_ERROR',
-                pointer: `Organization: ${id}`,
-                detail: 'Organization not found',
-                throw: true
-            });
-        }
-
         const didDocument = await this.fetchFileByUri(organization.orgJsonUri);
 
         // Comparing of the stored and actual hash
@@ -473,7 +462,7 @@ class OrgIdResolver {
             const requestSource = await orgId
                 .methods['getWithdrawalRequest(bytes32)'].call(id);
             
-            if (typeof requestSource === 'object') {
+            if (requestSource.exist) {
 
                 withdrawalRequest = {
                     value: requestSource.value.toString(),
@@ -554,8 +543,20 @@ class OrgIdResolver {
         }
 
         const orgId = await this.getOrgIdContract();
-        this.cache.organization = await orgId
+        const org = await orgId
             .methods['getOrganization(bytes32)'].call(id);
+        
+        if (!org.exist) {
+
+            this.addErrorMessage({
+                type: 'DID_DOCUMENT_ERROR',
+                pointer: `Organization: ${id}`,
+                detail: 'Organization not found',
+                throw: true
+            });
+        }
+
+        this.cache.organization = org;
         return this.cache.organization;
     }
 

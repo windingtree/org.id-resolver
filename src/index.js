@@ -67,6 +67,7 @@ class OrgIdResolver {
         this.resultTemplate = {
             didDocument: null,
             errors: [],
+            organization: null,
             lifDeposit: null,
             resolverMetadata: {
                 retrieved: null,
@@ -96,8 +97,10 @@ class OrgIdResolver {
 
         try {
             this.result.id = await this.validateDidSyntax(did);
+            this.result.organization =
+                await this.getOrganization(this.result.id);
             this.result.didDocument =
-                await this.getDidDocumentUri(this.result.id);
+                await this.getDidDocument(this.result.organization);
             await this.validateDidDocument(this.result.didDocument);
             await this.verifyTrustRecords(this.result.didDocument);
             this.result.lifDeposit =
@@ -399,17 +402,19 @@ class OrgIdResolver {
     /**
      * Fetch a DID document by the given Id
      * @memberof OrgIdResolver
-     * @param {string} id The organization Id
+     * @param {Object} organization The organization object
      * @returns {Promise<{Object}>} DID document
      */
-    async getDidDocumentUri(id) {
-        expect.all({ id }, {
-            id: {
+    async getDidDocument(organization = {}) {
+        expect.all(organization, {
+            orgId: {
+                type: 'hash'
+            },
+            orgJsonUri: {
                 type: 'string'
             }
         });
 
-        const organization = await this.getOrganization(id);
         const didDocument = await this.fetchFileByUri(organization.orgJsonUri);
 
         // Comparing of the stored and actual hash
@@ -426,12 +431,12 @@ class OrgIdResolver {
         const didObject = JSON.parse(didDocument);
 
         // DID document should containing a proper DID
-        if (`did:${this.methodName}:${id}` !== didObject.id) {
+        if (`did:${this.methodName}:${organization.orgId}` !== didObject.id) {
 
             this.addErrorMessage({
                 type: 'DID_DOCUMENT_ERROR',
                 pointer: 'DID document id',
-                detail: `Invalid DID Document id. Expected to be: ${id}, but actual is: ${didObject.id}`,
+                detail: `Invalid DID Document id. Expected to be: ${organization.orgId}, but actual is: ${didObject.id}`,
                 throw: true
             });
         }

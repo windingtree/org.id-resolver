@@ -8,7 +8,6 @@ const {
 const validJson = require('../../assets/legalEntity.json');
 const invalidJson = require('../../assets/legalEntityNotValid.json');
 const {
-    notExistedAddress,
     organizationHash: unknownId
 } = require('../utils/constants');
 const { toWeiEther } = require('../utils/common');
@@ -257,7 +256,8 @@ describe('Resolver', () => {
         let didDocument;
 
         beforeEach(async () => {
-            didDocument = await resolver.getDidDocumentUri(legalEntity);
+            const organization = await resolver.getOrganization(legalEntity);
+            didDocument = await resolver.getDidDocument(organization);
         });
 
         it('should return an error if dns proof value not in the allowed range', async () => {
@@ -299,51 +299,41 @@ describe('Resolver', () => {
         });
     });
 
-    describe('#getDidDocumentUri', () => {
+    describe('#getDidDocument', () => {
+        let organization;
 
-        it('should fail if wrong orgId address has been provided during initialization', async () => {
-            const resolver = new OrgIdResolver({
-                web3,
-                orgId: notExistedAddress
-            });
+        beforeEach(async () => {
+            organization = await resolver.getOrganization(legalEntity);
+        });
+
+        it('should fail if organization without orgId has been provided', async () => {
+            organization.orgId = undefined;
             await assertFailure(
-                resolver.getDidDocumentUri(unknownId),
-                'Cannot create instance of OrgId'
+                resolver.getDidDocument(organization),
+                'The "orgId" property not found'
             );
         });
 
-        it('should fail if unknown organization id has been provided', async () => {
+        it('should fail if organization with wrong orgId has been provided', async () => {
+            organization.orgId = 'ZZZZZZ';
             await assertFailure(
-                resolver.getDidDocumentUri(unknownId),
-                'Organization not found'
+                resolver.getDidDocument(organization),
+                'Ethereum tx hash is required as value for the property: "orgId"'
             );
         });
 
-        it('should fail if orgId contains wrong uri', async () => {
-            const brokenOrgs = await setupOrganizations(
-                orgId,
-                legalEntityOwner,
-                orgUnitOwner,
-                `${process.env.FAKE_WEB_SERVER_URI}/fake.txt`
-            );
-            const brokenLegalEntity = brokenOrgs.legalEntity;
+        it('should fail if organization without orgJsonUri has been provided', async () => {
+            organization.orgJsonUri = undefined;
             await assertFailure(
-                resolver.getDidDocumentUri(brokenLegalEntity),
-                'Request failed with status code 404'
+                resolver.getDidDocument(organization),
+                'The "orgJsonUri" property not found'
             );
         });
 
         it('should fail if hash of obtained content are not consistent', async () => {
-            const brokenOrgs = await setupOrganizations(
-                orgId,
-                legalEntityOwner,
-                orgUnitOwner,
-                false,
-                unknownId
-            );
-            const brokenLegalEntity = brokenOrgs.legalEntity;
+            organization.orgJsonHash = 'wronghash';
             await assertFailure(
-                resolver.getDidDocumentUri(brokenLegalEntity),
+                resolver.getDidDocument(organization),
                 'Invalid DID Document hash'
             );
         });
@@ -358,14 +348,16 @@ describe('Resolver', () => {
                 unknownId
             );
             const brokenLegalEntity = brokenOrgs.legalEntity;
+            const organization = await resolver.getOrganization(brokenLegalEntity);
+            organization.orgId = legalEntityInvalidJson;
             await assertFailure(
-                resolver.getDidDocumentUri(brokenLegalEntity),
+                resolver.getDidDocument(organization),
                 'Invalid DID Document id'
             );
         });
 
         it('should return didDocument', async () => {
-            const document = await resolver.getDidDocumentUri(legalEntity);
+            const document = await resolver.getDidDocument(organization);
             (document).should.be.an('object').that.include.property('id');
         });
     });

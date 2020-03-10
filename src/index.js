@@ -547,8 +547,8 @@ class OrgIdResolver {
             return this.cache.organization;
         }
 
-        const orgId = await this.getOrgIdContract();
-        const org = await orgId
+        const orgIdContract = await this.getOrgIdContract();
+        const org = await orgIdContract
             .methods['getOrganization(bytes32)'].call(id);
         
         if (!org.exist) {
@@ -561,7 +561,29 @@ class OrgIdResolver {
             });
         }
 
-        this.cache.organization = org;
+        const {
+            orgId,
+            orgJsonUri,
+            orgJsonHash,
+            parentEntity,
+            owner,
+            director,
+            state,
+            directorConfirmed
+        } = org;
+
+        // Save normalised origanization object
+        this.cache.organization = {
+            orgId,
+            orgJsonUri,
+            orgJsonHash,
+            parentEntity,
+            owner,
+            director,
+            state,
+            directorConfirmed,
+            deposit: org.deposit.toString()
+        };
         return this.cache.organization;
     }
 

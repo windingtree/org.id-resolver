@@ -4,7 +4,6 @@
             "@babel/env",
             {
                 "targets": {
-                    "node": "10",
                     "browsers": ["last 2 versions", "safari >= 7"]
                 },
                 "corejs": {

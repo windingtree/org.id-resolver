@@ -143,6 +143,18 @@ The response of the resolver contains the following information
 
     // Organization identifier
     "id": "<organization_id>",
+
+    "organization": {
+        "orgId": "<organization_id>",
+        "orgJsonUri": "<organization_json_uri>",
+        "orgJsonHash": "<organization_json_hash>",
+        "parentEntity": "<parent_organization_hash_or_zero_hash>",
+        "owner": "<owner_eth_address>",
+        "director": "<director_eth_address>",
+        "state": true,// true for `enabled` and false for `disabled`
+        "directorConfirmed": true,// director confirmation status
+        "deposit": "<deposit_value_in_wei>"
+    },
     
     // An object that contains information about Lif deposit 
     // and deposit withdrawal request existance
@@ -150,6 +162,36 @@ The response of the resolver contains the following information
         "deposit": "1000000000000000000000",
         // null or object with information about request
         "withdrawalRequest": null
+    },
+
+    // Verified trust section of the `didDocument`
+    "trust": {
+        "assertions": [
+            {
+                "type": "dns",
+                "claim": "test.com",
+                "proof": "TXT",
+                "verified": true
+            },
+            {
+                "type": "domain",
+                "claim": "test2.com",
+                "proof": "http://test2.com/orgid.txt",
+                "verified": true
+            },
+            {
+                "type": "domain",
+                "claim": "test3.com",
+                "proof": "http://test3.com/orgid.txt",
+                "verified": false // Not verified
+            },
+            {
+                "type": "social",
+                "claim": "twitter.com/jack",
+                "proof": "https://twitter.com/jack/status/123456789/",
+                "verified": true
+            }
+        ]
     },
 
     // List of errors that happen during the resolving flow
@@ -166,9 +208,10 @@ The response of the resolver contains the following information
 
     // Resolver meta-data like version, date of result and process duration
     "resolverMetadata": {
-        "version": "0.2.5",
+        "version": "0.3.3",
         "retrieved": "2020-02-21T18:14:13.278Z",
-        "duration": 979 
+        "duration": 979,
+        "orgIdAddress": "0xc8fD300bE7e4613bCa573ad820a6F1f0b915CfcA"
     }
 }
 ```

@@ -102,7 +102,8 @@ class OrgIdResolver {
             this.result.didDocument =
                 await this.getDidDocument(this.result.organization);
             await this.validateDidDocument(this.result.didDocument);
-            await this.verifyTrustRecords(this.result.didDocument);
+            this.result.trust =
+                await this.verifyTrustRecords(this.result.didDocument);
             this.result.lifDeposit =
                 await this.getLifStakeStatus(this.result.id);
         } catch(err) {
@@ -212,13 +213,15 @@ class OrgIdResolver {
 
         if (!didDocument.trust || !Array.isArray(didDocument.trust.assertions)) {
             // Nothing to verify
-            return;
+            return {};
         }
 
-        let assertion;
+        // Cloned trust section
+        const trust = JSON.parse(JSON.stringify(didDocument.trust));
 
-        for (let i = 0; i < didDocument.trust.assertions.length; i++) {
-            assertion = didDocument.trust.assertions[i];
+        // Assertions verification
+        for (let i = 0; i < trust.assertions.length; i++) {
+            const assertion = trust.assertions[i];
             let assertionContent;
             let proofFound = false;
 
@@ -336,7 +339,11 @@ class OrgIdResolver {
                         detail: `unknown assertion type: ${assertion.type}`
                     });
             }
+
+            assertion.verified = proofFound;
         }
+
+        return trust;
     }
 
     /**

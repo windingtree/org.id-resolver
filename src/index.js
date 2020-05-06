@@ -111,7 +111,7 @@ class OrgIdResolver {
             this.addErrorMessage({
                 type: 'CORE_ERROR',
                 pointer: 'resolving flow termination',
-                detail: `Resolving flow has been terminated due to serious error: ${err.message}`
+                detail: `Resolving flow has been terminated due to serious error: ${err.message}; ${err.stack}`
             });
         }
         

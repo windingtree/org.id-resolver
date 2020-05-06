@@ -5,7 +5,6 @@ const Ajv = require('ajv');
 
 // Utilities
 const expect = require('./utils/expect');
-const { createContract } = require('./utils/contracts');
 const { makeHash } = require('./utils/document');
 
 // Modules
@@ -472,7 +471,7 @@ class OrgIdResolver {
             deposit = organization.deposit.toString();
             const orgId = await this.getOrgIdContract();
             const requestSource = await orgId
-                .methods['getWithdrawalRequest(bytes32)'].call(id);
+                .methods['getWithdrawalRequest(bytes32)'](id).call();
             
             if (requestSource.exist) {
 
@@ -531,9 +530,11 @@ class OrgIdResolver {
         if (this.cache.orgIdContract) {
             return this.cache.orgIdContract;
         }
-
-        const contract = createContract(OrgIdContract, this.web3);
-        this.cache.orgIdContract = await contract.at(this.orgIdAddress);
+        
+        this.cache.orgIdContract = new this.web3.eth.Contract(
+            OrgIdContract.abi,
+            this.orgIdAddress
+        );
         return this.cache.orgIdContract;
     }
 
@@ -556,7 +557,7 @@ class OrgIdResolver {
 
         const orgIdContract = await this.getOrgIdContract();
         const org = await orgIdContract
-            .methods['getOrganization(bytes32)'].call(id);
+            .methods['getOrganization(bytes32)'](id).call();
         
         if (!org.exist) {
 

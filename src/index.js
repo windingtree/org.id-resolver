@@ -327,6 +327,7 @@ class OrgIdResolver {
                         break;
                     }
 
+                    proofFound = true;
                     break;
 
                 default:

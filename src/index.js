@@ -292,7 +292,7 @@ class OrgIdResolver {
 
                     // Validate assertion.proof record
                     // should be in the assertion.claim namespace
-                    if (!RegExp(`^(http|https):\/\/(www.){0,1}${assertion.claim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
+                    if (!RegExp(`^(http|https)://(www.){0,1}${assertion.claim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
                         .test(assertion.proof)) {
                         
                         this.addErrorMessage({

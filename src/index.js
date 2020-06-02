@@ -218,6 +218,9 @@ class OrgIdResolver {
         // Cloned trust section
         const trust = JSON.parse(JSON.stringify(didDocument.trust));
 
+        // Organization Id part of the DID
+        const id = didDocument.id.match(/^did:orgid:(0x[a-fA-F0-9]{64}){1}$/im)[1];
+
         // Assertions verification
         for (let i = 0; i < trust.assertions.length; i++) {
             const assertion = trust.assertions[i];
@@ -289,7 +292,7 @@ class OrgIdResolver {
 
                     // Validate assertion.proof record
                     // should be in the assertion.claim namespace
-                    if (!RegExp(`(^http://|https://)${assertion.claim}`)
+                    if (!RegExp(`^(http|https):\/\/(www.){0,1}${assertion.claim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
                         .test(assertion.proof)) {
                         
                         this.addErrorMessage({
@@ -317,7 +320,7 @@ class OrgIdResolver {
                     }
 
                     // Look for did inside the file obtained
-                    if (!RegExp(didDocument.id, 'g').test(assertionContent)) {
+                    if (!RegExp(id, 'im').test(assertionContent)) {
                         
                         this.addErrorMessage({
                             type: 'TRUST_ASSERTION_ERROR',

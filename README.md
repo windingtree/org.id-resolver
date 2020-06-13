@@ -47,10 +47,7 @@ const result = await resolver.resolve('did:orgid:0x62a7502f4c44d8147b8f7b2a1dbeb
 
 1. Validate DID syntax (must be `did:orgid:bytes32`)
 2. Read organization data from ORG.ID Registry
-3. Fetch and validate ORG.JSON:
-  - DIDs must match
-  - integrity check
-  - [ORG.JSON schema](https://github.com/windingtree/org.json-schema) validation
+3. Fetch and validate [ORG.JSON](https://github.com/windingtree/org.json-schema):
 4. Try to resolve assertions and credentials
 
 ## Custom Fetch Methods

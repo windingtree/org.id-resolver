@@ -8,7 +8,11 @@ const assert = require('assert');
 module.exports.assertFailure = async (promise, reason = false) => {
 
     try {
-        await promise;
+        if (typeof promise.then !== 'function') {
+            promise();
+        } else {
+            await promise;
+        }
         assert.fail('The assertion is fulfilled although failure was expected');
     } catch (error) {
         

@@ -91,20 +91,20 @@ describe('Resolver', () => {
 
         it('should fail if wrong configuration has been provided', async () => {
             await assertFailure(
-                resolver.registerFetchMethod({
+                () => resolver.registerFetchMethod({
                     name: 'wrong'
                 }),
                 'property not found'
             );
             await assertFailure(
-                resolver.registerFetchMethod({
+                () => resolver.registerFetchMethod({
                     name: 'wrong',
                     pattern: 1000
                 }),
                 'wrong type'
             );
             await assertFailure(
-                resolver.registerFetchMethod({
+                () => resolver.registerFetchMethod({
                     name: 'wrong',
                     pattern: '^http',
                     fetch: 'not a function'

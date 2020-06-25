@@ -1,6 +1,7 @@
 const packageJson = require('../package.json');
 const didDocumentSchema = require('@windingtree/org.json-schema');
 const { OrgIdContract } = require('@windingtree/org.id');
+const { LifDepositContract } = require('@windingtree/org.id-lif-deposit');
 const Ajv = require('ajv');
 
 // Utilities
@@ -17,7 +18,8 @@ const checksTypes = [
     'DID_SYNTAX',
     'ORGID',
     'DID_DOCUMENT',
-    'TRUST_ASSERTIONS'
+    'TRUST_ASSERTIONS',
+    'LIF_STAKE'
 ];
 
 /**
@@ -38,6 +40,10 @@ class OrgIdResolver {
             },
             orgId: {
                 type: 'address'
+            },
+            lifDeposit: {
+                type: 'address',
+                required: false
             }
         });
 
@@ -45,6 +51,7 @@ class OrgIdResolver {
         this.fetchMethods = {};
         this.web3 = options.web3;
         this.orgIdAddress = options.orgId;
+        this.lifDepositAddress = options.lifDeposit;
 
         this.validator = null;
         this.resolutionStart = null;
@@ -67,9 +74,18 @@ class OrgIdResolver {
             organization: null,
             checks: checksTypes.map(type => ({
                 type,
-                passed: type === 'TRUST_ASSERTIONS' ? false : true
+                passed: ['TRUST_ASSERTIONS', 'LIF_STAKE'].includes(type)
+                    ? false
+                    : true
             })),
             trust: [],
+            ...(
+                this.lifDepositAddress
+                    ? {
+                        lifDeposit: null
+                    }
+                    : {}
+            ),
             resolverMetadata: {
                 retrieved: null,
                 duration: null
@@ -102,6 +118,7 @@ class OrgIdResolver {
             await this.getDidDocument(this.result.organization);
             await this.validateDidDocument(this.result.didDocument);
             await this.verifyTrustRecords(this.result.didDocument);
+            await this.verifyLifStake(this.result.id);
         } catch(error) {
             
             throw new Error(
@@ -341,6 +358,61 @@ class OrgIdResolver {
     }
 
     /**
+     * Get the organization data
+     * @memberof OrgIdResolver
+     * @param {string} id The organization Id
+     * @returns {Promise}
+     */
+    async verifyLifStake (id) {
+        if (!this.lifDepositAddress) {
+            return;
+        }
+
+        expect.all({ id }, {
+            id: {
+                type: 'string'
+            }
+        });
+
+        let deposit = 0;
+        let withdrawalRequest = null;
+        const lifDepositContract = new this.web3.eth.Contract(
+            LifDepositContract.abi,
+            this.lifDepositAddress
+        );
+
+        try {
+            deposit = await lifDepositContract
+                .methods['balanceOf(bytes32)'](id).call();
+            
+            const requestSource = await lifDepositContract
+                .methods['getWithdrawalRequest(bytes32)'](id).call();
+            
+            if (requestSource.exists) {
+
+                withdrawalRequest = {
+                    value: requestSource.value.toString(),
+                    withdrawTime: requestSource.withdrawTime.toString()
+                };
+            }
+
+            this.result.lifDeposit = {
+                deposit,
+                withdrawalRequest
+            };
+        } catch (error) {
+
+            this.addCheckResult({
+                type: 'LIF_STAKE',
+                error: error.message
+            });
+        }
+
+
+
+    }
+
+    /**
      * Fetch a file by the given URI
      * @memberof OrgIdResolver
      * @param {string} uri The file URI
@@ -514,9 +586,8 @@ class OrgIdResolver {
      * Register a fetching method
      * @memberof OrgIdResolver
      * @param {Object} methodConfig The fetching method configuration config
-     * @returns {Promise}
      */
-    async registerFetchMethod (methodConfig = {}) {
+    registerFetchMethod (methodConfig = {}) {
         expect.all(methodConfig, {
             name: {
                 type: 'string'
@@ -535,9 +606,9 @@ class OrgIdResolver {
     /**
      * Get the OrgId contract instance
      * @memberof OrgIdResolver
-     * @returns {Promise<Object>} The OrgId contract instance
+     * @returns {Object} The OrgId contract instance
      */
-    async getOrgIdContract () {
+    getOrgIdContract () {
 
         if (this.cache.orgIdContract) {
             return this.cache.orgIdContract;
@@ -567,7 +638,7 @@ class OrgIdResolver {
             return this.cache.organization;
         }
 
-        const orgIdContract = await this.getOrgIdContract();
+        const orgIdContract = this.getOrgIdContract();
         const org = await orgIdContract
             .methods['getOrganization(bytes32)'](id).call();
         

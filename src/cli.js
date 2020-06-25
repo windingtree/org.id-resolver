@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const Web3 = require('web3');
 const { addresses } = require('@windingtree/org.id');
+const { addresses: lifDepositAddresses } = require('@windingtree/org.id-lif-deposit');
 const { OrgIdResolver, httpFetchMethod } = require('../src');
 const { parseArgv } = require('./utils/cli');
 
@@ -8,6 +9,7 @@ let web3Endpoint;
 
 // Default orgId address, can be overrided by orgid command line property
 let orgIdAddress = addresses.ropsten;
+let lifDepositAddress = lifDepositAddresses.ropsten;
 
 if (!process.env.TESTING) {
 
@@ -34,6 +36,10 @@ const main = async (options) => {
         orgIdAddress = args.orgid;
     }
 
+    if (args.lifDeposit) {
+        lifDepositAddress = args.lifDeposit;
+    }
+
     if (!orgIdAddress || orgIdAddress === 'fake') {
         throw new Error(
             'OrgId instance address not defined neither in the keys.json or command line "orgid" option'
@@ -47,7 +53,8 @@ const main = async (options) => {
     );
     const resolver = new OrgIdResolver({
         web3,
-        orgId: orgIdAddress
+        orgId: orgIdAddress,
+        lifDeposit: lifDepositAddress
     });
     resolver.registerFetchMethod(httpFetchMethod);
 

@@ -1,7 +1,7 @@
 {
   "name": "@windingtree/org.id-resolver",
   "version": "1.0.0",
-  "description": "ORG.ID DID resolver",
+  "description": "ORGiD DID resolver",
   "keywords": [
     "orgid",
     "did",

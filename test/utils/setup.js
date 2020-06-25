@@ -64,6 +64,15 @@ const generateJsonHash = jsonString => web3.utils.soliditySha3(jsonString);
 module.exports.generateJsonHash = generateJsonHash;
 
 /**
+ * Generates Id from owner adress and solt
+ * @param {String} owner Owner address
+ * @param {String} solt Solt
+ * @returns {string}
+ */
+const generateIdWithSolt = (owner, solt) => web3.utils.soliditySha3(owner, solt);
+module.exports.generateIdWithSolt = generateIdWithSolt;
+
+/**
  * Generates trus assertions records
  * @param {string} did DID
  * @param {Object} uriSimulator URI simulator instance
@@ -129,7 +138,7 @@ const generateTrustAssertions = (
 }));
 
 /**
- * Generates a set of value: Id, Uri and Hash
+ * Generates a set of values: Id, Uri and Hash
  * @param {string} from The address of the organization owner
  * @param {Object} jsonObject Organization json object
  * @param {string} fakeId Fake id to set
@@ -140,7 +149,8 @@ const generateIdSet = async (
     jsonObject,
     fakeId = false
 ) => {
-    const id = generateId(`${from}${Math.random().toString()}`);
+    const solt = generateId();
+    const id = generateIdWithSolt(from, solt);
     const did = `did:orgid:${fakeId ? fakeId : id}`;
     const orgJson = Object.assign(
         {},
@@ -180,6 +190,7 @@ const generateIdSet = async (
     });
 
     return {
+        solt,
         id,
         uri,
         hash
@@ -188,21 +199,19 @@ const generateIdSet = async (
 module.exports.generateIdSet = generateIdSet;
 
 /**
- * Create new ORG.ID instance
- * @param {string} owner Org.Id owner address
+ * Create new OrgId instance
+ * @param {string} from Org.Id owner address
  * @returns {Promise<{Object}>} OrgId contact instancr
  */
-const setupOrgId = async (owner) => {
+const setupOrgId = async from => {
     Contracts.setArtifactsDefaults({
         gas: 0xfffffffffff
     });
     ZWeb3.initialize(web3.currentProvider);
 
-    const lifToken = await setupLifToken(owner);
-
     const OrgId = Contracts.getFromNodeModules('@windingtree/org.id', 'OrgId');
     const project = await TestHelper({
-        from: owner
+        from
     });
     await project.setImplementation(
         OrgId,
@@ -212,12 +221,42 @@ const setupOrgId = async (owner) => {
     return await project.createProxy(OrgId, {
         initMethod: 'initialize',
         initArgs: [
-            owner,
-            lifToken.address
+            from
         ]
     });
 };
 module.exports.setupOrgId = setupOrgId;
+
+/**
+ * Create new LifDeposit instance
+ * @param {Object} orgId OrgId contract instance
+ * @param {string} from OrgId owner address
+ * @returns {Promise<{Object}>} OrgId contact instance
+ */
+const setupLifDeposit = async (orgId, from) => {
+    const lifToken = await setupLifToken(from);
+    const LifDeposit = Contracts.getFromNodeModules(
+        '@windingtree/org.id-lif-deposit',
+        'LifDeposit'
+    );
+    const project = await TestHelper({
+        from
+    });
+    await project.setImplementation(
+        LifDeposit,
+        'LifDeposit'
+    );
+
+    return await project.createProxy(LifDeposit, {
+        initMethod: 'initialize',
+        initArgs: [
+            from,
+            orgId.address,
+            lifToken.address
+        ]
+    });
+};
+module.exports.setupLifDeposit = setupLifDeposit;
 
 /**
  * Create an organizations
@@ -237,17 +276,19 @@ const createOrganization = async (
     fakeHash = false,
     fakeId = false
 ) => {
-    const { id, uri, hash } = await generateIdSet(
+    const { solt, id, uri, hash } = await generateIdSet(
         from,
         jsonFile ? jsonFile : legalEntityJson,
         fakeId
     );
 
     await orgId
-        .methods['createOrganization(bytes32,string,bytes32)'](
-            id,
+        .methods['createOrganization(bytes32,bytes32,string,string,string)'](
+            solt,
+            fakeHash? fakeHash : hash,
             fakeUri ? fakeUri : uri,
-            fakeHash? fakeHash : hash
+            '',
+            ''
         )
         .send({ from });
     return id;
@@ -255,7 +296,7 @@ const createOrganization = async (
 module.exports.createOrganization = createOrganization;
 
 /**
- * Create subsidiary organization
+ * Create unit organization
  * @param {Object} orgId OrgId contract instance
  * @param {string} from The address of the organization owner
  * @param {string} parentId  Parent Organization Id
@@ -264,9 +305,9 @@ module.exports.createOrganization = createOrganization;
  * @param {string} fakeUri Fake uri to set
  * @param {string} fakeHash Fake hash to set
  * @param {string} fakeId Fake id to set
- * @returns {Promise<{bool}>} Subsidiary Id
+ * @returns {Promise<{bool}>} Unit Id
  */
-const createSubsidiary = async (
+const createUnit = async (
     orgId,
     from,
     parentId,
@@ -276,27 +317,29 @@ const createSubsidiary = async (
     fakeHash = false,
     fakeId = false
 ) => {
-    const { id, uri, hash } = await generateIdSet(
+    const { solt, id, uri, hash } = await generateIdSet(
         from,
         jsonFile ? jsonFile : organizationalUnitJson,
         fakeId
     );
 
     await orgId
-        .methods['createSubsidiary(bytes32,bytes32,address,string,bytes32)'](
+        .methods['createUnit(bytes32,bytes32,address,bytes32,string,string,string)'](
+            solt,
             parentId,
-            id,
             director,
+            fakeHash? fakeHash : hash,
             fakeUri ? fakeUri : uri,
-            fakeHash? fakeHash : hash
+            '',
+            ''
         )
         .send({ from });
     return id;
 };
-module.exports.createSubsidiary = createSubsidiary;
+module.exports.createUnit = createUnit;
 
 /**
- * Setup organizations (main and subsidiary)
+ * Setup organizations (main and unit)
  * @param {string} legalEntityOwner  Entity Owner Account addresses
  * @param {string} orgUnitOwner  Unit OwnerAccount addresses
  * @param {string} fakeUri Fake uri to set
@@ -323,7 +366,7 @@ module.exports.setupOrganizations = async (
         fakeId
     );
 
-    const orgUnit = await createSubsidiary(
+    const orgUnit = await createUnit(
         orgId,
         legalEntityOwner,
         legalEntity,

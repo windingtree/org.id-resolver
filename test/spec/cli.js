@@ -1,7 +1,7 @@
 process.env.TESTING = true;
 const { ganache, defaults } = require('../utils/ganache');
 const { assertFailure } = require('../utils/assertions');
-const { setupOrgId } = require('../utils/setup');
+const { setupHttpServer, setupOrgId, createOrganization } = require('../utils/setup');
 const cli = require('../../src/cli');
 
 require('chai').should();
@@ -13,8 +13,10 @@ describe('Resolver CLI', () => {
 
     let server;
     let orgId;
+    let organization;
 
     before(async () => {
+        await setupHttpServer();
         server = await ganache(defaults);
         const accounts = await web3.eth.getAccounts();
         orgIdOwner = accounts[1];
@@ -26,10 +28,11 @@ describe('Resolver CLI', () => {
 
     beforeEach(async () => {
         orgId = await setupOrgId(orgIdOwner);
+        organization = await createOrganization(orgId, orgIdOwner);
         defaultArgv = [
             '/home/[user]/.nvm/versions/node/v10.19.0/bin/node',
             '/home/[user]/dev/orgid-resolver-remote/src/cli.js',
-            'did=did:orgid:0x6d98103810d50b3711ea81c187a48245109ba094644ddbc54f8d0c4ca772e8aa',
+            `did=did:orgid:${organization}`,
             `orgid=${orgId.address}`
         ];
     });

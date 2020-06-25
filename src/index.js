@@ -10,16 +10,15 @@ const { makeHash } = require('./utils/document');
 // Modules
 const httpFetchMethod = require('./http');
 const { getDnsData, ResourceRecordTypes } = require('./dns');
+const { zeroAddress } = require('../test/utils/misc');
 
 // Errors types definitions
-const errors = {
-    'CORE_ERROR': 'Core error',
-    'FETCHER_ERROR': 'URI fetcher error',
-    'DID_SYNTAX_ERROR': 'DID syntax error',
-    'DID_DOCUMENT_ERROR': 'DID document error',
-    'TRUST_ASSERTION_ERROR': 'Trust error',
-    'ORG_ID_ERROR': 'ORG.ID error'
-};
+const checksTypes = [
+    'DID_SYNTAX',
+    'ORGID',
+    'DID_DOCUMENT',
+    'TRUST_ASSERTIONS'
+];
 
 /**
  * ORG.ID resolver class
@@ -32,7 +31,7 @@ class OrgIdResolver {
      * @param {Obejct} options Contructor parameters
      * @memberof OrgIdResolver
      */
-    constructor(options = {}) {
+    constructor (options = {}) {
         expect.all(options, {
             web3: {
                 type: 'object'
@@ -60,14 +59,17 @@ class OrgIdResolver {
      * Sets defaults
      * @memberof OrgIdResolver
      */
-    reset() {
+    reset () {
         this.validator = new Ajv();
         this.resolutionStart = null;
         this.resultTemplate = {
             didDocument: null,
-            errors: [],
             organization: null,
-            lifDeposit: null,
+            checks: checksTypes.map(type => ({
+                type,
+                passed: type === 'TRUST_ASSERTIONS' ? false : true
+            })),
+            trust: [],
             resolverMetadata: {
                 retrieved: null,
                 duration: null
@@ -84,7 +86,7 @@ class OrgIdResolver {
      * @param {string} did DID
      * @returns {Promise<{Object}>} Resolving result
      */
-    async resolve(did) {
+    async resolve (did) {
         expect.all({ did }, {
             did: {
                 type: 'string'
@@ -95,23 +97,16 @@ class OrgIdResolver {
         this.resolutionStart = Date.now();
 
         try {
-            this.result.id = await this.validateDidSyntax(did);
-            this.result.organization =
-                await this.getOrganization(this.result.id);
-            this.result.didDocument =
-                await this.getDidDocument(this.result.organization);
+            await this.validateDidSyntax(did);
+            await this.getOrganization(this.result.id);
+            await this.getDidDocument(this.result.organization);
             await this.validateDidDocument(this.result.didDocument);
-            this.result.trust =
-                await this.verifyTrustRecords(this.result.didDocument);
-            this.result.lifDeposit =
-                await this.getLifStakeStatus(this.result.id);
-        } catch(err) {
-
-            this.addErrorMessage({
-                type: 'CORE_ERROR',
-                pointer: 'resolving flow termination',
-                detail: `Resolving flow has been terminated due to serious error: ${err.message}; ${err.stack}`
-            });
+            await this.verifyTrustRecords(this.result.didDocument);
+        } catch(error) {
+            
+            throw new Error(
+                `Resolving flow has been terminated due to serious error: ${error.message}; ${error.stack}`
+            );
         }
         
         this.result.resolverMetadata.version = packageJson.version;
@@ -128,7 +123,7 @@ class OrgIdResolver {
      * @param {string} did DID
      * @returns {Promise<{string}>} Organization Id
      */
-    async validateDidSyntax(did) {
+    async validateDidSyntax (did) {
         expect.all({ did }, {
             did: {
                 type: 'string'
@@ -139,20 +134,18 @@ class OrgIdResolver {
 
         if (parts[0] !== 'did') {
 
-            this.addErrorMessage({
-                type: 'DID_SYNTAX_ERROR',
-                pointer: did,
-                detail: `Invalid DID prefix: ${parts[0]}`,
+            this.addCheckResult({
+                type: 'DID_SYNTAX',
+                error: `Invalid DID prefix: ${parts[0]}`,
                 throw: true
             });
         }
 
         if (parts[1] !== this.methodName) {
 
-            this.addErrorMessage({
-                type: 'DID_SYNTAX_ERROR',
-                pointer: did,
-                detail: `Unsupported DID method: ${parts[1]}`,
+            this.addCheckResult({
+                type: 'DID_SYNTAX',
+                error: `Unsupported DID method: ${parts[1]}`,
                 throw: true
             });
         }
@@ -162,15 +155,15 @@ class OrgIdResolver {
 
         if (!new RegExp('^0x[a-fA-F0-9]{64}$').test(subParts[0])) {
 
-            this.addErrorMessage({
-                type: 'DID_SYNTAX_ERROR',
-                pointer: did,
-                detail: `Invalid method specific Id: ${subParts[0]}`,
+            this.addCheckResult({
+                type: 'DID_SYNTAX',
+                error: `Invalid method specific Id: ${subParts[0]}`,
                 throw: true
             });
         }
 
-        return subParts[0];
+        this.result.id = subParts[0];
+        return this.result.id;
     }
 
     /**
@@ -179,7 +172,7 @@ class OrgIdResolver {
      * @param {Object} didDocument DID document
      * @returns {Promise<{boolean}>} Validation result
      */
-    async validateDidDocument(didDocument) {
+    async validateDidDocument (didDocument) {
         expect.all({ didDocument }, {
             didDocument: {
                 type: 'object'
@@ -192,10 +185,9 @@ class OrgIdResolver {
 
         if (this.validator.errors !== null) {
             
-            this.validator.errors.map(detail => this.addErrorMessage({
-                type: 'DID_DOCUMENT_ERROR',
-                pointer: 'document schema',
-                detail
+            this.validator.errors.map(detail => this.addCheckResult({
+                type: 'DID_DOCUMENT',
+                warning: detail
             }));
         }
 
@@ -208,7 +200,7 @@ class OrgIdResolver {
      * @param {Object} didDocument DID document
      * @returns {Promise}
      */
-    async verifyTrustRecords(didDocument) {
+    async verifyTrustRecords (didDocument) {
 
         if (!didDocument.trust || !Array.isArray(didDocument.trust.assertions)) {
             // Nothing to verify
@@ -226,7 +218,7 @@ class OrgIdResolver {
             const assertion = trust.assertions[i];
             let assertionContent;
             let proofFound = false;
-
+            
             switch (assertion.type) {
 
                 // For proof records that placed into DNS textual records
@@ -235,10 +227,10 @@ class OrgIdResolver {
                     
                     if (!ResourceRecordTypes[assertion.proof]) {
 
-                        this.addErrorMessage({
-                            type: 'TRUST_ASSERTION_ERROR',
-                            pointer: `trust.assertions[${i}]`,
-                            detail: `proof value "${assertion.proof}" not in the range of [${Object.keys(ResourceRecordTypes).join(',')}]`
+                        this.addCheckResult({
+                            type: 'TRUST_ASSERTIONS',
+                            error: `trust.assertions[${i}]: proof value "${assertion.proof}" 
+                                not in the range of [${Object.keys(ResourceRecordTypes).join(',')}]`
                         });
                         break;
                     }
@@ -248,10 +240,9 @@ class OrgIdResolver {
                         
                         if (assertionContent.length === 0) {
 
-                            this.addErrorMessage({
-                                type: 'TRUST_ASSERTION_ERROR',
-                                pointer: `trust.assertions[${i}]`,
-                                detail: 'proof not found'
+                            this.addCheckResult({
+                                type: 'TRUST_ASSERTIONS',
+                                error: `trust.assertions[${i}]: claim source is empty`
                             });
                             break;
                         }
@@ -265,20 +256,18 @@ class OrgIdResolver {
                         }
 
                         if (!proofFound) {
-
-                            this.addErrorMessage({
-                                type: 'TRUST_ASSERTION_ERROR',
-                                pointer: `trust.assertions[${i}]`,
-                                detail: 'proof not found'
+                            
+                            this.addCheckResult({
+                                type: 'TRUST_ASSERTIONS',
+                                error: `trust.assertions[${i}]: proof not found`
                             });
                         }
 
                     } catch (err) {
 
-                        this.addErrorMessage({
-                            type: 'TRUST_ASSERTION_ERROR',
-                            pointer: `trust.assertions[${i}]`,
-                            detail: 'cannot get the proof'
+                        this.addCheckResult({
+                            type: 'TRUST_ASSERTIONS',
+                            error: `trust.assertions[${i}]: cannot get the proof`
                         });
                         break;
                     }
@@ -289,16 +278,15 @@ class OrgIdResolver {
                 // web sites and social accounts
                 case 'social':
                 case 'domain':
-
+                    
                     // Validate assertion.proof record
                     // should be in the assertion.claim namespace
                     if (!RegExp(`^(http|https)://(www.){0,1}${assertion.claim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
                         .test(assertion.proof)) {
                         
-                        this.addErrorMessage({
-                            type: 'TRUST_ASSERTION_ERROR',
-                            pointer: `trust.assertions[${i}]`,
-                            detail: 'claim is not in the domain namespace'
+                        this.addCheckResult({
+                            type: 'TRUST_ASSERTIONS',
+                            error: `trust.assertions[${i}]: claim is not in the domain namespace`
                         });
                         break;
                     }
@@ -311,10 +299,9 @@ class OrgIdResolver {
                             : assertionContent;
                     } catch (err) {
 
-                        this.addErrorMessage({
-                            type: 'TRUST_ASSERTION_ERROR',
-                            pointer: `trust.assertions[${i}]`,
-                            detail: 'cannot get the proof'
+                        this.addCheckResult({
+                            type: 'TRUST_ASSERTIONS',
+                            error: `trust.assertions[${i}]: cannot get the proof`
                         });
                         break;
                     }
@@ -322,10 +309,9 @@ class OrgIdResolver {
                     // Look for did inside the file obtained
                     if (!RegExp(id, 'im').test(assertionContent)) {
                         
-                        this.addErrorMessage({
-                            type: 'TRUST_ASSERTION_ERROR',
-                            pointer: `trust.assertions[${i}]`,
-                            detail: 'DID not found in the claim'
+                        this.addCheckResult({
+                            type: 'TRUST_ASSERTIONS',
+                            error: `trust.assertions[${i}]: DID not found in the claim`
                         });
                         break;
                     }
@@ -336,17 +322,22 @@ class OrgIdResolver {
                 default:
 
                     // For cases where unknown assertion type has been provided
-                    this.addErrorMessage({
-                        type: 'TRUST_ASSERTION_ERROR',
-                        pointer: `trust.assertions[${i}]`,
-                        detail: `unknown assertion type: ${assertion.type}`
+                    this.addCheckResult({
+                        type: 'TRUST_ASSERTIONS',
+                        error: `trust.assertions[${i}]: unknown assertion type "${assertion.type}"`
                     });
             }
 
             assertion.verified = proofFound;
         }
 
-        return trust;
+        // Just mark as passed
+        this.addCheckResult({
+            type: 'TRUST_ASSERTIONS'
+        });
+
+        this.result.trust = trust;
+        return this.result.trust;
     }
 
     /**
@@ -355,23 +346,27 @@ class OrgIdResolver {
      * @param {string} uri The file URI
      * @returns {Promise<{Object|string}>} Fetched file
      */
-    async fetchFileByUri(uri) {
+    async fetchFileByUri (uri) {
         expect.all({ uri }, {
             uri: {
                 type: 'string'
             }
         });
 
+        if (uri === '') {
+
+            throw new Error(
+                'Fetcher error: empty URI'
+            );
+        }
+
         let fetch;
 
         if (Object.keys(this.fetchMethods).length === 0) {
 
-            this.addErrorMessage({
-                type: 'FETCHER_ERROR',
-                pointer: 'incomplete configuration',
-                detail: 'at least one fetching method should be registered',
-                throw: true
-            });
+            throw new Error(
+                'Incomplete configuration: at least one fetching method should be registered'
+            );
         }
 
         // Choosing of the proper fetching method
@@ -385,12 +380,9 @@ class OrgIdResolver {
 
         if (!fetch) {
 
-            this.addErrorMessage({
-                type: 'FETCHER_ERROR',
-                pointer: 'incomplete configuration',
-                detail: `unable to determine the fetching method for URI: ${uri}`,
-                throw: true
-            });
+            throw new Error(
+                `Fetcher error: unable to determine the fetching method for URI: ${uri}`
+            );
         }
 
         // Trying to fetch the file
@@ -398,12 +390,9 @@ class OrgIdResolver {
 
         if (!document) {
 
-            this.addErrorMessage({
-                type: 'FETCHER_ERROR',
-                pointer: uri,
-                detail: 'file not found by the given URI',
-                throw: true
-            });
+            throw new Error(
+                `Fetcher error: file not found by the given URI: ${uri}`
+            );
         }
 
         return  document;
@@ -415,91 +404,110 @@ class OrgIdResolver {
      * @param {Object} organization The organization object
      * @returns {Promise<{Object}>} DID document
      */
-    async getDidDocument(organization = {}) {
+    async getDidDocument (organization = {}) {
         expect.all(organization, {
             orgId: {
                 type: 'hash'
             },
             orgJsonUri: {
                 type: 'string'
+            },
+            orgJsonUriBackup1: {
+                type: 'string',
+                required: false
+            },
+            orgJsonUriBackup2: {
+                type: 'string',
+                required: false
             }
         });
 
-        const didDocument = await this.fetchFileByUri(organization.orgJsonUri);
+        const {
+            orgId,
+            orgJsonHash,
+            orgJsonUri,
+            orgJsonUriBackup1,
+            orgJsonUriBackup2
+        } = organization;
 
-        // Comparing of the stored and actual hash
-        if (makeHash(didDocument, this.web3) !== organization.orgJsonHash) {
-            
-            this.addErrorMessage({
-                type: 'DID_DOCUMENT_ERROR',
-                pointer: 'DID document hash',
-                detail: 'Invalid DID Document hash',
-                throw: true
-            });
-        }
+        // Resolve first settled promise
+        const firstSettled = async fetches => {
+            let result;
+            let errors = [];
 
-        const didObject = JSON.parse(didDocument);
-
-        // DID document should containing a proper DID
-        if (`did:${this.methodName}:${organization.orgId}` !== didObject.id) {
-
-            this.addErrorMessage({
-                type: 'DID_DOCUMENT_ERROR',
-                pointer: 'DID document id',
-                detail: `Invalid DID Document id. Expected to be: ${organization.orgId}, but actual is: ${didObject.id}`,
-                throw: true
-            });
-        }
-
-        return didObject;
-    }
-
-    /**
-     * Gets a status of the Lif deposit
-     * @memberof OrgIdResolver
-     * @param {string} id The organization Id
-     * @returns {Promise<{Object}>} Lif deposit status
-     */
-    async getLifStakeStatus(id) {
-        expect.all({ id }, {
-            id: {
-                type: 'string'
+            for (const fetchPromise of fetches) {
+                try {
+                    result = await fetchPromise();
+                    return result;
+                } catch (error) {
+                    errors.push(error.message);
+                }
             }
-        });
 
-        let deposit = 0;
-        let withdrawalRequest = null;
+            if (errors.length) {
+                throw new Error(errors.join('; '));
+            }
+
+            throw new Error('Unable to fetch DID Document from given sources');
+        };
+
+        let didDocument;
 
         try {
-            const organization = await this.getOrganization(id);
-            deposit = organization.deposit.toString();
-            const orgId = await this.getOrgIdContract();
-            const requestSource = await orgId
-                .methods['getWithdrawalRequest(bytes32)'](id).call();
+            didDocument = await firstSettled(
+                [
+                    orgJsonUri,
+                    orgJsonUriBackup1,
+                    orgJsonUriBackup2
+                ].map(
+                    uri => () => this.fetchFileByUri(uri)
+                )
+            );
+        } catch (error) {
             
-            if (requestSource.exist) {
-
-                withdrawalRequest = {
-                    value: requestSource.value.toString(),
-                    withdrawTime: requestSource.withdrawTime.toString()
-                };
-            }
-        } catch (err) {
-
-            if (!RegExp('Withdrawal request not found').test(err.message)) {
-                
-                this.addErrorMessage({
-                    type: 'ORG_ID_ERROR',
-                    pointer: 'withdrawal request information',
-                    detail: err.message
-                });
-            }
+            this.addCheckResult({
+                type: 'DID_DOCUMENT',
+                error: error.message,
+                throw: true
+            });
         }
-        
-        return {
-            deposit,
-            withdrawalRequest
-        };
+
+        // Comparing of the stored and actual hash
+        if (makeHash(didDocument, this.web3) !== orgJsonHash) {
+            
+            this.addCheckResult({
+                type: 'DID_DOCUMENT',
+                error: 'Invalid DID Document hash',
+                throw: true
+            });
+        }
+
+        let didObject;
+
+        try {
+            didObject = JSON.parse(didDocument);
+        } catch (error) {
+
+            this.addCheckResult({
+                type: 'DID_DOCUMENT',
+                error: 'Broken ORG.JSON. Unable to parse',
+                throw: true
+            });
+        }
+
+        // DID document should containing a proper DID
+        if (`did:${this.methodName}:${orgId}` !== didObject.id) {
+
+            this.addCheckResult({
+                type: 'DID_DOCUMENT',
+                error: `Invalid DID Document id. Expected to be: ${orgId}, 
+                    but actual is: ${didObject.id}`,
+                throw: true
+            });
+        }
+
+        this.result.didDocument = didObject;
+        return this.result.didDocument;
     }
 
     /**
@@ -508,7 +516,7 @@ class OrgIdResolver {
      * @param {Object} methodConfig The fetching method configuration config
      * @returns {Promise}
      */
-    async registerFetchMethod(methodConfig = {}) {
+    async registerFetchMethod (methodConfig = {}) {
         expect.all(methodConfig, {
             name: {
                 type: 'string'
@@ -529,7 +537,7 @@ class OrgIdResolver {
      * @memberof OrgIdResolver
      * @returns {Promise<Object>} The OrgId contract instance
      */
-    async getOrgIdContract() {
+    async getOrgIdContract () {
 
         if (this.cache.orgIdContract) {
             return this.cache.orgIdContract;
@@ -548,7 +556,7 @@ class OrgIdResolver {
      * @param {string} id The organization Id
      * @returns {Promise<Object>} The OrgId contract instance
      */
-    async getOrganization(id) {
+    async getOrganization (id) {
         expect.all({ id }, {
             id: {
                 type: 'string'
@@ -563,40 +571,61 @@ class OrgIdResolver {
         const org = await orgIdContract
             .methods['getOrganization(bytes32)'](id).call();
         
-        if (!org.exist) {
+        const {
+            exists,
+            orgId,
+            orgJsonHash,
+            orgJsonUri,
+            orgJsonUriBackup1,
+            orgJsonUriBackup2,
+            parentOrgId,
+            owner,
+            director,
+            isActive,
+            isDirectorshipAccepted
+        } = org;
 
-            this.addErrorMessage({
-                type: 'DID_DOCUMENT_ERROR',
-                pointer: `Organization: ${id}`,
-                detail: 'Organization not found',
+        if (!exists) {
+
+            this.addCheckResult({
+                type: 'ORGID',
+                error: `Organization ${id} not found`,
                 throw: true
             });
         }
 
-        const {
-            orgId,
-            orgJsonUri,
-            orgJsonHash,
-            parentEntity,
-            owner,
-            director,
-            state,
-            directorConfirmed
-        } = org;
+        if (!isActive) {
+
+            this.addCheckResult({
+                type: 'ORGID',
+                warning: `Organization ${id} is disabled`
+            });
+        }
+
+        if (director !== zeroAddress && !isDirectorshipAccepted) {
+
+            this.addCheckResult({
+                type: 'ORGID',
+                warning: `Directorship of the organization ${id} is not accepted`
+            });
+        }
 
         // Save normalised origanization object
         this.cache.organization = {
             orgId,
-            orgJsonUri,
             orgJsonHash,
-            parentEntity,
+            orgJsonUri,
+            orgJsonUriBackup1,
+            orgJsonUriBackup2,
+            parentOrgId,
             owner,
             director,
-            state,
-            directorConfirmed,
-            deposit: org.deposit.toString()
+            isActive,
+            isDirectorshipAccepted
         };
-        return this.cache.organization;
+
+        this.result.organization = this.cache.organization;
+        return this.result.organization;
     }
 
     /**
@@ -604,26 +633,27 @@ class OrgIdResolver {
      * @memberof OrgIdResolver
      * @returns {string[]} Registered fetching nethods names
      */
-    getFetchMethods() {
+    getFetchMethods () {
         return Object.keys(this.fetchMethods);
     }
 
     /**
-     * Adds the error message to the errors set
+     * Adds a specific check result
      * and throws a error if this behaviour is set in the options
      * @memberof OrgIdResolver
      * @returns {string[]} Registered fetching nethods names
      */
-    addErrorMessage(options) {
+    addCheckResult (options) {
         expect.all(options, {
             type: {
                 type: 'enum',
-                values: Object.keys(errors)
+                values: checksTypes
             },
-            pointer: {
-                type: 'string'
+            error: {
+                type: 'string',
+                required: false
             },
-            detail: {
+            warning: {
                 type: 'string',
                 required: false
             },
@@ -633,17 +663,47 @@ class OrgIdResolver {
             }
         });
 
-        this.result.errors.push({
-            title: errors[options.type],
-            source: {
-                pointer: options.pointer
-            },
-            detail: options.detail
-        });
+        const { type, error, warning } = options;
+
+        // Extract specific check
+        this.result.checks = this.result.checks.map(
+            check => {
+                if (check.type === type) {
+                    check = {
+                        ...check,
+                        ...(
+                            error
+                                ? {
+                                    errors: [
+                                        ...(check.errors || []),
+                                        ...[error]
+                                    ]
+                                }
+                                : {}
+                        ),
+                        ...(
+                            warning
+                                ? {
+                                    warnings: [
+                                        ...(check.warning || []),
+                                        ...[warning]
+                                    ]
+                                }
+                                : {}
+                        )
+                    };
+
+                    check.passed = !check.errors ||
+                        (check.errors && check.errors.length === 0);
+                }
+
+                return check;
+            }
+        );
 
         if (options.throw) {
             throw new Error(
-                `${errors[options.type]}: ${options.pointer}; ${options.detail}`
+                `${type}: ${error}`
             );
         }
     }
@@ -651,4 +711,4 @@ class OrgIdResolver {
 
 module.exports.OrgIdResolver = OrgIdResolver;
 module.exports.httpFetchMethod = httpFetchMethod;
-module.exports.errorsDefinitions = Object.assign({}, errors);
+module.exports.checksTypes = Object.assign({}, checksTypes);

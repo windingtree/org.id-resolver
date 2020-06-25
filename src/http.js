@@ -10,7 +10,7 @@ module.exports = {
             `Cannot connect to the source: ${uri}`
         ), 5000);// connection timeout
         const response = await axios.get(uri, {
-            transformResponse: [(data) => { return data; }], // Do not convert JSON to object
+            transformResponse: [data => data], // Do not convert JSON to object
             cancelToken: source.token
         });
         clearTimeout(timeout);

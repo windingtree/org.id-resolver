@@ -31,7 +31,8 @@
   },
   "dependencies": {
     "@babel/polyfill": "7.10.1",
-    "@windingtree/org.id": "1.0.0",
+    "@windingtree/org.id": "1.0.1",
+    "@windingtree/org.id-lif-deposit": "1.0.0",
     "@windingtree/org.json-schema": "0.3.0",
     "axios": "0.19.2",
     "ajv": "6.12.2"

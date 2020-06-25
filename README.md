@@ -146,24 +146,39 @@ The response of the resolver contains the following information
 
     "organization": {
         "orgId": "<organization_id>",
-        "orgJsonUri": "<organization_json_uri>",
         "orgJsonHash": "<organization_json_hash>",
-        "parentEntity": "<parent_organization_hash_or_zero_hash>",
+        "orgJsonUri": "<organization_json_uri>",
+        "orgJsonUriBackup1": "<organization_json_uri>",
+        "orgJsonUriBackup2": "<organization_json_uri>",
+        "parentOrgId": "<parent_organization_hash_or_zero_hash>",
         "owner": "<owner_eth_address>",
         "director": "<director_eth_address>",
-        "state": true,// true for `enabled` and false for `disabled`
-        "directorConfirmed": true,// director confirmation status
-        "deposit": "<deposit_value_in_wei>"
-    },
-    
-    // An object that contains information about Lif deposit 
-    // and deposit withdrawal request existance
-    "lifDeposit": {
-        "deposit": "1000000000000000000000",
-        // null or object with information about request
-        "withdrawalRequest": null
+        "isActive": true,// true for `enabled` and false for `disabled`
+        "isDirectorshipAccepted": true,// director confirmation status
     },
 
+    // List of validation results
+    "checks": [
+        {
+            "type": "DID_SYNTAX",
+            "passed": true,
+            "errors": [],
+            "warnings": []
+        },
+        {
+            "type": "ORGID",
+            "passed": true,
+            "errors": [],
+            "warnings": []
+        },
+        {
+            "type": "DID_DOCUMENT",
+            "passed": true,
+            "errors": [],
+            "warnings": []
+        }
+    ],
+    
     // Verified trust section of the `didDocument`
     "trust": {
         "assertions": [
@@ -194,24 +209,12 @@ The response of the resolver contains the following information
         ]
     },
 
-    // List of errors that happen during the resolving flow
-    "errors": [
-        {
-            "title": "Trust error",
-            "source": {
-                "pointer": "trust.assertions[0]"
-            },
-            "detail": "cannot get the proof"
-        },
-        {...}
-    ],
-
     // Resolver meta-data like version, date of result and process duration
     "resolverMetadata": {
-        "version": "0.3.3",
+        "version": "1.0.0",
         "retrieved": "2020-02-21T18:14:13.278Z",
         "duration": 979,
-        "orgIdAddress": "0xc8fD300bE7e4613bCa573ad820a6F1f0b915CfcA"
+        "orgIdAddress": "0x2cb8dCf26830B969555E04C2EDe3fc1D1BaD504E"
     }
 }
 ```

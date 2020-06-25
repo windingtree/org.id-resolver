@@ -6,7 +6,7 @@ let port = 10000;
 
 class HttpFileServer {
 
-    constructor() {
+    constructor () {
         this.port = port++;
         this.mime = {
             'html': 'text/html',
@@ -18,7 +18,7 @@ class HttpFileServer {
 
     }
 
-    async start() {
+    async start () {
         this.server = http.createServer(this.requestHandler.bind(this));
         return await new Promise(
             (resolve, reject) => this.server.listen(
@@ -29,14 +29,14 @@ class HttpFileServer {
         );
     }
 
-    async close() {
+    async close () {
         if (this.server) {
             this.server.close();
         }
         this.server = null;
     }
 
-    requestHandler(request, response) {
+    requestHandler (request, response) {
         const link = url.parse(request.url);
         const path = link.path.replace(/^\//, '');
 
@@ -53,7 +53,7 @@ class HttpFileServer {
         response.end(this.files[path].content);
     }
 
-    async addFile(file) {
+    async addFile (file) {
         expect.all(file, {
             content: {
                 type: 'string'
@@ -72,7 +72,7 @@ class HttpFileServer {
         return this.files[file.path];
     }
 
-    async removeFile(path) {
+    async removeFile (path) {
         expect.all({ path }, {
             path: {
                 type: 'string'

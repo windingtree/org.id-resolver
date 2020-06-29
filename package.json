@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/org.id-resolver",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "ORGiD DID resolver",
   "keywords": [
     "orgid",
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "7.10.1",
-    "@windingtree/org.id": "1.0.1",
+    "@windingtree/org.id": "1.1.0",
     "@windingtree/org.id-lif-deposit": "1.0.0",
     "@windingtree/org.json-schema": "0.3.0",
     "axios": "0.19.2",

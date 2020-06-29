@@ -177,7 +177,7 @@ const generateIdSet = async (
         ]
     );
     orgJson.trust.assertions = trustAssertions;
-    const jsonString = JSON.stringify(orgJson);
+    const jsonString = JSON.stringify(orgJson, null, 2);
     const hash = generateJsonHash(jsonString);
 
     let uri;

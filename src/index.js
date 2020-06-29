@@ -549,8 +549,7 @@ class OrgIdResolver {
             
             this.addCheckResult({
                 type: 'DID_DOCUMENT',
-                error: 'Invalid DID Document hash',
-                throw: true
+                error: 'Invalid DID Document hash'
             });
         }
 
@@ -562,8 +561,7 @@ class OrgIdResolver {
 
             this.addCheckResult({
                 type: 'DID_DOCUMENT',
-                error: 'Broken ORG.JSON. Unable to parse',
-                throw: true
+                error: 'Broken ORG.JSON. Unable to parse'
             });
         }
 
@@ -573,8 +571,7 @@ class OrgIdResolver {
             this.addCheckResult({
                 type: 'DID_DOCUMENT',
                 error: `Invalid DID Document id. Expected to be: ${orgId}, 
-                    but actual is: ${didObject.id}`,
-                throw: true
+                    but actual is: ${didObject.id}`
             });
         }
 

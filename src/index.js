@@ -544,15 +544,6 @@ class OrgIdResolver {
             });
         }
 
-        // Comparing of the stored and actual hash
-        if (makeHash(didDocument, this.web3) !== orgJsonHash) {
-            
-            this.addCheckResult({
-                type: 'DID_DOCUMENT',
-                error: 'Invalid DID Document hash'
-            });
-        }
-
         let didObject;
 
         try {
@@ -562,6 +553,15 @@ class OrgIdResolver {
             this.addCheckResult({
                 type: 'DID_DOCUMENT',
                 error: 'Broken ORG.JSON. Unable to parse'
+            });
+        }
+
+        // Comparing of the stored and actual hash
+        if (makeHash(didDocument, this.web3) !== orgJsonHash) {
+            
+            this.addCheckResult({
+                type: 'DID_DOCUMENT',
+                error: 'Invalid DID Document hash'
             });
         }
 

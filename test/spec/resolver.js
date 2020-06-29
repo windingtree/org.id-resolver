@@ -348,10 +348,11 @@ describe('Resolver', () => {
 
         it('should fail if hash of obtained content are not consistent', async () => {
             organization.orgJsonHash = 'wronghash';
-            await assertFailure(
-                resolver.getDidDocument(organization),
-                'Invalid DID Document hash'
-            );
+            await resolver.getDidDocument(organization);
+            const checks = toChecksObject(resolver.result.checks);
+            (checks.DID_DOCUMENT.passed).should.be.false;
+            (checks.DID_DOCUMENT.errors).should.be.an('array')
+                .that.is.not.empty;
         });
 
         it('should fail if did document contains different id', async () => {
@@ -366,10 +367,11 @@ describe('Resolver', () => {
             const brokenLegalEntity = brokenOrgs.legalEntity;
             const organization = await resolver.getOrganization(brokenLegalEntity);
             organization.orgId = legalEntityInvalidJson;
-            await assertFailure(
-                resolver.getDidDocument(organization),
-                'Invalid DID Document id'
-            );
+            await resolver.getDidDocument(organization);
+            const checks = toChecksObject(resolver.result.checks);
+            (checks.DID_DOCUMENT.passed).should.be.false;
+            (checks.DID_DOCUMENT.errors).should.be.an('array')
+                .that.is.not.empty;
         });
 
         it('should return didDocument', async () => {

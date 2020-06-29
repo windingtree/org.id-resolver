@@ -470,7 +470,6 @@ describe('Resolver', () => {
             const result = await resolver.resolve(`did:orgid:${legalEntityInvalidJson}`);
             (result.didDocument).should.be.an('object');
             const checks = toChecksObject(resolver.result.checks);
-            console.log('@@@', checks);
             (checks.DID_DOCUMENT.passed).should.be.true;
             (checks.DID_DOCUMENT.warnings).should.be.an('array')
                 .that.is.not.empty;

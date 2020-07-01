@@ -400,6 +400,13 @@ class OrgIdResolver {
                 deposit,
                 withdrawalRequest
             };
+
+            if (deposit !== '0' && !withdrawalRequest) {
+                // Just mark as passed
+                this.addCheckResult({
+                    type: 'LIF_STAKE'
+                });
+            }
         } catch (error) {
 
             this.addCheckResult({

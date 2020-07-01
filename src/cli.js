@@ -8,8 +8,8 @@ const { parseArgv } = require('./utils/cli');
 let web3Endpoint;
 
 // Default orgId address, can be overrided by orgid command line property
-let orgIdAddress = addresses.ropsten;
-let lifDepositAddress = lifDepositAddresses.ropsten;
+let orgIdAddress = addresses.main;
+let lifDepositAddress = lifDepositAddresses.main;
 
 if (!process.env.TESTING) {
 

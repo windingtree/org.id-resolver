@@ -230,6 +230,9 @@ class OrgIdResolver {
         // Organization Id part of the DID
         const id = didDocument.id.match(/^did:orgid:(0x[a-fA-F0-9]{64}){1}$/im)[1];
 
+        // Proofs existence flag
+        let isProofsFound = false;
+
         // Assertions verification
         for (let i = 0; i < trust.assertions.length; i++) {
             const assertion = trust.assertions[i];
@@ -346,12 +349,18 @@ class OrgIdResolver {
             }
 
             assertion.verified = proofFound;
+
+            if (proofFound) {
+                isProofsFound = true;
+            }
         }
 
-        // Just mark as passed
-        this.addCheckResult({
-            type: 'TRUST_ASSERTIONS'
-        });
+        if (isProofsFound) {
+            // Just mark as passed
+            this.addCheckResult({
+                type: 'TRUST_ASSERTIONS'
+            });
+        }
 
         this.result.trust = trust;
         return this.result.trust;
@@ -406,6 +415,11 @@ class OrgIdResolver {
                 this.addCheckResult({
                     type: 'LIF_STAKE'
                 });
+            } else if (deposit !== '0' && withdrawalRequest) {
+                this.addCheckResult({
+                    type: 'LIF_STAKE',
+                    warning: 'The organization sent a withdrawal request'
+                });
             }
         } catch (error) {
 
@@ -414,9 +428,6 @@ class OrgIdResolver {
                 error: error.message
             });
         }
-
-
-
     }
 
     /**
@@ -523,11 +534,10 @@ class OrgIdResolver {
                 }
             }
 
-            if (errors.length) {
-                throw new Error(errors.join('; '));
-            }
-
-            throw new Error('Unable to fetch DID Document from given sources');
+            throw new Error(
+                `Unable to fetch DID Document from given sources.
+                    ${errors.length ? errors.join('; ') : ''}`
+            );
         };
 
         let didDocument;

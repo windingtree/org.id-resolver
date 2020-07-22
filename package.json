@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/org.id-resolver",
-  "version": "1.3.4",
+  "version": "1.4.0",
   "description": "ORGiD DID resolver",
   "keywords": [
     "orgid",
@@ -30,18 +30,19 @@
     "did-resolver": "./dist/cli.js"
   },
   "dependencies": {
-    "@babel/polyfill": "7.10.1",
+    "@babel/polyfill": "7.10.4",
     "@windingtree/org.id": "1.1.0",
     "@windingtree/org.id-lif-deposit": "1.0.2",
-    "@windingtree/org.json-schema": "0.3.1",
-    "axios": "0.19.2",
-    "ajv": "6.12.3"
+    "org.json-schema-0.3": "npm:@windingtree/org.json-schema@0.3.4",
+    "org.json-schema-0.4": "npm:@windingtree/org.json-schema@0.4.3",
+    "ajv": "6.12.3",
+    "axios": "0.19.2"
   },
   "devDependencies": {
-    "@babel/core": "7.10.3",
-    "@babel/cli": "7.10.3",
-    "@babel/preset-env": "7.10.3",
-    "eslint": "7.3.1",
+    "@babel/core": "7.10.5",
+    "@babel/cli": "7.10.5",
+    "@babel/preset-env": "7.10.4",
+    "eslint": "7.5.0",
     "mocha": "8.0.1",
     "chai": "4.2.0",
     "nyc": "15.1.0",

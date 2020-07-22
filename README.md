@@ -193,8 +193,6 @@ npm run lint
 
 ## ORG.ID Ecosystem
 
-![ORG.ID Ecosystem](https://github.com/windingtree/org.id/raw/master/assets/org.id-ecosystem.png)
-
 - [Winding Tree DAO](https://github.com/windingtree/dao) controls ORG.ID Registry smart contract and some Directories (including their rules)
 - [ORG.ID Registry](https://github.com/windingtree/org.id) contains records of all organizations and organizational units
 - [ORG.JSON Schema](https://github.com/windingtree/org.json-schema) is a data format for describing organizations

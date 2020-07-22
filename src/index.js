@@ -1,5 +1,6 @@
 const packageJson = require('../package.json');
-const didDocumentSchema = require('@windingtree/org.json-schema');
+const didDocumentSchema = require('org.json-schema-0.3');
+const didDocumentSchema04 = require('org.json-schema-0.4');
 const { OrgIdContract } = require('@windingtree/org.id');
 const { LifDepositContract } = require('@windingtree/org.id-lif-deposit');
 const Ajv = require('ajv');
@@ -196,9 +197,13 @@ class OrgIdResolver {
             }
         });
 
+        const schema = didDocument.schemaVersion && didDocument.schemaVersion.match(/^0.4/)
+            ? didDocumentSchema04
+            : didDocumentSchema;
+
         // Use the Ajv validator
         // didDocumentSchema is obtained from @windingtree/org.json-schema
-        const result = this.validator.validate(didDocumentSchema, didDocument);
+        const result = this.validator.validate(schema, didDocument);
 
         if (this.validator.errors !== null) {
             

@@ -1,4 +1,5 @@
 {
+    "schemaVersion": "0.4.3",
     "@context": [
         "https://www.w3.org/ns/did/v1",
         "https://windingtree.com/ns/orgid/v1"
@@ -104,7 +105,7 @@
     "legalEntity": {
         "legalName": "Acme, Corp.",
         "alternativeName": "Acme",
-        "legalIdentifier": "US12345567",
+        "registryCode": "US12345567",
         "identifiers": [
             {
                 "type": "IATA",

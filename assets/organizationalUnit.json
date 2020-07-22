@@ -1,32 +1,53 @@
 {
+    "schemaVersion": "0.4.3",
     "@context": [
         "https://www.w3.org/ns/did/v1",
         "https://windingtree.com/ns/orgid/v1"
     ],
-    "id": "did:orgid:0xB4Caa470E33A4cE899C16e6C7E125eA03956e95D",
+    "id": "did:orgid:0x94bf5a57b850a35b4d1d7b59f663ce3a8a76fd9928ef2067cc772fc97fb0ad75",
     "created": "2019-01-01T13:10:02.251Z",
     "updated": "2019-06-03T13:20:06.398Z",
     "publicKey": [
         {
-            "id": "did:orgid:0xB4Caa470E33A4cE899C16e6C7E125eA03956e95D#keys-1",
-            "type": "RsaVerificationKey2018",
-            "controller": "did:orgid:0xB4Caa470E33A4cE899C16e6C7E125eA03956e95D",
-            "publicKeyPem": "-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\n",
-            "note": "Hardware Key 1"
-        },
-        {
-            "id": "did:orgid:0xB4Caa470E33A4cE899C16e6C7E125eA03956e95D#keys-2",
-            "type": "Ieee2410VerificationKey2018",
-            "controller": "did:orgid:0xB4Caa470E33A4cE899C16e6C7E125eA03956e95D",
-            "publicKeyPem": "-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\n",
-            "note": "PKI #12345"
+            "id": "did:orgid:0x94bf5a57b850a35b4d1d7b59f663ce3a8a76fd9928ef2067cc772fc97fb0ad75#webserver",
+            "type": "secp256k1",
+            "controller": "did:orgid:0x94bf5a57b850a35b4d1d7b59f663ce3a8a76fd9928ef2067cc772fc97fb0ad75",
+            "publicKeyPem": "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE/7GpAW4+se9gZOFPtwk63ZhV1nX6M0UobMYO6FMAnON6vCbglyOaRzEltugkp6GrM8LZ6is0rMBMAXCvb9FH2g==",
+            "note": "B2C Webserver Key"
         }
     ],
     "service": [
         {
-            "id": "did:orgid:0xB4Caa470E33A4cE899C16e6C7E125eA03956e95D#oidc",
+            "id": "did:orgid:0x94bf5a57b850a35b4d1d7b59f663ce3a8a76fd9928ef2067cc772fc97fb0ad75#oidc",
             "type": "erevmax-suite-apt-0.3.1a",
             "serviceEndpoint": "https://example.com/orgid-auth/"
+        }
+    ],
+    "payment": [
+        {
+            "type": "crypto",
+            "currency": [
+                "btc"
+            ],
+            "address": "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+            "description": "General donation channel"
+        },
+        {
+            "type": "bank",
+            "currency": [
+                "usd",
+                "eur"
+            ],
+            "iban": "DE75512108001245126199",
+            "swift": "UBSWUS33XXX"
+        },
+        {
+            "type": "simard",
+            "currency": [
+                "usd",
+                "eur"
+            ],
+            "description": "Bookings and service payments"
         }
     ],
     "trust": {
@@ -37,18 +58,18 @@
                 "proof": "dns"
             },
             {
-                "type": "twitter",
-                "claim": "jack",
+                "type": "social",
+                "claim": "twitter.com/jack",
                 "proof": "https://twitter.com/status/123456789/"
             },
             {
-                "type": "facebook",
-                "claim": "MyBusinessPage",
+                "type": "social",
+                "claim": "facebook.com/MyBusinessPage",
                 "proof": "https://www.facebook.com/MyBusinessPage/photos/a.672157592834538/2030288447021439/"
             },
             {
-                "type": "instagram",
-                "claim": "myinstagramusername",
+                "type": "social",
+                "claim": "instagram.com/myinstagramusername",
                 "proof": "https://instagram.com/p/123456789/"
             }
         ],
@@ -65,7 +86,7 @@
                 ],
                 "issuanceDate": "2010-01-01T19:73:24Z",
                 "credentialSubject": {
-                    "id": "did:orgid:0xB4Caa470E33A4cE899C16e6C7E125eA03956e95D",
+                    "id": "did:orgid:0x94bf5a57b850a35b4d1d7b59f663ce3a8a76fd9928ef2067cc772fc97fb0ad75",
                     "franchiseLicense": {
                         "brand": "Hilton Garden Inn",
                         "validUntil": "2020-01-01T19:73:24Z"
@@ -126,7 +147,7 @@
             }
         ],
         "media": {
-            "logo": "https://imagehosting/hotel.jpg",
+            "logo": "https://imagehosting.com/hotel.jpg",
             "images": [
                 {
                     "description": "Hotel Lobby",

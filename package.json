@@ -36,7 +36,7 @@
     "org.json-schema-0.3": "npm:@windingtree/org.json-schema@0.3.4",
     "org.json-schema-0.4": "npm:@windingtree/org.json-schema@0.4.3",
     "ajv": "6.12.3",
-    "axios": "0.19.2"
+    "axios": "0.21.1"
   },
   "devDependencies": {
     "@babel/core": "7.10.5",

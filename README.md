@@ -50,12 +50,12 @@ const result = await resolver.resolve('did:orgid:0x62a7502f4c44d8147b8f7b2a1dbeb
 3. Fetch and validate [ORG.JSON](https://github.com/windingtree/org.json-schema):
 4. Try to resolve assertions and credentials
 
-The response of the resolver contains the following information  
+The response of the resolver contains the following information
 
 ```json
 {
-    // An object that has been resolved from the given DID. 
-    // Can be equal to `null` if JSON file not passed hashes equality check 
+    // An object that has been resolved from the given DID.
+    // Can be equal to `null` if JSON file not passed hashes equality check
     // or if the file is not passed validation against the ORG.ID schema
     "didDocument": {...},
 
@@ -96,7 +96,7 @@ The response of the resolver contains the following information
             "warnings": []
         }
     ],
-    
+
     // Verified trust section of the `didDocument`
     "trust": {
         "assertions": [
@@ -129,7 +129,7 @@ The response of the resolver contains the following information
 
     // Resolver meta-data like version, date of result and process duration
     "resolverMetadata": {
-        "version": "1.0.0",
+        "version": "2.0.0",
         "retrieved": "2020-02-21T18:14:13.278Z",
         "duration": 979,
         "orgIdAddress": "0x2cb8dCf26830B969555E04C2EDe3fc1D1BaD504E"
@@ -139,10 +139,10 @@ The response of the resolver contains the following information
 
 ## Fetching methods
 
-At least one fetching method is required to the proper working of the resolver. 
+At least one fetching method is required to the proper working of the resolver.
 This library provides a simple fetching method of a file that available via http/https - `httpFetchMethod`.
 
-To use this method you can get its configuration from the package this way:  
+To use this method you can get its configuration from the package this way:
 
 ```javascript
 const { OrgIdResolver, httpFetchMethod } = require('@windingtree/org.id-resolver');
@@ -150,7 +150,7 @@ const resolver = new OrgIdResolver({...});
 resolver.registerFetchMethod(httpFetchMethod);// fetching method should be registered
 ```
 
-Future versions of `DID resolver` library will support more fetching methods like: 
+Future versions of `DID resolver` library will support more fetching methods like:
 IPFS, Swarm and Arweave
 
 Creation of custom fetching methods is quite simple task. Look at the example of simple fetching method configuration:
@@ -178,7 +178,7 @@ npm run test
 npm run test ./<path_to_test_file>.js
 ```
 
-## Test coverage  
+## Test coverage
 
 ```bash
 npm run coverage

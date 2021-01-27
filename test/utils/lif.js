@@ -11,7 +11,7 @@ module.exports.setupLifToken = async (
     from,
     totalSupply = '1000000'
 ) => {
-    const LifToken = Contracts.getFromNodeModules('@windingtree/org.id', 'LifTest');
+    const LifToken = Contracts.getFromNodeModules('@windingtree/org.id-lif-deposit', 'LifTest');
     return await LifToken.new(
         'Lif token',
         'Lif',
@@ -29,7 +29,7 @@ module.exports.setupLifToken = async (
  * @returns {Promise<{Object}>}
  */
 module.exports.lifTokenAtAddress = async (tokenAddress) => {
-    const LifToken = Contracts.getFromNodeModules('@windingtree/org.id', 'LifTest');
+    const LifToken = Contracts.getFromNodeModules('@windingtree/org.id-lif-deposit', 'LifTest');
     return await LifToken.at(tokenAddress);
 };
 

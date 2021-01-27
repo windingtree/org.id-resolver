@@ -41,18 +41,18 @@ module.exports.setupHttpServer = async () => {
         `http://localhost:${httpFileServer.port}/resolve`;
     process.env.FAKE_WEB_SERVER_URI =
         `http://localhost:${httpFileServer.port}`;
-    
+
     global.httpFileServer = httpFileServer;
     return httpFileServer;
 };
 
 /**
- * Generates an id on the base of string and solt
+ * Generates an id on the base of string and salt
  * @param {string} string Part of the base for id generation
- * @param {string} solt Solt string
+ * @param {string} salt Solt string
  * @returns {string}
  */
-const generateId = (string, solt = Math.random().toString()) => web3.utils.keccak256(`${string}${solt}`);
+const generateId = (string, salt = Math.random().toString()) => web3.utils.keccak256(`${string}${salt}`);
 module.exports.generateId = generateId;
 
 /**
@@ -64,12 +64,12 @@ const generateJsonHash = jsonString => web3.utils.soliditySha3(jsonString);
 module.exports.generateJsonHash = generateJsonHash;
 
 /**
- * Generates Id from owner adress and solt
+ * Generates Id from owner adress and salt
  * @param {String} owner Owner address
- * @param {String} solt Solt
+ * @param {String} salt Solt
  * @returns {string}
  */
-const generateIdWithSolt = (owner, solt) => web3.utils.soliditySha3(owner, solt);
+const generateIdWithSolt = (owner, salt) => web3.utils.soliditySha3(owner, salt);
 module.exports.generateIdWithSolt = generateIdWithSolt;
 
 /**
@@ -83,7 +83,7 @@ const generateTrustAssertions = (
     did,
     config = []
 ) => Promise.all(config.map(async (t) => {
-    
+
     let record = {
         type: t.type
     };
@@ -118,7 +118,7 @@ const generateTrustAssertions = (
             });
 
             break;
-        
+
         case 'social':
         case 'domain':
 
@@ -149,8 +149,8 @@ const generateIdSet = async (
     jsonObject,
     fakeId = false
 ) => {
-    const solt = generateId();
-    const id = generateIdWithSolt(from, solt);
+    const salt = generateId();
+    const id = generateIdWithSolt(from, salt);
     const did = `did:orgid:${fakeId ? fakeId : id}`;
     const orgJson = Object.assign(
         {},
@@ -181,7 +181,7 @@ const generateIdSet = async (
     const hash = generateJsonHash(jsonString);
 
     let uri;
-    
+
     uri = `${process.env.FAKE_WEB_SERVER_URI}/${hash}.json`;
     await global.httpFileServer.addFile({
         content: jsonString,
@@ -190,7 +190,7 @@ const generateIdSet = async (
     });
 
     return {
-        solt,
+        salt,
         id,
         uri,
         hash
@@ -220,9 +220,7 @@ const setupOrgId = async from => {
 
     return await project.createProxy(OrgId, {
         initMethod: 'initialize',
-        initArgs: [
-            from
-        ]
+        initArgs: []
     });
 };
 module.exports.setupOrgId = setupOrgId;
@@ -276,7 +274,7 @@ const createOrganization = async (
     fakeHash = false,
     fakeId = false
 ) => {
-    const { solt, id, uri, hash } = await generateIdSet(
+    const { salt, id, uri, hash } = await generateIdSet(
         from,
         jsonFile ? jsonFile : legalEntityJson,
         fakeId
@@ -284,7 +282,7 @@ const createOrganization = async (
 
     await orgId
         .methods['createOrganization(bytes32,bytes32,string,string,string)'](
-            solt,
+            salt,
             fakeHash? fakeHash : hash,
             fakeUri ? fakeUri : uri,
             '',
@@ -317,7 +315,7 @@ const createUnit = async (
     fakeHash = false,
     fakeId = false
 ) => {
-    const { solt, id, uri, hash } = await generateIdSet(
+    const { salt, id, uri, hash } = await generateIdSet(
         from,
         jsonFile ? jsonFile : organizationalUnitJson,
         fakeId
@@ -325,7 +323,7 @@ const createUnit = async (
 
     await orgId
         .methods['createUnit(bytes32,bytes32,address,bytes32,string,string,string)'](
-            solt,
+            salt,
             parentId,
             director,
             fakeHash? fakeHash : hash,

@@ -109,7 +109,7 @@ class OrgIdResolver {
                 type: 'string'
             }
         });
-        
+
         this.reset();
         this.resolutionStart = Date.now();
 
@@ -121,12 +121,12 @@ class OrgIdResolver {
             await this.verifyTrustRecords(this.result.didDocument);
             await this.verifyLifStake(this.result.id);
         } catch(error) {
-            
+
             throw new Error(
                 `Resolving flow has been terminated due to serious error: ${error.message}; ${error.stack}`
             );
         }
-        
+
         this.result.resolverMetadata.version = packageJson.version;
         this.result.resolverMetadata.retrieved = new Date().toISOString();
         this.result.resolverMetadata.duration =
@@ -206,7 +206,7 @@ class OrgIdResolver {
         const result = this.validator.validate(schema, didDocument);
 
         if (this.validator.errors !== null) {
-            
+
             this.validator.errors.map(detail => this.addCheckResult({
                 type: 'DID_DOCUMENT',
                 warning: detail
@@ -243,18 +243,18 @@ class OrgIdResolver {
             const assertion = trust.assertions[i];
             let assertionContent;
             let proofFound = false;
-            
+
             switch (assertion.type) {
 
                 // For proof records that placed into DNS textual records
                 // HINFO,SPF,TXT records types are supported
                 case 'dns':
-                    
+
                     if (!ResourceRecordTypes[assertion.proof]) {
 
                         this.addCheckResult({
                             type: 'TRUST_ASSERTIONS',
-                            error: `trust.assertions[${i}]: proof value "${assertion.proof}" 
+                            error: `trust.assertions[${i}]: proof value "${assertion.proof}"
                                 not in the range of [${Object.keys(ResourceRecordTypes).join(',')}]`
                         });
                         break;
@@ -262,7 +262,7 @@ class OrgIdResolver {
 
                     try {
                         assertionContent = await getDnsData(assertion.claim, assertion.proof);
-                        
+
                         if (assertionContent.length === 0) {
 
                             this.addCheckResult({
@@ -281,7 +281,7 @@ class OrgIdResolver {
                         }
 
                         if (!proofFound) {
-                            
+
                             this.addCheckResult({
                                 type: 'TRUST_ASSERTIONS',
                                 error: `trust.assertions[${i}]: proof not found`
@@ -298,17 +298,17 @@ class OrgIdResolver {
                     }
 
                     break;
-                
+
                 // These types are used for handle proofs that related to
                 // web sites and social accounts
                 case 'social':
                 case 'domain':
-                    
+
                     // Validate assertion.proof record
                     // should be in the assertion.claim namespace
                     if (!RegExp(`^(http|https)://(www.){0,1}${assertion.claim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
                         .test(assertion.proof)) {
-                        
+
                         this.addCheckResult({
                             type: 'TRUST_ASSERTIONS',
                             error: `trust.assertions[${i}]: claim is not in the domain namespace`
@@ -333,7 +333,7 @@ class OrgIdResolver {
 
                     // Look for did inside the file obtained
                     if (!RegExp(id, 'im').test(assertionContent)) {
-                        
+
                         this.addCheckResult({
                             type: 'TRUST_ASSERTIONS',
                             error: `trust.assertions[${i}]: DID not found in the claim`
@@ -398,10 +398,10 @@ class OrgIdResolver {
         try {
             deposit = await lifDepositContract
                 .methods['balanceOf(bytes32)'](id).call();
-            
+
             const requestSource = await lifDepositContract
                 .methods['getWithdrawalRequest(bytes32)'](id).call();
-            
+
             if (requestSource.exists) {
 
                 withdrawalRequest = {
@@ -558,7 +558,7 @@ class OrgIdResolver {
                 )
             );
         } catch (error) {
-            
+
             this.addCheckResult({
                 type: 'DID_DOCUMENT',
                 error: error.message,
@@ -580,7 +580,7 @@ class OrgIdResolver {
 
         // Comparing of the stored and actual hash
         if (makeHash(didDocument, this.web3) !== orgJsonHash) {
-            
+
             this.addCheckResult({
                 type: 'DID_DOCUMENT',
                 error: 'Invalid DID Document hash'
@@ -592,7 +592,7 @@ class OrgIdResolver {
 
             this.addCheckResult({
                 type: 'DID_DOCUMENT',
-                error: `Invalid DID Document id. Expected to be: ${orgId}, 
+                error: `Invalid DID Document id. Expected to be: ${orgId},
                     but actual is: ${didObject.id}`
             });
         }
@@ -632,7 +632,7 @@ class OrgIdResolver {
         if (this.cache.orgIdContract) {
             return this.cache.orgIdContract;
         }
-        
+
         this.cache.orgIdContract = new this.web3.eth.Contract(
             OrgIdContract.abi,
             this.orgIdAddress
@@ -660,7 +660,7 @@ class OrgIdResolver {
         const orgIdContract = this.getOrgIdContract();
         const org = await orgIdContract
             .methods['getOrganization(bytes32)'](id).call();
-        
+
         const {
             exists,
             orgId,

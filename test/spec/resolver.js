@@ -2,6 +2,7 @@ const { ganache, defaults } = require('../utils/ganache');
 const { assertFailure } = require('../utils/assertions');
 const {
     setupOrgId,
+    setupLifDeposit,
     setupOrganizations,
     setupHttpServer
 } = require('../utils/setup');
@@ -36,6 +37,7 @@ describe('Resolver', () => {
     let legalEntityInvalidJson;
     let resolver;
     let orgId;
+    let lifDeposit;
 
     before(async () => {
         server = await ganache(defaults);
@@ -72,7 +74,13 @@ describe('Resolver', () => {
         );
         legalEntityInvalidJson = orgsInvalidJson.legalEntity;
 
-        resolver = new OrgIdResolver({ web3, orgId: orgId.address });
+        lifDeposit = await setupLifDeposit(orgId, orgIdOwner);
+
+        resolver = new OrgIdResolver({
+            web3,
+            orgId: orgId.address,
+            lifDeposit: lifDeposit.address
+        });
         resolver.registerFetchMethod(httpFetchMethod);
     });
 
@@ -152,7 +160,7 @@ describe('Resolver', () => {
         const content = 'content';
         let resolver;
         let uri;
-        
+
         beforeEach(async () => {
             resolver = new OrgIdResolver({
                 web3,
@@ -380,11 +388,11 @@ describe('Resolver', () => {
         });
     });
 
-    describe.skip('#getLifStakeStatus', () => {
+    describe('#verifyLifStake', () => {
         let lifToken;
 
         beforeEach(async () => {
-            const tokenAddress = await orgId
+            const tokenAddress = await lifDeposit
                 .methods['getLifTokenAddress()']().call();
             lifToken = await lifTokenAtAddress(tokenAddress);
             await distributeLifTokens(
@@ -395,11 +403,11 @@ describe('Resolver', () => {
             );
             await lifToken
                 .methods['approve(address,uint256)'](
-                    orgId.address,
+                    lifDeposit.address,
                     toWeiEther('1000')
                 )
                 .send({ from: legalEntityOwner });
-            await orgId
+            await lifDeposit
                 .methods['addDeposit(bytes32,uint256)'](
                     legalEntity,
                     toWeiEther('1000')
@@ -409,18 +417,19 @@ describe('Resolver', () => {
 
         it('should fail if id not been provided', async () => {
             await assertFailure(
-                resolver.getLifStakeStatus(undefined)
+                resolver.verifyLifStake(undefined)
             );
         });
 
         it('should fail if unknown id has been provided', async () => {
             await assertFailure(
-                resolver.getLifStakeStatus(unknownId)
+                resolver.verifyLifStake(unknownId)
             );
         });
 
         it('should return Lif stake status', async () => {
-            const info = await resolver.getLifStakeStatus(legalEntity);
+            await resolver.verifyLifStake(legalEntity);
+            const info = resolver.result.lifDeposit;
             (info).should.be.an('object');
             (info).should.has.property('deposit');
             (info).should.has.property('withdrawalRequest');
@@ -428,31 +437,31 @@ describe('Resolver', () => {
     });
 
     describe('#resolve', () => {
-        // let lifToken;
+        let lifToken;
 
-        // beforeEach(async () => {
-        //     const tokenAddress = await orgId
-        //         .methods['getLifTokenAddress()']().call();
-        //     lifToken = await lifTokenAtAddress(tokenAddress);
-        //     await distributeLifTokens(
-        //         lifToken,
-        //         orgIdOwner,
-        //         '2000',
-        //         [ legalEntityOwner ]
-        //     );
-        //     await lifToken
-        //         .methods['approve(address,uint256)'](
-        //             orgId.address,
-        //             toWeiEther('1000')
-        //         )
-        //         .send({ from: legalEntityOwner });
-        //     await orgId
-        //         .methods['addDeposit(bytes32,uint256)'](
-        //             legalEntity,
-        //             toWeiEther('1000')
-        //         )
-        //         .send({ from: legalEntityOwner });
-        // });
+        beforeEach(async () => {
+            const tokenAddress = await lifDeposit
+                .methods['getLifTokenAddress()']().call();
+            lifToken = await lifTokenAtAddress(tokenAddress);
+            await distributeLifTokens(
+                lifToken,
+                orgIdOwner,
+                '2000',
+                [ legalEntityOwner ]
+            );
+            await lifToken
+                .methods['approve(address,uint256)'](
+                    lifDeposit.address,
+                    toWeiEther('1000')
+                )
+                .send({ from: legalEntityOwner });
+            await lifDeposit
+                .methods['addDeposit(bytes32,uint256)'](
+                    legalEntity,
+                    toWeiEther('1000')
+                )
+                .send({ from: legalEntityOwner });
+        });
 
         it('should fail if did not been provided', async () => {
             await assertFailure(

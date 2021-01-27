@@ -13,7 +13,7 @@ cleanup() {
     echo "Testing environment is cleaned"
 }
 
-if [ "$COVERAGE" = true ]; then 
+if [ "$COVERAGE" = true ]; then
     echo "Running tests with coverage"
     npx nyc --reporter lcov mocha --exit -R spec --timeout 70000 ./test/spec/**/*.js
 
@@ -21,7 +21,7 @@ if [ "$COVERAGE" = true ]; then
         cat coverage/lcov.info | npx coveralls
     fi
 
-else 
+else
     echo "Running tests without coverage"
 
     if [ -z "$@" ]; then
@@ -30,5 +30,5 @@ else
         testDir="$@"
     fi
 
-    npx mocha --exit -R spec --timeout 70000 "$testDir"    
+    npx mocha --exit -R spec --timeout 70000 "$testDir"
 fi

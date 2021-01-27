@@ -1,11 +1,11 @@
 [![Build Status](https://travis-ci.org/windingtree/org.id-resolver.svg?branch=master)](https://travis-ci.org/windingtree/org.id-resolver)
-[![Coverage Status](https://coveralls.io/repos/github/windingtree/org.id-resolver/badge.svg?branch=master)](https://coveralls.io/github/windingtree/org.id-resolver?branch=master&v=2.0) 
+[![Coverage Status](https://coveralls.io/repos/github/windingtree/org.id-resolver/badge.svg?branch=master)](https://coveralls.io/github/windingtree/org.id-resolver?branch=master&v=2.0)
 
 # ORG.ID DID Resolver Library
 
 DID Resolver of the Winding Tree ORG.ID protocol
 
-## Initial setup  
+## Initial setup
 
 ```bash
 npm i
@@ -16,13 +16,13 @@ npm i
 ```bash
 npm run test
 npm run test ./<path_to_test_file>.js
-``` 
+```
 
-## Tests coverage  
+## Tests coverage
 
 ```bash
 npm run coverage
-``` 
+```
 
 ## Linting
 
@@ -44,7 +44,7 @@ const { OrgIdResolver, httpFetchMethod } = require('@windingtree/org.id-resolver
 
 const web3 = new Web3('<WEB3_PROVIDER_URI>');
 const resolver = new OrgIdResolver({
-    web3, 
+    web3,
     orgId: '<ORGID_INSTANCE_ADDRESS>'
 });
 resolver.registerFetchMethod(httpFetchMethod); // Allowing to fetch files from the web
@@ -59,7 +59,7 @@ The result will look like:
     didDocument: {
         '@context': [
             'https://www.w3.org/ns/did/v1',
-            'https://windingtree.com/ns/orgid/v1' 
+            'https://windingtree.com/ns/orgid/v1'
         ],
         id: 'did:orgid:0x62a7502f4c44d8147b8f7b2a1dbeb8503e8446e77355bb2e4ebf999c7ecc5808',
         created: '2019-01-01T13:10:02.251Z',
@@ -76,17 +76,17 @@ The result will look like:
             legalType: 'GmBH',
             registeredAddress: [Object],
             locations: [Array],
-            contacts: [Array] 
-        } 
+            contacts: [Array]
+        }
     },
     errors: [
         'Failed assertion trust.assertions[1]: Cannot get the proof',
         'Failed assertion trust.assertions[2]: DID not found in the claim',
-        'Failed assertion trust.assertions[3]: Cannot get the proof' 
+        'Failed assertion trust.assertions[3]: Cannot get the proof'
     ],
     resolverMetadata: {
         retrieved: '2020-02-21T18:14:13.278Z',
-        duration: 979 
+        duration: 979
     }
 }
 ```
@@ -94,5 +94,5 @@ The result will look like:
 ## Todo
 - More tests
 - Documentation
-- Cache control 
+- Cache control
 - Additional fetching methods like: IPFS, Swarm, Arweave

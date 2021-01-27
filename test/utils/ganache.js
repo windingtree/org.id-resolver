@@ -14,7 +14,7 @@ module.exports.ganache = (options = {}) => new Promise((resolve, reject) => {
 
     // Set web3 provider
     web3.setProvider(provider);
-        
+
     server.listen(options.port ? options.port : portNumber++, error => {
 
         if (error) {

@@ -159,7 +159,7 @@ describe('Resolver', () => {
         const content = 'content';
         let resolver;
         let uri;
-        
+
         beforeEach(async () => {
             resolver = new OrgIdResolver({
                 web3,
@@ -273,7 +273,7 @@ describe('Resolver', () => {
         it('should fail if unknown organization id has been provided', async () => {
             await assertFailure(
                 resolver.getDidDocumentUri(unknownId),
-                'OrgId: Organization with given orgId not found'
+                'Organization with given orgId not found'
             );
         });
 

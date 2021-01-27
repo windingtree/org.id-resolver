@@ -17,7 +17,7 @@
     "url": "git+ssh://git@github.com:windingtree/org.id-resolver.git"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
     "build": "rm -rf dist/ && npx babel --source-type module --minified --source-maps inline src --out-dir dist",
@@ -27,25 +27,25 @@
     "ganache": "./scripts/ganache.sh"
   },
   "dependencies": {
-    "@truffle/contract": "4.1.9",
-    "@babel/polyfill": "7.8.3",
-    "@windingtree/org.id": "0.10.0",
-    "@windingtree/org.json-schema": "0.3.0",
-    "axios": "0.19.2",
+    "@truffle/contract": "4.3.5",
+    "@babel/polyfill": "7.12.1",
+    "@windingtree/org.id": "1.1.1",
+    "@windingtree/org.json-schema": "0.3.4",
+    "axios": "0.21.1",
     "ajv": "6.11.0"
   },
   "devDependencies": {
-    "@babel/core": "7.8.4",
-    "@babel/cli": "7.8.4",
-    "@babel/preset-env": "7.8.4",
-    "eslint": "6.8.0",
-    "mocha": "7.0.1",
+    "@babel/core": "7.12.10",
+    "@babel/cli": "7.12.10",
+    "@babel/preset-env": "7.12.11",
+    "eslint": "7.18.0",
+    "mocha": "8.2.1",
     "chai": "4.2.0",
-    "nyc": "15.0.0",
-    "coveralls": "3.0.9",
-    "ganache-cli": "6.9.1",
-    "@openzeppelin/upgrades": "2.7.1",
-    "@openzeppelin/cli": "2.7.1",
-    "husky": "4.2.3"
+    "nyc": "15.1.0",
+    "coveralls": "3.1.0",
+    "ganache-core": "2.13.2",
+    "@openzeppelin/upgrades": "2.8.0",
+    "@openzeppelin/cli": "2.8.2",
+    "husky": "4.3.8"
   }
 }

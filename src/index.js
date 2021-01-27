@@ -46,7 +46,7 @@ class OrgIdResolver {
                 type: 'string'
             }
         });
-        
+
         this.reset();
         this.resolutionStart = Date.now();
         const id = await this.validateDidSyntax(did);
@@ -165,10 +165,10 @@ class OrgIdResolver {
                 case 'domain':
                     // Validate assertion.proof record
                     // should be in the assertion.claim namespace
-                    
+
                     if (!RegExp(`(^http://|https://)${assertion.claim}`)
                         .test(assertion.proof)) {
-                        
+
                         this.result.errors.push(
                             `Failed assertion trust.assertions[${i}]: Clain is not in the domain namespace`
                         );
@@ -188,11 +188,11 @@ class OrgIdResolver {
                         );
                         break;
                     }
-                    
+
                     // Look for did inside the file obtained
                     if (!RegExp(`(^http://|https://)${didDocument.id}`)
                         .test(assertionContent)) {
-                        
+
                         this.result.errors.push(
                             `Failed assertion trust.assertions[${i}]: DID not found in the claim`
                         );
@@ -210,6 +210,11 @@ class OrgIdResolver {
         const contract = createContract(OrgIdContract, this.web3);
         const orgId = await contract.at(this.orgId);
         const organization = await orgId.methods['getOrganization(bytes32)'].call(id);
+
+        if (!organization.exists) {
+            throw new Error('Organization with given orgId not found');
+        }
+
         const didDocument = await this.fetchFileByUri(organization.orgJsonUri);
 
         if (makeHash(didDocument, this.web3) !== organization.orgJsonHash) {

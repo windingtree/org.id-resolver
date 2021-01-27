@@ -5,13 +5,16 @@ const legalEntityJson = require('../../assets/legalEntity.json');
 const organizationalUnitJson = require('../../assets/organizationalUnit.json');
 
 /**
- * Generates an id on the base of string and solt
+ * Generates an id on the base of string and salt
  * @param {string} string Part of the base for id generation
- * @param {string} solt Solt string
+ * @param {string} salt Salt string
  * @returns {string}
  */
-const generateId = (string, solt = Math.random().toString()) => web3.utils.keccak256(`${string}${solt}`);
+const generateId = (string, salt) => web3.utils.soliditySha3(string, salt);
 module.exports.generateId = generateId;
+
+const generateSalt = () => web3.utils.keccak256(Math.random().toString());
+module.exports.generateSalt = generateSalt;
 
 /**
  * Generates Json Hash
@@ -35,7 +38,8 @@ const generateIdSet = async (
     jsonObject,
     fakeId = false
 ) => {
-    const id = generateId(`${from}${Math.random().toString()}`);
+    const salt = generateSalt();
+    const id = generateId(from, salt);
     const orgJson = Object.assign(
         {},
         jsonObject,
@@ -47,7 +51,7 @@ const generateIdSet = async (
     const hash = generateJsonHash(jsonString);
 
     let uri;
-    
+
     if (uriSimulator.port) {
         uri = `http://localhost:${uriSimulator.port}/${hash}.json`;
         await uriSimulator.addFile({
@@ -60,6 +64,7 @@ const generateIdSet = async (
     }
 
     return {
+        salt,
         id,
         uri,
         hash
@@ -89,9 +94,7 @@ const setupOrgId = async (owner) => {
 
     return await project.createProxy(OrgId, {
         initMethod: 'initialize',
-        initArgs: [
-            owner
-        ]
+        initArgs: []
     });
 };
 module.exports.setupOrgId = setupOrgId;
@@ -116,7 +119,7 @@ const createOrganization = async (
     fakeHash = false,
     fakeId = false
 ) => {
-    const { id, uri, hash } = await generateIdSet(
+    const { salt, id, uri, hash } = await generateIdSet(
         from,
         uriSimulator,
         jsonFile ? jsonFile : legalEntityJson,
@@ -124,10 +127,12 @@ const createOrganization = async (
     );
 
     await orgId
-        .methods['createOrganization(bytes32,string,bytes32)'](
-            id,
+        .methods['createOrganization(bytes32,bytes32,string,string,string)'](
+            salt,
+            fakeHash? fakeHash : hash,
             fakeUri ? fakeUri : uri,
-            fakeHash? fakeHash : hash
+            '',
+            ''
         )
         .send({ from });
     return id;
@@ -147,7 +152,7 @@ module.exports.createOrganization = createOrganization;
  * @param {string} fakeId Fake id to set
  * @returns {Promise<{bool}>} Subsidiary Id
  */
-const createSubsidiary = async (
+const createUnit = async (
     orgId,
     uriSimulator,
     from,
@@ -158,7 +163,7 @@ const createSubsidiary = async (
     fakeHash = false,
     fakeId = false
 ) => {
-    const { id, uri, hash } = await generateIdSet(
+    const { salt, id, uri, hash } = await generateIdSet(
         from,
         uriSimulator,
         jsonFile ? jsonFile : organizationalUnitJson,
@@ -166,17 +171,19 @@ const createSubsidiary = async (
     );
 
     await orgId
-        .methods['createSubsidiary(bytes32,bytes32,address,string,bytes32)'](
+        .methods['createUnit(bytes32,bytes32,address,bytes32,string,string,string)'](
+            salt,
             parentId,
-            id,
             director,
+            fakeHash? fakeHash : hash,
             fakeUri ? fakeUri : uri,
-            fakeHash? fakeHash : hash
+            '',
+            ''
         )
         .send({ from });
     return id;
 };
-module.exports.createSubsidiary = createSubsidiary;
+module.exports.createUnit = createUnit;
 
 /**
  * Setup organizations (main and subsidiary)
@@ -209,7 +216,7 @@ module.exports.setupOrganizations = async (
         fakeId
     );
 
-    const orgUnit = await createSubsidiary(
+    const orgUnit = await createUnit(
         orgId,
         uriSimulator,
         legalEntityOwner,

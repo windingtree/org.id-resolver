@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/org.id-resolver",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "ORGiD DID resolver",
   "keywords": [
     "orgid",
@@ -9,6 +9,12 @@
     "javascript"
   ],
   "main": "dist/index.js",
+  "bin": {
+    "did-resolver": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
   "author": "Kostiantyn Smyrnov <kostysh@gmail.com>",
   "homepage": "https://github.com/windingtree/org.id-resolver#README",
   "license": "MIT",
@@ -25,9 +31,6 @@
     "lint": "npx eslint './src/**/*.js' && npx eslint './test/**/*.js'",
     "coverage": "COVERAGE=true ./scripts/test.sh",
     "ganache": "./scripts/ganache.sh"
-  },
-  "bin": {
-    "did-resolver": "./dist/cli.js"
   },
   "dependencies": {
     "@babel/polyfill": "7.12.1",

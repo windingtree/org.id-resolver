@@ -12,7 +12,7 @@ const { makeHash } = require('./utils/document');
 // Modules
 const httpFetchMethod = require('./http');
 const { getDnsData, ResourceRecordTypes } = require('./dns');
-const { zeroAddress } = require('../test/utils/misc');
+const { zeroAddress } = require('./utils/constants');
 
 // Errors types definitions
 const checksTypes = [

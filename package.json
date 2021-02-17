@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/org.id-resolver",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "ORGiD DID resolver",
   "keywords": [
     "orgid",
@@ -33,27 +33,28 @@
     "ganache": "./scripts/ganache.sh"
   },
   "dependencies": {
-    "core-js": "3.8.3",
     "@windingtree/org.id": "1.1.5",
     "@windingtree/org.id-lif-deposit": "1.0.2",
-    "org.json-schema-0.3": "npm:@windingtree/org.json-schema@0.3.4",
-    "org.json-schema-0.4": "npm:@windingtree/org.json-schema@0.4.3",
     "ajv": "6.12.3",
-    "axios": "0.21.1"
+    "axios": "0.21.1",
+    "core-js": "3.8.3",
+    "regenerator-runtime": "0.13.7",
+    "org.json-schema-0.3": "npm:@windingtree/org.json-schema@0.3.4",
+    "org.json-schema-0.4": "npm:@windingtree/org.json-schema@0.4.3"
   },
   "devDependencies": {
-    "@babel/core": "7.12.13",
-    "@babel/cli": "7.12.13",
-    "@babel/preset-env": "7.12.13",
-    "eslint": "7.19.0",
-    "mocha": "8.2.1",
-    "chai": "4.2.0",
-    "nyc": "15.1.0",
-    "coveralls": "3.1.0",
-    "ganache-core": "2.13.2",
-    "@openzeppelin/upgrades": "2.8.0",
+    "@babel/cli": "7.12.16",
+    "@babel/core": "7.12.16",
+    "@babel/preset-env": "7.12.16",
     "@openzeppelin/cli": "2.8.2",
-    "husky": "4.3.8"
+    "@openzeppelin/upgrades": "2.8.0",
+    "chai": "4.2.0",
+    "coveralls": "3.1.0",
+    "eslint": "7.19.0",
+    "ganache-core": "2.13.2",
+    "husky": "4.3.8",
+    "mocha": "8.2.1",
+    "nyc": "15.1.0"
   },
   "publishConfig": {
     "access": "public"

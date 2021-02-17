@@ -48,12 +48,12 @@
     "@babel/preset-env": "7.12.16",
     "@openzeppelin/cli": "2.8.2",
     "@openzeppelin/upgrades": "2.8.0",
-    "chai": "4.2.0",
+    "chai": "4.3.0",
     "coveralls": "3.1.0",
-    "eslint": "7.19.0",
+    "eslint": "7.20.0",
     "ganache-core": "2.13.2",
     "husky": "4.3.8",
-    "mocha": "8.2.1",
+    "mocha": "8.3.0",
     "nyc": "15.1.0"
   },
   "publishConfig": {

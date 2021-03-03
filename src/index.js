@@ -748,7 +748,7 @@ class OrgIdResolver {
                 required: false
             },
             throw: {
-                type: 'boolen',
+                type: 'boolean',
                 required: false
             }
         });

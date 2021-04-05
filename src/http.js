@@ -8,7 +8,7 @@ module.exports = {
         const source = axios.CancelToken.source();
         const timeout = setTimeout(() => source.cancel(
             `Cannot connect to the source: ${uri}`
-        ), 5000);// connection timeout
+        ), 7000);// connection timeout
         const response = await axios.get(uri, {
             transformResponse: [data => data], // Do not convert JSON to object
             cancelToken: source.token

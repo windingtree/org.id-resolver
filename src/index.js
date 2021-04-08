@@ -11,6 +11,8 @@ const { makeHash } = require('./utils/document');
 
 // Modules
 const httpFetchMethod = require('./http');
+const linkedInFetchMethod = require('./linkedIn');
+const twitterFetchMethod = require('./twitter');
 const { getDnsData, ResourceRecordTypes } = require('./dns');
 const { zeroAddress } = require('./utils/constants');
 
@@ -49,6 +51,7 @@ class OrgIdResolver {
         });
 
         this.methodName = 'orgid';
+        this.fetchSocialMethods = {};
         this.fetchMethods = {};
         this.web3 = options.web3;
         this.orgIdAddress = options.orgId;
@@ -464,12 +467,23 @@ class OrgIdResolver {
             );
         }
 
-        // Choosing of the proper fetching method
-        for (const f in this.fetchMethods) {
+        // Try to choose a social fetch methods
+        for (const f in this.fetchSocialMethods) {
 
-            if (RegExp(this.fetchMethods[f].pattern).test(uri)) {
-                fetch = this.fetchMethods[f].fetch;
+            if (RegExp(this.fetchSocialMethods[f].pattern).test(uri)) {
+                fetch = this.fetchSocialMethods[f].fetch;
                 break;
+            }
+        }
+
+        if (!fetch) {
+            // Try to choose another fetching method
+            for (const f in this.fetchMethods) {
+
+                if (RegExp(this.fetchMethods[f].pattern).test(uri)) {
+                    fetch = this.fetchMethods[f].fetch;
+                    break;
+                }
             }
         }
 
@@ -599,6 +613,34 @@ class OrgIdResolver {
 
         this.result.didDocument = didObject;
         return this.result.didDocument;
+    }
+
+    /**
+     * Register a fetching method for social accounts
+     * @memberof OrgIdResolver
+     * @param {Object} methodConfig The fetching method configuration config
+     * @param {Object} methodOptions The fetching method options (API key, etc)
+     */
+    registerSocialFetchMethod (methodConfig = {}, methodOptions = {}) {
+        expect.all(methodConfig, {
+            name: {
+                type: 'string'
+            },
+            pattern: {
+                type: 'string'
+            },
+            fetch: {
+                type: 'function'
+            }
+        });
+
+        this.fetchSocialMethods[methodConfig.name] = {
+            ...methodConfig,
+            fetch: async uri => {
+                const options = methodOptions;
+                return await methodConfig.fetch(uri, options);
+            }
+        };
     }
 
     /**
@@ -801,4 +843,6 @@ class OrgIdResolver {
 
 module.exports.OrgIdResolver = OrgIdResolver;
 module.exports.httpFetchMethod = httpFetchMethod;
+module.exports.linkedInFetchMethod = linkedInFetchMethod;
+module.exports.twitterFetchMethod = twitterFetchMethod;
 module.exports.checksTypes = Object.assign({}, checksTypes);

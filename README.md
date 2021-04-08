@@ -31,12 +31,23 @@ npm i @windingtree/org.id-resolver
 
 ```javascript
 const Web3 = require('web3');
-const { OrgIdResolver, httpFetchMethod } = require('@windingtree/org.id-resolver');
+const {
+    OrgIdResolver,
+    httpFetchMethod,
+    linkedInFetchMethod,
+    twitterFetchMethod
+} = require('@windingtree/org.id-resolver');
 
 const web3 = new Web3('<WEB3_PROVIDER>'); // HTTP(s) or WS(s)
 const resolver = new OrgIdResolver({
     web3,
     orgId: '<ORGID_ADDRESS>' // TODO: #3
+});
+resolver.registerSocialFetchMethod(linkedInFetchMethod, {
+    key: '<LINKEDIN_API_KEY>'
+});
+resolver.registerSocialFetchMethod(twitterFetchMethod, {
+    key: '<TWITTER_API_KEY>'
 });
 resolver.registerFetchMethod(httpFetchMethod);
 

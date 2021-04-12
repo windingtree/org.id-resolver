@@ -2,7 +2,7 @@ const axios = require('axios');
 
 // Configuration of the HTTP fetching method
 module.exports = {
-    name: 'linkedIn',
+    name: 'linkedin',
     pattern: 'linkedin',
     fetch: async (uri, options) => {
         const activityId = uri.split(':activity:')[1];
@@ -24,6 +24,7 @@ module.exports = {
             }
         );
         clearTimeout(timeout);
+        console.log('@@@@@@@@@@@@@@@@@@@@@', response);
         return response.data;
     }
 };

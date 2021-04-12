@@ -35,7 +35,8 @@ const {
     OrgIdResolver,
     httpFetchMethod,
     linkedInFetchMethod,
-    twitterFetchMethod
+    twitterFetchMethod,
+    whoisService
 } = require('@windingtree/org.id-resolver');
 
 const web3 = new Web3('<WEB3_PROVIDER>'); // HTTP(s) or WS(s)
@@ -50,6 +51,7 @@ resolver.registerSocialFetchMethod(twitterFetchMethod, {
     key: '<TWITTER_API_KEY>'
 });
 resolver.registerFetchMethod(httpFetchMethod);
+resolver.registerService(whoisService);
 
 const result = await resolver.resolve('did:orgid:0x62a7502f4c44d8147b8f7b2a1dbeb8503e8446e77355bb2e4ebf999c7ecc5808');
 ```
@@ -105,6 +107,10 @@ The response of the resolver contains the following information
             "passed": true,
             "errors": [],
             "warnings": []
+        },
+        {
+            "type": "TRUST_ASSERTIONS",
+            "passed": true
         }
     ],
 
@@ -121,7 +127,23 @@ The response of the resolver contains the following information
                 "type": "domain",
                 "claim": "test2.com",
                 "proof": "http://test2.com/orgid.txt",
-                "verified": true
+                "verified": true,
+                "whois": {
+                    "domainName": "TEST2.COM",
+                    "registryDomainId": "1234567_DOMAIN_COM-VRSN",
+                    "registrarWhoisServer": "whois.server.net",
+                    "registrarUrl": "http://www.whois.net",
+                    "updatedDate": "2021-03-22T05:01:08Z",
+                    "creationDate": "2011-05-09T18:58:13Z",
+                    "expiryDate": "2024-05-09T18:58:13Z",
+                    "registrar": "Cool Domain",
+                    "registrarIanaId": "345",
+                    "registrarAbuseContactEmail": "abuse@support.server.net",
+                    "registrarAbuseContactPhone": "+33.1234567",
+                    "domainStatus": "clientTransferProhibited",
+                    "nameServer": "NS.SERVER.COM",
+                    "DNSSEC": "unsigned"
+                }
             },
             {
                 "type": "domain",

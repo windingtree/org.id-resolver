@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/org.id-resolver",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "ORGiD DID resolver",
   "keywords": [
     "orgid",
@@ -38,9 +38,10 @@
     "ajv": "6.12.3",
     "axios": "0.21.1",
     "core-js": "3.8.3",
-    "regenerator-runtime": "0.13.7",
     "org.json-schema-0.3": "npm:@windingtree/org.json-schema@0.3.4",
-    "org.json-schema-0.4": "npm:@windingtree/org.json-schema@0.4.3"
+    "org.json-schema-0.4": "npm:@windingtree/org.json-schema@0.4.3",
+    "regenerator-runtime": "0.13.7",
+    "whois-light": "1.0.3"
   },
   "devDependencies": {
     "@babel/cli": "7.12.16",

@@ -13,6 +13,7 @@ const { makeHash } = require('./utils/document');
 const httpFetchMethod = require('./http');
 const linkedInFetchMethod = require('./linkedIn');
 const twitterFetchMethod = require('./twitter');
+const whoisService = require('./whois');
 const { getDnsData, ResourceRecordTypes } = require('./dns');
 const { zeroAddress } = require('./utils/constants');
 
@@ -53,6 +54,7 @@ class OrgIdResolver {
         this.methodName = 'orgid';
         this.fetchSocialMethods = {};
         this.fetchMethods = {};
+        this.serviceMethods = {};
         this.web3 = options.web3;
         this.orgIdAddress = options.orgId;
         this.lifDepositAddress = options.lifDeposit;
@@ -243,9 +245,12 @@ class OrgIdResolver {
 
         // Assertions verification
         for (let i = 0; i < trust.assertions.length; i++) {
-            const assertion = trust.assertions[i];
+            let assertion = trust.assertions[i];
             let assertionContent;
             let proofFound = false;
+
+            // WHOIS information about domain
+            let whoisInfo;
 
             switch (assertion.type) {
 
@@ -307,6 +312,19 @@ class OrgIdResolver {
                 case 'social':
                 case 'domain':
 
+                    try {
+                        // Fetch WHOIS information for domain
+                        if (assertion.type === 'domain' && this.serviceMethods.whois) {
+                            const rootDomain = assertion.claim.match(/[^.]+\.[^.]+$/)[0];
+                            whoisInfo = await this.serviceMethods.whois.fetch(rootDomain);
+                        }
+                    } catch (err) {
+                        this.addCheckResult({
+                            type: 'TRUST_ASSERTIONS',
+                            error: `trust.assertions[${i}]: unable to fetch whois information`
+                        });
+                    }
+
                     // Validate assertion.proof record
                     // should be in the assertion.claim namespace
                     if (!RegExp(`^(http|https)://(www.){0,1}${assertion.claim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
@@ -357,6 +375,17 @@ class OrgIdResolver {
             }
 
             assertion.verified = proofFound;
+            assertion = {
+                ...assertion,
+                ...(
+                    whoisInfo
+                        ? {
+                            whois: whoisInfo
+                        }
+                        : {}
+                )
+            };
+            trust.assertions[i] = assertion;
 
             if (proofFound) {
                 isProofsFound = true;
@@ -665,6 +694,24 @@ class OrgIdResolver {
     }
 
     /**
+     * Register a service method
+     * @memberof OrgIdResolver
+     * @param {Object} methodConfig The service method configuration config
+     */
+    registerService (methodConfig = {}) {
+        expect.all(methodConfig, {
+            name: {
+                type: 'string'
+            },
+            fetch: {
+                type: 'function'
+            }
+        });
+
+        this.serviceMethods[methodConfig.name] = methodConfig;
+    }
+
+    /**
      * Get the OrgId contract instance
      * @memberof OrgIdResolver
      * @returns {Object} The OrgId contract instance
@@ -845,4 +892,5 @@ module.exports.OrgIdResolver = OrgIdResolver;
 module.exports.httpFetchMethod = httpFetchMethod;
 module.exports.linkedInFetchMethod = linkedInFetchMethod;
 module.exports.twitterFetchMethod = twitterFetchMethod;
+module.exports.whoisService = whoisService;
 module.exports.checksTypes = Object.assign({}, checksTypes);

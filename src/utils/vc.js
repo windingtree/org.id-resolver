@@ -1,4 +1,3 @@
-const expect = require('./expect');
 const { verifyVc } = require('@windingtree/vc');
 
 module.exports.validateVc = async (

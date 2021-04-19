@@ -1,11 +1,13 @@
 const { TestHelper } = require('@openzeppelin/cli');
 const { Contracts, ZWeb3 } = require('@openzeppelin/upgrades');
+const { createVc } = require('@windingtree/vc');
 
 const legalEntityJson = require('../../assets/legalEntity.json');
 const organizationalUnitJson = require('../../assets/organizationalUnit.json');
 const { setupLifToken } = require('./lif');
 const { HttpFileServer } = require('./httpServer');
 const { ResourceRecordTypes } = require('../../src/dns');
+const keys = require('../fixtures/keys.json');
 
 // Template for fake Google public DNS API response
 const publicDnsResponse = {
@@ -85,7 +87,7 @@ const generateTrustAssertions = (
 ) => Promise.all(config.map(async (t) => {
 
     let record = {
-        type: t.type
+        ...t
     };
 
     switch (t.type) {
@@ -122,13 +124,15 @@ const generateTrustAssertions = (
         case 'social':
         case 'domain':
 
-            record.proof = `${process.env.FAKE_WEB_SERVER_URI}/${did}.txt`;
-            record.claim = `localhost:${global.httpFileServer.port}`;
-            await global.httpFileServer.addFile({
-                content: `This is my DID: ${did}`,
-                type: 'txt',
-                path: `${did}.txt`
-            });
+            if (!record.proof) {
+                record.proof = `${process.env.FAKE_WEB_SERVER_URI}/${did}.txt`;
+                record.claim = `localhost:${global.httpFileServer.port}`;
+                await global.httpFileServer.addFile({
+                    content: `This is my DID: ${did}`,
+                    type: 'txt',
+                    path: `${did}.txt`
+                });
+            }
 
             break;
         default:
@@ -154,11 +158,41 @@ const generateIdSet = async (
     const did = `did:orgid:${fakeId ? fakeId : id}`;
     const orgJson = Object.assign(
         {},
-        jsonObject,
+        JSON.parse(JSON.stringify(jsonObject)),
         {
             id: did
         }
     );
+    // Add public key
+    orgJson.publicKey.push({
+        controller: did,
+        id: `${did}#key1`,
+        publicKeyPem: keys[0].pub,
+        type: keys[0].alg
+    });
+    // Create VC
+    const issuerDid = did;
+    const holderDid = did;
+    const vcType = 'TrustAssertion';
+    const verificationMethod = `${did}#key1`;
+    const signatureType = keys[0].alg;
+    const proofPurpose = 'assertionMethod';
+    const subject = {
+        id: holderDid,
+        type: 'social',
+        claim: 'https://t.me/windingtree'
+    };
+    const vc = createVc(
+        subject,
+        issuerDid,
+        holderDid,
+        vcType,
+        verificationMethod,
+        signatureType,
+        keys[0].pem,
+        proofPurpose
+    );
+    orgJson.trust.credentials.push(vc);
     // Create some trust assertions records
     const trustAssertions = await generateTrustAssertions(
         did,
@@ -173,6 +207,11 @@ const generateIdSet = async (
             },
             {
                 type: 'social'
+            },
+            {
+                type: 'social',
+                claim: vc.credentialSubject.claim,
+                proof: vc.id
             }
         ]
     );
@@ -364,16 +403,20 @@ module.exports.setupOrganizations = async (
         fakeId
     );
 
-    const orgUnit = await createUnit(
-        orgId,
-        legalEntityOwner,
-        legalEntity,
-        orgUnitOwner,
-        fakeJson,
-        fakeUri,
-        fakeHash,
-        fakeId
-    );
+    let orgUnit;
+
+    if (orgUnitOwner) {
+        orgUnit = await createUnit(
+            orgId,
+            legalEntityOwner,
+            legalEntity,
+            orgUnitOwner,
+            fakeJson,
+            fakeUri,
+            fakeHash,
+            fakeId
+        );
+    }
 
     return {
         legalEntity,

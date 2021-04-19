@@ -5,7 +5,7 @@ require('chai').should();
 
 describe('Public DNS tester', () => {
     let fakeDns;
-    
+
     before(async () => {
         fakeDns = await setupFakePublicDNS();
     });
@@ -15,7 +15,7 @@ describe('Public DNS tester', () => {
     });
 
     describe('#getDnsData', () => {
-        
+
         it('should get the DNS record', async () => {
             const domain = 'example.com';
             const did = 'did:orgid:0xd1e15bcea4bbf5fa55e36bb5aa9ad5183a4acdc1b06a0f21f3dba8868dee2c99';

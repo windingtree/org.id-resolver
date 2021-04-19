@@ -315,6 +315,7 @@ describe('Resolver', () => {
         });
 
         it('should verify trust assertions', async () => {
+            // console.log('@@@', JSON.stringify(didDocument, null, 2));
             await resolver.verifyTrustRecords(didDocument);
             const checks = toChecksObject(resolver.result.checks);
             (checks.TRUST_ASSERTIONS.passed).should.be.true;

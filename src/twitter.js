@@ -4,7 +4,7 @@ const axios = require('axios');
 
 // Configuration of the HTTP fetching method
 module.exports = {
-    name: 'linkedIn',
+    name: 'twitter',
     pattern: 'twitter',
     fetch: async (uri, options) => {
         const tweetId = uri.split('/status/')[1];

@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/org.id-resolver",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "ORGiD DID resolver",
   "keywords": [
     "orgid",
@@ -35,26 +35,27 @@
   "dependencies": {
     "@windingtree/org.id": "1.1.5",
     "@windingtree/org.id-lif-deposit": "1.0.2",
+    "@windingtree/vc": "0.1.2",
     "ajv": "6.12.3",
     "axios": "0.21.1",
-    "core-js": "3.8.3",
+    "core-js": "3.10.1",
     "org.json-schema-0.3": "npm:@windingtree/org.json-schema@0.3.4",
     "org.json-schema-0.4": "npm:@windingtree/org.json-schema@0.4.3",
     "regenerator-runtime": "0.13.7",
     "whois-light": "1.0.3"
   },
   "devDependencies": {
-    "@babel/cli": "7.12.16",
-    "@babel/core": "7.12.16",
-    "@babel/preset-env": "7.12.16",
+    "@babel/cli": "7.13.14",
+    "@babel/core": "7.13.15",
+    "@babel/preset-env": "7.13.15",
     "@openzeppelin/cli": "2.8.2",
     "@openzeppelin/upgrades": "2.8.0",
-    "chai": "4.3.0",
+    "chai": "4.3.4",
     "coveralls": "3.1.0",
-    "eslint": "7.20.0",
+    "eslint": "7.24.0",
     "ganache-core": "2.13.2",
-    "husky": "4.3.8",
-    "mocha": "8.3.0",
+    "husky": "6.0.0",
+    "mocha": "8.3.2",
     "nyc": "15.1.0"
   },
   "publishConfig": {

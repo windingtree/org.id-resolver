@@ -1,4 +1,5 @@
 const packageJson = require('../package.json');
+const { validateVc } = require('./utils/vc');
 const didDocumentSchema = require('org.json-schema-0.3');
 const didDocumentSchema04 = require('org.json-schema-0.4');
 const { OrgIdContract } = require('@windingtree/org.id');
@@ -317,6 +318,8 @@ class OrgIdResolver {
                         if (assertion.type === 'domain' && this.serviceMethods.whois) {
                             const rootDomain = assertion.claim.match(/[^.]+\.[^.]+$/)[0];
                             whoisInfo = await this.serviceMethods.whois.fetch(rootDomain);
+                            proofFound = true;
+                            break;
                         }
                     } catch (err) {
                         this.addCheckResult({
@@ -325,44 +328,95 @@ class OrgIdResolver {
                         });
                     }
 
-                    // Validate assertion.proof record
-                    // should be in the assertion.claim namespace
-                    if (!RegExp(`^(http|https)://(www.){0,1}${assertion.claim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
-                        .test(assertion.proof)) {
+                    // If an object provided as proof then
+                    // we need to validate this proof as a Verifiable credential
+                    if (assertion.proof.match(/^did.orgid/)) {
+                        try {
+                            const didDocumentResult = this.result.checks.filter(c => c.type === 'DID_DOCUMENT')[0];
 
-                        this.addCheckResult({
-                            type: 'TRUST_ASSERTIONS',
-                            error: `trust.assertions[${i}]: claim is not in the domain namespace`
-                        });
-                        break;
+                            // Use resolved DID document to avoid recursive calls
+                            if (assertion.proof.match(new RegExp(`^did.orgid:${this.result.id}`))) {
+
+                                if (!didDocumentResult || !didDocumentResult.passed) {
+                                    this.addCheckResult({
+                                        type: 'TRUST_ASSERTIONS',
+                                        error: `trust.assertions[${i}]: VC issuer DID not pass verification`
+                                    });
+                                    break;
+                                }
+
+                                await validateVc(
+                                    assertion.proof,
+                                    didDocument.id,
+                                    assertion.claim,
+                                    null,
+                                    this.result.didDocument
+                                );
+                            } else {
+
+                                const resolver = this.spawnResolver();
+                                await validateVc(
+                                    assertion.proof,
+                                    didDocument.id,
+                                    assertion.claim,
+                                    resolver
+                                );
+                            }
+
+                            proofFound = true;
+                            break;
+                        } catch (err) {
+                            console.log('###', err);
+
+                            this.addCheckResult({
+                                type: 'TRUST_ASSERTIONS',
+                                error: `trust.assertions[${i}]: VC DID not pass verification`
+                            });
+                            break;
+                        }
+
+                    } else if (typeof assertion.proof === 'string') {
+                        // Validate assertion.proof record as URL to the proof
+
+                        // should be in the assertion.claim namespace
+                        if (!RegExp(`^(http|https)://(www.){0,1}${assertion.claim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
+                            .test(assertion.proof)) {
+
+                            this.addCheckResult({
+                                type: 'TRUST_ASSERTIONS',
+                                error: `trust.assertions[${i}]: claim is not in the domain namespace`
+                            });
+                            break;
+                        }
+
+                        // Fetch file with proof by URI
+                        try {
+                            assertionContent = await this.fetchFileByUri(assertion.proof);
+                            assertionContent = typeof assertionContent === 'object'
+                                ? JSON.stringify(assertionContent)
+                                : assertionContent;
+                        } catch (err) {
+
+                            this.addCheckResult({
+                                type: 'TRUST_ASSERTIONS',
+                                error: `trust.assertions[${i}]: cannot get the proof`
+                            });
+                            break;
+                        }
+
+                        // Look for a did inside the file obtained
+                        if (!RegExp(id, 'im').test(assertionContent)) {
+
+                            this.addCheckResult({
+                                type: 'TRUST_ASSERTIONS',
+                                error: `trust.assertions[${i}]: DID not found in the claim`
+                            });
+                            break;
+                        }
+
+                        proofFound = true;
                     }
 
-                    // Fetch file by URI
-                    try {
-                        assertionContent = await this.fetchFileByUri(assertion.proof);
-                        assertionContent = typeof assertionContent === 'object'
-                            ? JSON.stringify(assertionContent)
-                            : assertionContent;
-                    } catch (err) {
-
-                        this.addCheckResult({
-                            type: 'TRUST_ASSERTIONS',
-                            error: `trust.assertions[${i}]: cannot get the proof`
-                        });
-                        break;
-                    }
-
-                    // Look for did inside the file obtained
-                    if (!RegExp(id, 'im').test(assertionContent)) {
-
-                        this.addCheckResult({
-                            type: 'TRUST_ASSERTIONS',
-                            error: `trust.assertions[${i}]: DID not found in the claim`
-                        });
-                        break;
-                    }
-
-                    proofFound = true;
                     break;
 
                 default:
@@ -885,6 +939,19 @@ class OrgIdResolver {
                 `${type}: ${error}`
             );
         }
+    }
+
+    spawnResolver () {
+        const spawnedResolver = new OrgIdResolver({
+            web3: this.web3,
+            orgId: this.orgIdAddress,
+            lifDeposit: this.lifDepositAddress
+        });
+
+        spawnedResolver.fetchSocialMethods = this.fetchSocialMethods;
+        spawnedResolver.fetchMethods = this.fetchMethods;
+        spawnedResolver.serviceMethods = this.serviceMethods;
+        return spawnedResolver;
     }
 }
 

@@ -7,7 +7,7 @@ const organizationalUnitJson = require('../../assets/organizationalUnit.json');
 const { setupLifToken } = require('./lif');
 const { HttpFileServer } = require('./httpServer');
 const { ResourceRecordTypes } = require('../../src/dns');
-const keys = require('../fixtures/keys.json');
+const keys = require('../fixtures/testKeys.json');
 
 // Template for fake Google public DNS API response
 const publicDnsResponse = {

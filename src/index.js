@@ -49,6 +49,10 @@ class OrgIdResolver {
             lifDeposit: {
                 type: 'address',
                 required: false
+            },
+            authorizedTrustProofsIssuers: {
+                type: 'object',
+                required: false
             }
         });
 
@@ -59,6 +63,7 @@ class OrgIdResolver {
         this.web3 = options.web3;
         this.orgIdAddress = options.orgId;
         this.lifDepositAddress = options.lifDeposit;
+        this.authorizedTrustProofsIssuers = options.authorizedTrustProofsIssuers;
 
         this.validator = null;
         this.resolutionStart = null;
@@ -328,14 +333,19 @@ class OrgIdResolver {
                         });
                     }
 
-                    // If an object provided as proof then
+                    // If an object provided as VC proof then
                     // we need to validate this proof as a Verifiable credential
                     if (assertion.proof.match(/^did.orgid/)) {
                         try {
-                            const didDocumentResult = this.result.checks.filter(c => c.type === 'DID_DOCUMENT')[0];
+                            const issuerDid = assertion.proof.split('#')[0];
+
+                            if (this.authorizedTrustProofsIssuers && !this.authorizedTrustProofsIssuers.includes(issuerDid)) {
+                                throw new Error(`Not authorized trust proof issuer: ${issuerDid}`);
+                            }
 
                             // Use resolved DID document to avoid recursive calls
                             if (assertion.proof.match(new RegExp(`^did.orgid:${this.result.id}`))) {
+                                const didDocumentResult = this.result.checks.filter(c => c.type === 'DID_DOCUMENT')[0];
 
                                 if (!didDocumentResult || !didDocumentResult.passed) {
                                     this.addCheckResult({

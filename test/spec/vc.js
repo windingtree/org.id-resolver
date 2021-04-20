@@ -46,7 +46,10 @@ describe('VC', () => {
 
             resolver = new OrgIdResolver({
                 web3,
-                orgId: orgId.address
+                orgId: orgId.address,
+                authorizedTrustProofsIssuers: [
+                    `did:orgid:${legalEntity}`
+                ]
             });
             resolver.registerFetchMethod(httpFetchMethod);
         });

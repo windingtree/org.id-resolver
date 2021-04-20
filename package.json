@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/org.id-resolver",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "ORGiD DID resolver",
   "keywords": [
     "orgid",
@@ -35,7 +35,7 @@
   "dependencies": {
     "@windingtree/org.id": "1.1.5",
     "@windingtree/org.id-lif-deposit": "1.0.2",
-    "@windingtree/vc": "0.1.2",
+    "@windingtree/vc": "0.1.4",
     "ajv": "6.12.3",
     "axios": "0.21.1",
     "core-js": "3.10.1",

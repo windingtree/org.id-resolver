@@ -337,41 +337,11 @@ class OrgIdResolver {
                     // we need to validate this proof as a Verifiable credential
                     if (assertion.proof.match(/^did.orgid/)) {
                         try {
-                            const issuerDid = assertion.proof.split('#')[0];
-
-                            if (this.authorizedTrustProofsIssuers && !this.authorizedTrustProofsIssuers.includes(issuerDid)) {
-                                throw new Error(`Not authorized trust proof issuer: ${issuerDid}`);
-                            }
-
-                            // Use resolved DID document to avoid recursive calls
-                            if (assertion.proof.match(new RegExp(`^did.orgid:${this.result.id}`))) {
-                                const didDocumentResult = this.result.checks.filter(c => c.type === 'DID_DOCUMENT')[0];
-
-                                if (!didDocumentResult || !didDocumentResult.passed) {
-                                    this.addCheckResult({
-                                        type: 'TRUST_ASSERTIONS',
-                                        error: `trust.assertions[${i}]: VC issuer DID not pass verification`
-                                    });
-                                    break;
-                                }
-
-                                await validateVc(
-                                    assertion.proof,
-                                    didDocument.id,
-                                    assertion.claim,
-                                    null,
-                                    this.result.didDocument
-                                );
-                            } else {
-
-                                const resolver = this.spawnResolver();
-                                await validateVc(
-                                    assertion.proof,
-                                    didDocument.id,
-                                    assertion.claim,
-                                    resolver
-                                );
-                            }
+                            await validateVc(
+                                this,
+                                assertion.proof,
+                                assertion.claim
+                            );
 
                             proofFound = true;
                             break;
@@ -385,7 +355,7 @@ class OrgIdResolver {
                             break;
                         }
 
-                    } else if (typeof assertion.proof === 'string') {
+                    } else {
                         // Validate assertion.proof record as URL to the proof
 
                         // should be in the assertion.claim namespace

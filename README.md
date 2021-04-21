@@ -42,7 +42,10 @@ const {
 const web3 = new Web3('<WEB3_PROVIDER>'); // HTTP(s) or WS(s)
 const resolver = new OrgIdResolver({
     web3,
-    orgId: '<ORGID_ADDRESS>' // TODO: #3
+    orgId: '<ORGID_ADDRESS>', // TODO: #3
+    authorizedTrustProofsIssuers: [
+        'did:orgid:0x52f750...' // These DIDs will be allowed to be used as issuers and verifiers for the Trust proofs issuing in form of Verifiable Credentials
+    ]
 });
 resolver.registerSocialFetchMethod(linkedInFetchMethod, {
     key: '<LINKEDIN_API_KEY>'

@@ -71,6 +71,8 @@ module.exports.validateVc = async (resolver, proof, claim) => {
         throw new Error(`Unable to find verification key: ${verificationMethod}`);
     }
 
+    console.log('@@@', verificationKey.publicKeyPem);
+
     // Validate VC integrity
     const verificationResult = verifyVc(
         vc,

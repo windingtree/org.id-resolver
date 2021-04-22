@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/org.id-resolver",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "ORGiD DID resolver",
   "keywords": [
     "orgid",
@@ -23,7 +23,7 @@
     "url": "git+ssh://git@github.com:windingtree/org.id-resolver.git"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=10"
   },
   "scripts": {
     "build": "rm -rf dist/ && npx babel --source-type module --minified --source-maps inline src --out-dir dist",

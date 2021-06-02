@@ -2,20 +2,24 @@
   "name": "@windingtree/org.id-resolver",
   "version": "2.4.1",
   "description": "ORGiD DID resolver",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "orgid",
     "did",
     "resolver",
     "javascript"
   ],
-  "main": "dist/index.js",
-  "bin": {
-    "did-resolver": "./dist/cli.js"
-  },
+  "main": "dist/index.ts",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "author": "Kostiantyn Smyrnov <kostysh@gmail.com>",
+  "author": "Winding Tree Developers <dev@windingtree.com>",
+  "contributors": [
+    "Kostiantyn Smyrnov <kostysh@gmail.com>"
+  ],
   "homepage": "https://github.com/windingtree/org.id-resolver#README",
   "license": "MIT",
   "repository": {
@@ -23,42 +27,29 @@
     "url": "git+ssh://git@github.com:windingtree/org.id-resolver.git"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
-    "build": "rm -rf dist/ && npx babel --source-type module --minified --source-maps inline src --out-dir dist",
-    "test": "./scripts/test.sh",
-    "lint": "npx eslint './src/**/*.js' && npx eslint './test/**/*.js'",
-    "coverage": "COVERAGE=true ./scripts/test.sh",
-    "ganache": "./scripts/ganache.sh"
+    "lint": "npx eslint . --ext .ts",
+    "lint:fix": "npx eslint . --ext .ts --fix",
+    "build": "rm -rf dist && npx tsc -p tsconfig-build.json",
+    "build:docs": "rm -rf docs && npx typedoc --plugin typedoc-plugin-markdown --readme none --out docs src/index.ts",
+    "test": "npx jest",
+    "test:coverage": "npx jest --coverage"
   },
   "dependencies": {
-    "@windingtree/org.id": "1.1.5",
-    "@windingtree/org.id-lif-deposit": "1.0.2",
-    "@windingtree/vc": "0.1.4",
-    "ajv": "6.12.3",
-    "axios": "0.21.1",
-    "core-js": "3.10.1",
-    "org.json-schema-0.3": "npm:@windingtree/org.json-schema@0.3.4",
-    "org.json-schema-0.4": "npm:@windingtree/org.json-schema@0.4.3",
-    "regenerator-runtime": "0.13.7",
-    "whois-light": "1.0.3"
+    "@windingtree/org.id": "2.0.0",
+    "@windingtree/org.json-schema": "0.5.5-beta"
   },
   "devDependencies": {
-    "@babel/cli": "7.13.14",
-    "@babel/core": "7.13.15",
-    "@babel/preset-env": "7.13.15",
-    "@openzeppelin/cli": "2.8.2",
-    "@openzeppelin/upgrades": "2.8.0",
-    "chai": "4.3.4",
-    "coveralls": "3.1.0",
-    "eslint": "7.24.0",
-    "ganache-core": "2.13.2",
-    "husky": "6.0.0",
-    "mocha": "8.3.2",
-    "nyc": "15.1.0"
-  },
-  "publishConfig": {
-    "access": "public"
+    "@types/jest": "26.0.23",
+    "@typescript-eslint/eslint-plugin": "4.26.0",
+    "@typescript-eslint/parser": "4.26.0",
+    "eslint": "7.27.0",
+    "jest": "27.0.3",
+    "ts-jest": "27.0.2",
+    "typedoc": "0.20.36",
+    "typedoc-plugin-markdown": "3.9.0",
+    "typescript": "4.3.2"
   }
 }

@@ -1,4 +1,4 @@
-name: Unit tests
+name: Tests
 
 on: [push, pull_request]
 
@@ -10,9 +10,9 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: npm i
-      - run: npm run lint
-      - run: npm run coverage
+      - run: yarn install
+      - run: yarn run lint
+      - run: yarn run test:coverage
         env:
           COVERALLS_REPO_TOKEN: ${{secrets.coveralls_repo_token}}
           CONTINUOUS_INTEGRATION: true

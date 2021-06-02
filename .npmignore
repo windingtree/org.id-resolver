@@ -1,0 +1,12 @@
+node_modules
+coverage
+lib
+docs
+src
+test
+.gitignore
+.eslintrc
+jest.config.json
+tsconfig.json
+tsconfig-build.json
+webpack.config.js

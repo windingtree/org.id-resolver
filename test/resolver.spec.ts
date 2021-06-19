@@ -36,6 +36,6 @@ describe('ORGiD DID Resolver', () => {
   });
 
   test('AAA', async () => {
-    console.log(orgIds);
+    console.log(JSON.stringify(orgIds[0].orgJson, null, 2));
   });
 });

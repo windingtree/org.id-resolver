@@ -38,7 +38,8 @@
     "test:coverage": "npx jest --coverage"
   },
   "dependencies": {
-    "@windingtree/org.id-core": "0.3.5"
+    "@windingtree/org.id-core": "0.3.7",
+    "@windingtree/org.id-utils": "0.2.14"
   },
   "devDependencies": {
     "@types/jest": "26.0.23",

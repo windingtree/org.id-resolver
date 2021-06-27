@@ -147,9 +147,12 @@ export const getOrgId = (
   return orgIdContract.getOrgId(orgId);
 };
 
-// Fetch an actual ORG.JSON VC link for the ORGiD
-
-// Validate ORG.JSON fetch (we plan to support the following methods: http, ipfs)
+// Validate ORG.JSON URI (we plan to support the following methods: http, ipns)
+export const validateOrgJsonUri = (uri: string): void => {
+  if (!regexp.uriHttp.exec(uri) && !regexp.ipfs.exec(uri)) {
+    throw new Error(`Unsupported ORG.JSON URI type: ${uri}`);
+  }
+};
 
 // Fetch ORG.JSON VC by given link
 

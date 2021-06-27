@@ -7,7 +7,7 @@ import {
   validateOrgIdDidFormat,
   createOrgIdContract,
   getOrgId
-} from './methods';
+} from './api';
 
 // Validate ORGiD DID
 

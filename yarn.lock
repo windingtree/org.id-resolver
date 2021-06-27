@@ -1324,13 +1324,13 @@
     luxon "1.27.0"
     web3 "1.3.6"
 
-"@windingtree/org.id-core@0.3.7":
-  version "0.3.7"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-0.3.7.tgz#074f7de272d690bc7863eb055d0e7b64311a5a2d"
-  integrity sha512-18tiPq11IOh0z4RYWu60ZFpja3m5XaafZ0kS6LSnIHcglaoJROzsKb+KqTi8RS1Hz/YGEj2L+5XC0RPtV8bXZw==
+"@windingtree/org.id-core@0.3.8":
+  version "0.3.8"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-0.3.8.tgz#fd865f7c35bee1e3f97d3285160b3c1738625960"
+  integrity sha512-50HigaIk4PEkZfTI3WYhzlpCBt6OxqwdNRNbklKzPh6Wni8MEd0H41IkTs/vsbpaPYhk1iIw30YIX0s9eiv12Q==
   dependencies:
     "@windingtree/org.id" "2.0.0"
-    "@windingtree/org.id-utils" "0.2.11"
+    "@windingtree/org.id-utils" "0.2.14"
 
 "@windingtree/org.id-test-ganache-server@0.1.0":
   version "0.1.0"
@@ -1378,6 +1378,14 @@
   version "0.2.14"
   resolved "https://registry.yarnpkg.com/@windingtree/org.id-utils/-/org.id-utils-0.2.14.tgz#6ab1df4121f87e3e54c27a351c35bc0ea622c226"
   integrity sha512-01pt4sZBtBBABJgZn2JCAvQuzHoUqIDP914JA9o9vpYH9QkQ+siqYEBX4slDkE2Kh1HAAz8uMYouMfh2iCm+Ng==
+  dependencies:
+    axios "0.21.1"
+    web3 "1.3.6"
+
+"@windingtree/org.id-utils@0.2.16":
+  version "0.2.16"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-utils/-/org.id-utils-0.2.16.tgz#0b0ca6457eb1919456a313a05c9d468d66ba3e0e"
+  integrity sha512-7WkfzRT8llZE+vsAoquRxdUD1kgcHezIP6buD0HDZWlkUtBtWAztOI7lnmORESy8R3uRzvHODGrXO6OYYizCFA==
   dependencies:
     axios "0.21.1"
     web3 "1.3.6"

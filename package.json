@@ -38,8 +38,8 @@
     "test:coverage": "npx jest --coverage"
   },
   "dependencies": {
-    "@windingtree/org.id-core": "0.3.7",
-    "@windingtree/org.id-utils": "0.2.14",
+    "@windingtree/org.id-core": "0.3.8",
+    "@windingtree/org.id-utils": "0.2.16",
     "ajv": "8.6.0"
   },
   "devDependencies": {

@@ -16,8 +16,9 @@ import type {
 import {
   validateOrgIdDidFormat,
   createOrgIdContract,
-  getOrgId
-} from '../src/methods';
+  getOrgId,
+  validateOrgJsonUri
+} from '../src/api';
 
 describe('ORGiD DID Resolver', () => {
   let setup: OrgIdSetup;
@@ -54,7 +55,7 @@ describe('ORGiD DID Resolver', () => {
     await setup.close();
   });
 
-  describe('Unit tests', () => {
+  describe('API unit tests', () => {
 
     describe('#validateOrgIdDidFormat', () => {
       const dids = [
@@ -238,6 +239,35 @@ describe('ORGiD DID Resolver', () => {
         expect(orgId.owner).toBe(knownOwner);
         expect(typeof orgId.orgJsonUri).toBe('string');
         expect(typeof orgId.created).toBe('string');
+      });
+    });
+
+    describe('#validateOrgJsonUri', () => {
+      const validUri = [
+        'http://domain.com/path/to/org.json',
+        'https://domain.com/path/to/org.json',
+        'https://domain.com:4040/path/to/org.json',
+        'QmYjtig7VJQ6XsnUjqqJvj7QaMcCAwtrgNdahSiFofrE7o',
+        'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q',
+        'zdj7WWeQ43G6JJvLWQWZpyHuAMq6uYWRjkBXFad11vE2LHhQ7'
+      ];
+      const invalidUri = [
+        'ftp://domain.com/org.json',
+        'wss://domain.com:9090/org.json'
+      ];
+
+      test('should validate ORG.JSON URI', async () => {
+        validUri.forEach(uri => {
+          expect(() => validateOrgJsonUri(uri)).not.toThrow();
+        });
+      });
+
+      test('should fail if unsupported ORG.JSON URI provided', async () => {
+        invalidUri.forEach(uri => {
+          expect(() => validateOrgJsonUri(uri)).toThrow(
+            `Unsupported ORG.JSON URI type: ${uri}`
+          );
+        });
       });
     });
   });

@@ -1382,10 +1382,10 @@
     axios "0.21.1"
     web3 "1.3.6"
 
-"@windingtree/org.id-utils@0.2.16":
-  version "0.2.16"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-utils/-/org.id-utils-0.2.16.tgz#0b0ca6457eb1919456a313a05c9d468d66ba3e0e"
-  integrity sha512-7WkfzRT8llZE+vsAoquRxdUD1kgcHezIP6buD0HDZWlkUtBtWAztOI7lnmORESy8R3uRzvHODGrXO6OYYizCFA==
+"@windingtree/org.id-utils@0.2.17":
+  version "0.2.17"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-utils/-/org.id-utils-0.2.17.tgz#ba0a4fc8199f56d327c2a993ca9f6a4eb3641979"
+  integrity sha512-DwRpRh1LRAyVewBrGWkw3ZducDkhSTW+Kfb/mwQNfiKs9shh5ntZSvdykew+xxDLpVXa2mBgK8JKqNX5xpMZEg==
   dependencies:
     axios "0.21.1"
     web3 "1.3.6"

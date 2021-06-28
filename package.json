@@ -39,7 +39,8 @@
   },
   "dependencies": {
     "@windingtree/org.id-core": "0.3.8",
-    "@windingtree/org.id-utils": "0.2.16",
+    "@windingtree/org.id-utils": "0.2.17",
+    "@windingtree/org.id-auth": "0.4.0",
     "ajv": "8.6.0"
   },
   "devDependencies": {

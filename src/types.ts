@@ -11,6 +11,7 @@ export interface DidSubMethodsOption {
 
 export interface ResolverOptions {
   didSubMethods: DidSubMethodsOption;
+  ipfsGate?: string;
 }
 
 export interface OrgIdDidParsed {

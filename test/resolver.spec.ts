@@ -17,7 +17,8 @@ import {
   validateOrgIdDidFormat,
   createOrgIdContract,
   getOrgId,
-  validateOrgJsonUri
+  validateOrgJsonUri,
+  fetchOrgJson
 } from '../src/api';
 
 describe('ORGiD DID Resolver', () => {
@@ -26,6 +27,9 @@ describe('ORGiD DID Resolver', () => {
   let orgIdContractAddress: string;
   let accounts: string[];
   let orgIds: OrgIdRegistrationResult[];
+  let orgIdInstance: OrgIdContract;
+  let knownOrgIdHash: string;
+  let knownOwner: string;
 
   beforeAll(async () => {
     setup = await orgIdSetup();
@@ -49,6 +53,9 @@ describe('ORGiD DID Resolver', () => {
         )
       )
     );
+    knownOrgIdHash = orgIds[0].orgIdHash;
+    knownOwner = accounts[0];
+    orgIdInstance = createOrgIdContract('test', options);
   });
 
   afterAll(async () => {
@@ -216,15 +223,6 @@ describe('ORGiD DID Resolver', () => {
     });
 
     describe('#getOrgId', () => {
-      let orgIdInstance: OrgIdContract;
-      let knownOrgIdHash: string;
-      let knownOwner: string;
-
-      beforeAll(async () => {
-        knownOrgIdHash = orgIds[0].orgIdHash;
-        knownOwner = accounts[0];
-        orgIdInstance = await createOrgIdContract('test', options);
-      });
 
       test('should fail if invalid contract provided', async () => {
         expect(async () => getOrgId({} as OrgIdContract, knownOrgIdHash))
@@ -270,6 +268,34 @@ describe('ORGiD DID Resolver', () => {
         });
       });
     });
+
+    describe('#fetchOrgJson', () => {
+      let orgId: OrgIdData;
+
+      beforeAll(async () => {
+        orgId = await getOrgId(orgIdInstance, knownOrgIdHash) as OrgIdData;
+      });
+
+      test('should fail if unknown uri provided', async () => {
+        expect.assertions(1);
+        await expect(fetchOrgJson(
+          `${orgId.orgJsonUri}INVALID`,
+          options
+        ))
+          .rejects
+          .toThrow('Request failed with status code 404');
+      });
+
+      test('should fetch ORG.JSON VC', async () => {
+        const orgJsonVc = await fetchOrgJson(
+          orgId.orgJsonUri,
+          options
+        );
+        expect(typeof orgJsonVc).toBe('object');
+      });
+
+      // test('should fetch ORG.JSON VC via IPNS', () => {});
+    })
   });
 
   // describe('Integration tests', () => {});

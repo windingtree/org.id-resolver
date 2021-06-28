@@ -6,9 +6,15 @@ import type {
   OrgIdDidParsed,
   OrgIdDidGroupedResult
 } from './types';
+import type {
+  SignedVC
+} from '@windingtree/org.id-auth/dist/vc';
 import type { AnySchema } from 'ajv';
 import { OrgIdContract } from '@windingtree/org.id-core';
-import { regexp } from '@windingtree/org.id-utils';
+import {
+  regexp,
+  http
+} from '@windingtree/org.id-utils';
 import Ajv from 'ajv';
 import { validateData } from './utils/validateData';
 
@@ -39,6 +45,10 @@ export const resolverOptionsSchema: AnySchema = {
           ]
         }
       }
+    },
+    ipfsGate: {
+      type: 'string',
+      pattern: regexp.uriHttp.source
     }
   },
   required: [
@@ -155,6 +165,29 @@ export const validateOrgJsonUri = (uri: string): void => {
 };
 
 // Fetch ORG.JSON VC by given link
+export const fetchOrgJson = async (
+  uri: string,
+  options: ResolverOptions
+): Promise<SignedVC> => {
+  validateOrgJsonUri(uri);
+  validateResolverOptions(options);
+
+  let uriPrefix: string | undefined;
+
+  if (regexp.ipfs.exec(uri)) {
+
+    if (!options.ipfsGate) {
+      throw new Error('IPFS gate URI must be provided in options');
+    } else {
+      uriPrefix = `${options.ipfsGate}/ipns/`;
+    }
+  }
+
+  return http.request(
+    `${uriPrefix ? uriPrefix : ''}${uri}`,
+    'GET'
+  ) as unknown as SignedVC;
+};
 
 // Validate ORG.JSON VC against the VC schema
 

@@ -1382,11 +1382,13 @@
     axios "0.21.1"
     web3 "1.3.6"
 
-"@windingtree/org.id-utils@0.2.17":
-  version "0.2.17"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-utils/-/org.id-utils-0.2.17.tgz#ba0a4fc8199f56d327c2a993ca9f6a4eb3641979"
-  integrity sha512-DwRpRh1LRAyVewBrGWkw3ZducDkhSTW+Kfb/mwQNfiKs9shh5ntZSvdykew+xxDLpVXa2mBgK8JKqNX5xpMZEg==
+"@windingtree/org.id-utils@0.2.18":
+  version "0.2.18"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-utils/-/org.id-utils-0.2.18.tgz#5d0e1afc91d67289ed30ba53b90b8e0ed944f7d7"
+  integrity sha512-tmzkEs553/zWQK11t0t7VqxQSnbxGSwALNfWnGirN8MsGbEj0SFKkFUElRzehabMWzV6xZQLawYVB+JoEbdcng==
   dependencies:
+    ajv "8.6.0"
+    ajv-formats "2.1.0"
     axios "0.21.1"
     web3 "1.3.6"
 
@@ -1529,12 +1531,19 @@ agent-base@6:
   dependencies:
     debug "4"
 
+ajv-formats@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/ajv-formats/-/ajv-formats-2.1.0.tgz#96eaf83e38d32108b66d82a9cb0cfa24886cdfeb"
+  integrity sha512-USH2jBb+C/hIpwD2iRjp0pe0k+MvzG0mlSn/FIdCgQhUb9ALPRjt2KIQdfZDS9r0ZIeUAg7gOu9KL0PFqGqr5Q==
+  dependencies:
+    ajv "^8.0.0"
+
 ajv-keywords@^3.1.0:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-3.5.2.tgz#31f29da5ab6e00d1c2d329acf7b5929614d5014d"
   integrity sha512-5p6WTN0DdTGVQk6VjcEju19IgaHudalcfabD7yhDGeA6bcQnmL+CpveLJq/3hvfwd1aof6L386Ougkx6RfyMIQ==
 
-ajv@8.6.0:
+ajv@8.6.0, ajv@^8.0.0:
   version "8.6.0"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.6.0.tgz#60cc45d9c46a477d80d92c48076d972c342e5720"
   integrity sha512-cnUG4NSBiM4YFBxgZIj/In3/6KX+rQ2l2YPRVcvAMQGWEPKuXoPIhxzwqh31jA3IPbI4qEOp/5ILI4ynioXsGQ==

@@ -39,18 +39,17 @@
   },
   "dependencies": {
     "@windingtree/org.id-core": "0.3.8",
-    "@windingtree/org.id-utils": "0.2.17",
-    "@windingtree/org.id-auth": "0.4.0",
-    "ajv": "8.6.0"
+    "@windingtree/org.id-utils": "0.2.18",
+    "@windingtree/org.id-auth": "0.4.2"
   },
   "devDependencies": {
     "@types/jest": "26.0.23",
-    "@typescript-eslint/eslint-plugin": "4.28.0",
-    "@typescript-eslint/parser": "4.28.0",
+    "@typescript-eslint/eslint-plugin": "4.28.1",
+    "@typescript-eslint/parser": "4.28.1",
     "eslint": "7.29.0",
-    "jest": "27.0.5",
+    "jest": "27.0.6",
     "ts-jest": "27.0.3",
-    "typedoc": "0.21.0",
+    "typedoc": "0.21.2",
     "typedoc-plugin-markdown": "3.10.2",
     "typescript": "4.3.4",
     "@windingtree/org.id-test-setup": "0.1.0"

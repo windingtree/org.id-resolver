@@ -5,24 +5,19 @@ import type {
   ResolverOptions,
   OrgIdDidParsed,
   OrgIdDidGroupedResult
-} from './types';
+} from '../types';
 import type {
   SignedVC
 } from '@windingtree/org.id-auth/dist/vc';
-import type { AnySchema } from 'ajv';
 import { OrgIdContract } from '@windingtree/org.id-core';
 import {
   regexp,
-  http
+  http,
+  object
 } from '@windingtree/org.id-utils';
-import Ajv from 'ajv';
-import { validateData } from './utils/validateData';
-
-// Schema validator
-const ajv = new Ajv();
 
 // Schema for resolver options object
-export const resolverOptionsSchema: AnySchema = {
+export const resolverOptionsSchema = {
   type: 'object',
   properties: {
     didSubMethods: {
@@ -57,16 +52,18 @@ export const resolverOptionsSchema: AnySchema = {
   additionalProperties: false
 };
 
-// Validate function for data validator
-export const compiledResolverOptionsSchema = ajv.compile(resolverOptionsSchema);
-
 // Validate options object against the schema
-export const validateResolverOptions = (options: ResolverOptions): void =>
-  validateData(
-    compiledResolverOptionsSchema,
-    options,
-    'Resolver options:'
+export const validateResolverOptions = (options: ResolverOptions): void => {
+  const result = object.validateWithSchemaOrRef(
+    {},
+    resolverOptionsSchema,
+    options
   );
+
+  if (result) {
+    throw new Error(`Resolver options: ${result}`);
+  }
+}
 
 // Validate ORGiD DID
 export const validateOrgIdDidFormat = (
@@ -189,34 +186,36 @@ export const fetchOrgJson = async (
   ) as unknown as SignedVC;
 };
 
-// Validate ORG.JSON VC against the VC schema
+// Verify ORG.JSON VC format
+/*
+  - Validate ORG.JSON VC against the VC schema
+  - Verify ORG.JSON VS type
+    - must contains ORG.JSON
+  - Extract the ORG.JSON VC proof
+  - Validate the proof creation date
+  - Verify the verification method type
+    - must be: EcdsaSecp256k1RecoveryMethod2020
+  - Verify the verification method controller
+    - must be the same as ORGiD
+  - Extract verificationMethod from the ORG.JSON
+  - Validate the verification method blockchainAccountId
+    - blockchainAccount must be equal to the ORGiD owner
+    - blockchainType must be supported by the resolver
+    - blockchainNetworkId must be supported by the resolver
+*/
 
-// Validate ORG.JSON VS type
-// - must contains ORG.JSON
 
-// Extract the ORG.JSON VC proof
-
-// Verify the proof creation date
-
-// Verify the verification method type
-// - must be: EcdsaSecp256k1RecoveryMethod2020
-
-// Verify the verification method controller
-// - must be the same as ORGiD
-
-// Extract verificationMethod from the ORG.JSON
-
-// Verify the verification method blockchainAccountId
-// - blockchainAccount must be equal to the ORGiD owner
-// - blockchainType must be supported by the resolver
-// - blockchainNetworkId must be supported by the resolver
-
-// Decode ORG.JSON VC signature
-// Extract the protected header and payload
-
-// Verify equality of the JWS payload and signed payload
-
-// Verify ORG.JSON VC signature
+// Verify ORG.JSON VC
+/*
+  - Decode ORG.JSON VC signature
+  - Extract the protected header and payload
+  - Verify the protected header
+    - `alg` must be: ES256K
+    - `typ` must be: JWT
+    - `kid` must be: equal to JWS proof verification method
+  - Validate equality of the JWS payload and signed payload
+  - Verify ORG.JSON VC signature
+*/
 
 // Validate ORG.JSON subject against the ORG.JSON schema
 

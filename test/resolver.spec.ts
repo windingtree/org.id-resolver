@@ -20,6 +20,9 @@ import {
   validateOrgJsonUri,
   fetchOrgJson
 } from '../src/api';
+import {
+  verifyOrgJsonVC
+} from '../src/api/verifyOrgJsonVC';
 
 describe('ORGiD DID Resolver', () => {
   let setup: OrgIdSetup;
@@ -296,6 +299,17 @@ describe('ORGiD DID Resolver', () => {
 
       // test('should fetch ORG.JSON VC via IPNS', () => {});
     })
+
+    describe('#verifyOrgJsonVC', () => {
+
+      test('should verify ORG.JSON VC', async () => {
+        const orgJson = await verifyOrgJsonVC(
+          orgIds[0].orgJson,
+          `${accounts[0]}@eip155:1337`
+        );
+        console.log(JSON.stringify(orgJson, null, 2));
+      });
+    });
   });
 
   // describe('Integration tests', () => {});

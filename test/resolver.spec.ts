@@ -10,19 +10,14 @@ import {
 } from '@windingtree/org.id-core';
 
 // testing source
-import type {
-  ResolverOptions
-} from '../src/types';
-import {
-  validateOrgIdDidFormat,
-  createOrgIdContract,
-  getOrgId,
-  validateOrgJsonUri,
-  fetchOrgJson
-} from '../src/api';
-import {
-  verifyOrgJsonVC
-} from '../src/api/verifyOrgJsonVC';
+import type { ResolverOptions } from '../src/types';
+import { validateOrgIdDidFormat } from '../src/api/validateOrgIdDidFormat';
+import { createOrgIdContract } from '../src/api/createOrgIdContract';
+import { getOrgId } from '../src/api/getOrgId';
+import { validateOrgJsonUri } from '../src/api/validateOrgJsonUri';
+import { fetchOrgJson } from '../src/api/fetchOrgJson';
+import { verifyOrgJsonVC } from '../src/api/verifyOrgJsonVC';
+import { OrgIdResolver } from '../src';
 
 describe('ORGiD DID Resolver', () => {
   let setup: OrgIdSetup;
@@ -33,19 +28,29 @@ describe('ORGiD DID Resolver', () => {
   let orgIdInstance: OrgIdContract;
   let knownOrgIdHash: string;
   let knownOwner: string;
+  let resolver: OrgIdResolver;
 
   beforeAll(async () => {
     setup = await orgIdSetup();
     orgIdContractAddress = setup.address;
     accounts = await setup.server.getAccounts();
+    accounts = accounts.slice(0, 5);// choose only first 5
     options = {
       didSubMethods: {
         'main': {
-          provider: setup.server.providerUri
+          provider: setup.server.providerUri,
+          blockchain: {
+            type: 'eip155',
+            id: '1337'
+          }
         },
         'test': {
           provider: setup.server.providerUri,
-          address: orgIdContractAddress
+          address: orgIdContractAddress,
+          blockchain: {
+            type: 'eip155',
+            id: '1337'
+          }
         }
       }
     };
@@ -59,6 +64,7 @@ describe('ORGiD DID Resolver', () => {
     knownOrgIdHash = orgIds[0].orgIdHash;
     knownOwner = accounts[0];
     orgIdInstance = createOrgIdContract('test', options);
+    resolver = new OrgIdResolver(options);
   });
 
   afterAll(async () => {
@@ -303,14 +309,21 @@ describe('ORGiD DID Resolver', () => {
     describe('#verifyOrgJsonVC', () => {
 
       test('should verify ORG.JSON VC', async () => {
-        const orgJson = await verifyOrgJsonVC(
+        await verifyOrgJsonVC(
           orgIds[0].orgJson,
           `${accounts[0]}@eip155:1337`
         );
-        console.log(JSON.stringify(orgJson, null, 2));
+        // console.log(JSON.stringify(orgJson, null, 2));
       });
     });
   });
 
-  // describe('Integration tests', () => {});
+  describe('Integration tests', () => {
+
+    test('should resolve ORGiD DID', async () => {
+      const did = `did:orgid:test:${orgIds[0].orgIdHash}`;
+      const result = await resolver.resolve(did);
+      console.log(JSON.stringify(result, null, 2));
+    });
+  });
 });

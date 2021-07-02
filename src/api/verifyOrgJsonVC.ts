@@ -1,9 +1,5 @@
-import type {
-  ORGJSON
-} from '@windingtree/org.json-schema';
-import type {
-  SignedVC
-} from '@windingtree/org.id-auth/dist/vc';
+import type { ORGJSON } from '@windingtree/org.json-schema';
+import type { SignedVC } from '@windingtree/org.id-auth/dist/vc';
 
 import orgJsonSchema from '@windingtree/org.json-schema';
 import { object } from '@windingtree/org.id-utils';
@@ -41,7 +37,7 @@ export const verifyOrgJsonVC = async (
     throw new Error(`ORG.JSON schema validation: ${orgJsonValidationResult}`);
   }
 
-  // Extract verification method Id
+  // Extract verification method Id from the VC
   const verificationMethodId = object.getDeepValue(
     vc,
     'proof.verificationMethod'

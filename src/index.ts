@@ -1,54 +1,84 @@
+import type { SignedVC } from '@windingtree/org.id-auth/dist/vc';
+import type { ORGJSON } from '@windingtree/org.json-schema';
+import type { OrgIdContract, OrgIdData } from '@windingtree/org.id-core';
 import type {
-  OrgIdData
-} from '@windingtree/org.id-core';
-import { OrgIdContract } from '@windingtree/org.id-core';
-import {
-  validateResolverOptions,
-  validateOrgIdDidFormat,
-  createOrgIdContract,
-  getOrgId
-} from './api';
+  ResolverOptions,
+  DidResolutionResult
+} from './types';
 
-// Validate ORGiD DID
+import { validateResolverOptions } from './api/validateResolverOptions';
+import { validateOrgIdDidFormat } from './api/validateOrgIdDidFormat';
+import { createOrgIdContract } from './api/createOrgIdContract';
+import { getOrgId } from './api/getOrgId';
+import { fetchOrgJson } from './api/fetchOrgJson';
+import { buildBlockchainAccountId } from './api/buildBlockchainAccountId';
+import { verifyOrgJsonVC } from './api/verifyOrgJsonVC';
+import { buildResolutionResult } from './api/buildResolutionResult';
 
-// Lookup given ORGiD in the smart contract
+export class OrgIdResolver {
+  options: ResolverOptions;
 
-// Fetch an actual ORG.JSON VC link for the ORGiD
+  constructor (config: ResolverOptions) {
+    validateResolverOptions(config);
+    this.options = config;
+  }
 
-// Validate ORG.JSON fetch (we plan to support the following methods: http, ipfs)
+  async resolve (didString: string): Promise<DidResolutionResult> {
+    const resolutionStart = Date.now();
+    let resolutionError: string | undefined;
+    let orgIdContract: OrgIdContract;
+    let orgIdData: OrgIdData | undefined;
+    let credential: SignedVC | undefined;
+    let didDocument: ORGJSON | undefined;
 
-// Fetch ORG.JSON VC by given link
+    try {
+      // Validate ORGiD DID string
+      const {
+        subMethod,
+        orgId
+      } = validateOrgIdDidFormat(didString, this.options);
 
-// Validate ORG.JSON VC against the VC schema
+      // Create ORGiD smart contract instance
+      orgIdContract = createOrgIdContract(subMethod, this.options);
 
-// Validate ORG.JSON VS type
-// - must contains ORG.JSON
+      // Lookup given ORGiD in the smart contract
+      const orgIdDataResult = await getOrgId(orgIdContract, orgId);
 
-// Extract the ORG.JSON VC proof
+      if (orgIdDataResult === null) {
+        throw new Error(`ORGiD not found: ${orgId}`);
+      }
 
-// Verify the proof creation date
+      orgIdData = orgIdDataResult;
 
-// Verify the verification method type
-// - must be: EcdsaSecp256k1RecoveryMethod2020
+      // Fetch ORG.JSON VC by given link
+      credential = await fetchOrgJson(orgIdData.orgJsonUri, this.options);
 
-// Verify the verification method controller
-// - must be the same as ORGiD
+      // Build a blockchain account Id
+      if (!this.options.didSubMethods[subMethod]) {
+        throw new Error(`DID submethod not supported: ${subMethod}`);
+      }
 
-// Extract verificationMethod from the ORG.JSON
+      // Build a blockchain account Id
+      const blockchainAccountId = buildBlockchainAccountId(
+        subMethod,
+        orgIdDataResult.owner,
+        this.options
+      );
 
-// Verify the verification method blockchainAccountId
-// - blockchainAccount must be equal to the ORGiD owner
-// - blockchainType must be supported by the resolver
-// - blockchainNetworkId must be supported by the resolver
+      // Verify ORG.JSON VC
+      didDocument = await verifyOrgJsonVC(credential, blockchainAccountId);
 
-// Decode ORG.JSON VC signature
-// Extract the protected header and payload
+    } catch (error) {
+      resolutionError = error.message;
+    }
 
-// Verify equality of the JWS payload and signed payload
-
-// Verify ORG.JSON VC signature
-
-// Validate ORG.JSON subject against the ORG.JSON schema
-
-// Build DID resolution report
-
+    // Build DID resolution result
+    return buildResolutionResult(
+      resolutionStart,
+      orgIdData,
+      credential,
+      didDocument,
+      resolutionError
+    );
+  }
+}

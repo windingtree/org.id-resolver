@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/org.id-resolver",
-  "version": "2.4.1",
+  "version": "3.0.0",
   "description": "ORGiD DID resolver",
   "publishConfig": {
     "access": "public"

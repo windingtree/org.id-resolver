@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/org.id-resolver",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "ORGiD DID resolver",
   "keywords": [
     "orgid",
@@ -36,16 +36,16 @@
     "@windingtree/org.id": "1.1.5",
     "@windingtree/org.id-lif-deposit": "1.0.2",
     "ajv": "6.12.3",
-    "axios": "0.21.1",
+    "axios": "0.23.0",
     "core-js": "3.8.3",
     "regenerator-runtime": "0.13.7",
     "org.json-schema-0.3": "npm:@windingtree/org.json-schema@0.3.4",
     "org.json-schema-0.4": "npm:@windingtree/org.json-schema@0.4.3"
   },
   "devDependencies": {
-    "@babel/cli": "7.12.16",
-    "@babel/core": "7.12.16",
-    "@babel/preset-env": "7.12.16",
+    "@babel/cli": "7.15.7",
+    "@babel/core": "7.15.8",
+    "@babel/preset-env": "7.15.8",
     "@openzeppelin/cli": "2.8.2",
     "@openzeppelin/upgrades": "2.8.0",
     "chai": "4.3.0",

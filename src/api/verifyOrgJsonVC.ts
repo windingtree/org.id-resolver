@@ -100,6 +100,8 @@ export const verifyOrgJsonVC = async (
     );
   }
 
+  // @todo check `verificationMethodRevocation` status
+
   // Verify ORG.JSON VC
   const safePayload =  await verifyVC(vc, blockchainAccountId);
 

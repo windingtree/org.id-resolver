@@ -1,4 +1,5 @@
 const packageJson = require('../package.json');
+const { validateVc } = require('./utils/vc');
 const didDocumentSchema = require('org.json-schema-0.3');
 const didDocumentSchema04 = require('org.json-schema-0.4');
 const { OrgIdContract } = require('@windingtree/org.id');
@@ -11,6 +12,9 @@ const { makeHash } = require('./utils/document');
 
 // Modules
 const httpFetchMethod = require('./http');
+const linkedInFetchMethod = require('./linkedIn');
+const twitterFetchMethod = require('./twitter');
+const whoisService = require('./whois');
 const { getDnsData, ResourceRecordTypes } = require('./dns');
 const { zeroAddress } = require('./utils/constants');
 
@@ -45,14 +49,21 @@ class OrgIdResolver {
             lifDeposit: {
                 type: 'address',
                 required: false
+            },
+            authorizedTrustProofsIssuers: {
+                type: 'object',
+                required: false
             }
         });
 
         this.methodName = 'orgid';
+        this.fetchSocialMethods = {};
         this.fetchMethods = {};
+        this.serviceMethods = {};
         this.web3 = options.web3;
         this.orgIdAddress = options.orgId;
         this.lifDepositAddress = options.lifDeposit;
+        this.authorizedTrustProofsIssuers = options.authorizedTrustProofsIssuers;
 
         this.validator = null;
         this.resolutionStart = null;
@@ -240,9 +251,12 @@ class OrgIdResolver {
 
         // Assertions verification
         for (let i = 0; i < trust.assertions.length; i++) {
-            const assertion = trust.assertions[i];
+            let assertion = trust.assertions[i];
             let assertionContent;
             let proofFound = false;
+
+            // WHOIS information about domain
+            let whoisInfo;
 
             switch (assertion.type) {
 
@@ -304,44 +318,85 @@ class OrgIdResolver {
                 case 'social':
                 case 'domain':
 
-                    // Validate assertion.proof record
-                    // should be in the assertion.claim namespace
-                    if (!RegExp(`^(http|https)://(www.){0,1}${assertion.claim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
-                        .test(assertion.proof)) {
-
-                        this.addCheckResult({
-                            type: 'TRUST_ASSERTIONS',
-                            error: `trust.assertions[${i}]: claim is not in the domain namespace`
-                        });
-                        break;
-                    }
-
-                    // Fetch file by URI
                     try {
-                        assertionContent = await this.fetchFileByUri(assertion.proof);
-                        assertionContent = typeof assertionContent === 'object'
-                            ? JSON.stringify(assertionContent)
-                            : assertionContent;
+                        // Fetch WHOIS information for domain
+                        if (assertion.type === 'domain' && this.serviceMethods.whois) {
+                            const rootDomain = assertion.claim.match(/[^.]+\.[^.]+$/)[0];
+                            whoisInfo = await this.serviceMethods.whois.fetch(rootDomain);
+                            proofFound = true;
+                            break;
+                        }
                     } catch (err) {
-
                         this.addCheckResult({
                             type: 'TRUST_ASSERTIONS',
-                            error: `trust.assertions[${i}]: cannot get the proof`
+                            error: `trust.assertions[${i}]: unable to fetch whois information`
                         });
-                        break;
                     }
 
-                    // Look for did inside the file obtained
-                    if (!RegExp(id, 'im').test(assertionContent)) {
+                    // If an object provided as VC proof then
+                    // we need to validate this proof as a Verifiable credential
+                    if (assertion.proof.match(/^did.orgid/)) {
+                        try {
+                            await validateVc(
+                                this,
+                                assertion.proof,
+                                assertion.claim
+                            );
 
-                        this.addCheckResult({
-                            type: 'TRUST_ASSERTIONS',
-                            error: `trust.assertions[${i}]: DID not found in the claim`
-                        });
-                        break;
+                            proofFound = true;
+                            break;
+                        } catch (err) {
+                            console.log('###', err);
+
+                            this.addCheckResult({
+                                type: 'TRUST_ASSERTIONS',
+                                error: `trust.assertions[${i}]: VC DID not pass verification`
+                            });
+                            break;
+                        }
+
+                    } else {
+                        // Validate assertion.proof record as URL to the proof
+
+                        // should be in the assertion.claim namespace
+                        if (!RegExp(`^(http|https)://(www.){0,1}${assertion.claim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
+                            .test(assertion.proof)) {
+
+                            this.addCheckResult({
+                                type: 'TRUST_ASSERTIONS',
+                                error: `trust.assertions[${i}]: claim is not in the domain namespace`
+                            });
+                            break;
+                        }
+
+                        // Fetch file with proof by URI
+                        try {
+                            assertionContent = await this.fetchFileByUri(assertion.proof);
+                            assertionContent = typeof assertionContent === 'object'
+                                ? JSON.stringify(assertionContent)
+                                : assertionContent;
+                        } catch (err) {
+
+                            this.addCheckResult({
+                                type: 'TRUST_ASSERTIONS',
+                                error: `trust.assertions[${i}]: cannot get the proof`
+                            });
+                            break;
+                        }
+
+                        // Look for a did inside the file obtained
+                        if (!RegExp(id, 'im').test(assertionContent)) {
+
+                            this.addCheckResult({
+                                type: 'TRUST_ASSERTIONS',
+                                error: `trust.assertions[${i}]: DID not found in the claim`
+                            });
+                            break;
+                        }
+
+                        proofFound = true;
                     }
 
-                    proofFound = true;
                     break;
 
                 default:
@@ -354,6 +409,17 @@ class OrgIdResolver {
             }
 
             assertion.verified = proofFound;
+            assertion = {
+                ...assertion,
+                ...(
+                    whoisInfo
+                        ? {
+                            whois: whoisInfo
+                        }
+                        : {}
+                )
+            };
+            trust.assertions[i] = assertion;
 
             if (proofFound) {
                 isProofsFound = true;
@@ -464,12 +530,23 @@ class OrgIdResolver {
             );
         }
 
-        // Choosing of the proper fetching method
-        for (const f in this.fetchMethods) {
+        // Try to choose a social fetch methods
+        for (const f in this.fetchSocialMethods) {
 
-            if (RegExp(this.fetchMethods[f].pattern).test(uri)) {
-                fetch = this.fetchMethods[f].fetch;
+            if (RegExp(this.fetchSocialMethods[f].pattern).test(uri)) {
+                fetch = this.fetchSocialMethods[f].fetch;
                 break;
+            }
+        }
+
+        if (!fetch) {
+            // Try to choose another fetching method
+            for (const f in this.fetchMethods) {
+
+                if (RegExp(this.fetchMethods[f].pattern).test(uri)) {
+                    fetch = this.fetchMethods[f].fetch;
+                    break;
+                }
             }
         }
 
@@ -602,6 +679,34 @@ class OrgIdResolver {
     }
 
     /**
+     * Register a fetching method for social accounts
+     * @memberof OrgIdResolver
+     * @param {Object} methodConfig The fetching method configuration config
+     * @param {Object} methodOptions The fetching method options (API key, etc)
+     */
+    registerSocialFetchMethod (methodConfig = {}, methodOptions = {}) {
+        expect.all(methodConfig, {
+            name: {
+                type: 'string'
+            },
+            pattern: {
+                type: 'string'
+            },
+            fetch: {
+                type: 'function'
+            }
+        });
+
+        this.fetchSocialMethods[methodConfig.name] = {
+            ...methodConfig,
+            fetch: async uri => {
+                const options = methodOptions;
+                return await methodConfig.fetch(uri, options);
+            }
+        };
+    }
+
+    /**
      * Register a fetching method
      * @memberof OrgIdResolver
      * @param {Object} methodConfig The fetching method configuration config
@@ -620,6 +725,24 @@ class OrgIdResolver {
         });
 
         this.fetchMethods[methodConfig.name] = methodConfig;
+    }
+
+    /**
+     * Register a service method
+     * @memberof OrgIdResolver
+     * @param {Object} methodConfig The service method configuration config
+     */
+    registerService (methodConfig = {}) {
+        expect.all(methodConfig, {
+            name: {
+                type: 'string'
+            },
+            fetch: {
+                type: 'function'
+            }
+        });
+
+        this.serviceMethods[methodConfig.name] = methodConfig;
     }
 
     /**
@@ -797,8 +920,24 @@ class OrgIdResolver {
             );
         }
     }
+
+    spawnResolver () {
+        const spawnedResolver = new OrgIdResolver({
+            web3: this.web3,
+            orgId: this.orgIdAddress,
+            lifDeposit: this.lifDepositAddress
+        });
+
+        spawnedResolver.fetchSocialMethods = this.fetchSocialMethods;
+        spawnedResolver.fetchMethods = this.fetchMethods;
+        spawnedResolver.serviceMethods = this.serviceMethods;
+        return spawnedResolver;
+    }
 }
 
 module.exports.OrgIdResolver = OrgIdResolver;
 module.exports.httpFetchMethod = httpFetchMethod;
+module.exports.linkedInFetchMethod = linkedInFetchMethod;
+module.exports.twitterFetchMethod = twitterFetchMethod;
+module.exports.whoisService = whoisService;
 module.exports.checksTypes = Object.assign({}, checksTypes);

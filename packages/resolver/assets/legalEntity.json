@@ -3,7 +3,7 @@
         "https://www.w3.org/ns/did/v1",
         "https://windingtree.com/ns/orgid/v1"
     ],
-    "id": "did:orgid:0x94bf5a57b850a35b4d1d7b59f663ce3a8a76fd9928ef2067cc772fc97fb0ad75",
+    "id": "did:orgid:4:0x94bf5a57b850a35b4d1d7b59f663ce3a8a76fd9928ef2067cc772fc97fb0ad75",
     "created": "2019-01-01T13:10:02.251Z",
     "updated": "2019-06-03T13:20:06.398Z",
     "publicKey": [],

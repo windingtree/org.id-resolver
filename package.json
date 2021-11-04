@@ -1,64 +1,40 @@
 {
-  "name": "@windingtree/org.id-resolver",
-  "version": "2.4.2",
-  "description": "ORGiD DID resolver",
+  "name": "@windingtree/org.id-resolver-mono",
+  "description": "ORGiD DID resolver mono-repository",
+  "private": true,
+  "scripts": {
+    "link": "lerna link",
+    "lint": "lerna run lint",
+    "clean": "lerna clean",
+    "build": "lerna run build",
+    "bootstrap": "lerna bootstrap",
+    "bootstrap:local": "lerna bootstrap",
+    "publish": "lerna publish",
+    "test": "lerna run test",
+    "test:coverage": "lerna run test:coverage",
+    "exec": "lerna exec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/windingtree/org.id-resolver.git"
+  },
   "keywords": [
+    "windingtree",
     "orgid",
     "did",
     "resolver",
-    "javascript"
+    "typescript"
   ],
-  "main": "dist/index.js",
-  "bin": {
-    "did-resolver": "./dist/cli.js"
-  },
-  "files": [
-    "dist"
+  "author": "Winding Tree Developers <dev@windingtree.com>",
+  "contributors": [
+    "Kostiantyn Smyrnov <kostysh@gmail.com>"
   ],
-  "author": "Kostiantyn Smyrnov <kostysh@gmail.com>",
-  "homepage": "https://github.com/windingtree/org.id-resolver#README",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:windingtree/org.id-resolver.git"
+  "bugs": {
+    "url": "https://github.com/windingtree/org.id-resolver/issues"
   },
-  "engines": {
-    "node": ">=10"
-  },
-  "scripts": {
-    "build": "rm -rf dist/ && npx babel --source-type module --minified --source-maps inline src --out-dir dist",
-    "test": "./scripts/test.sh",
-    "lint": "npx eslint './src/**/*.js' && npx eslint './test/**/*.js'",
-    "coverage": "COVERAGE=true ./scripts/test.sh",
-    "ganache": "./scripts/ganache.sh"
-  },
-  "dependencies": {
-    "@windingtree/org.id": "1.1.5",
-    "@windingtree/org.id-lif-deposit": "1.0.2",
-    "@windingtree/vc": "0.1.4",
-    "ajv": "6.12.3",
-    "axios": "0.23.0",
-    "core-js": "3.18.3",
-    "org.json-schema-0.3": "npm:@windingtree/org.json-schema@0.3.4",
-    "org.json-schema-0.4": "npm:@windingtree/org.json-schema@0.4.3",
-    "regenerator-runtime": "0.13.9",
-    "whois-light": "1.0.3"
-  },
+  "homepage": "https://github.com/windingtree/org.id-resolver#readme",
   "devDependencies": {
-    "@babel/cli": "7.15.7",
-    "@babel/core": "7.15.8",
-    "@babel/preset-env": "7.15.8",
-    "@openzeppelin/cli": "2.8.2",
-    "@openzeppelin/upgrades": "2.8.0",
-    "chai": "4.3.4",
-    "coveralls": "3.1.0",
-    "eslint": "7.24.0",
-    "ganache-core": "2.13.2",
-    "husky": "6.0.0",
-    "mocha": "8.3.2",
-    "nyc": "15.1.0"
-  },
-  "publishConfig": {
-    "access": "public"
+    "lerna": "4.0.0"
   }
 }

@@ -1,0 +1,53 @@
+{
+  "name": "@windingtree/org.id-resolver",
+  "version": "3.0.0-beta.1",
+  "description": "ORGiD DID resolver",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "orgid",
+    "did",
+    "resolver",
+    "javascript"
+  ],
+  "main": "dist/index.js",
+  "bin": {
+    "did-resolver": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": "Kostiantyn Smyrnov <kostysh@gmail.com>",
+  "homepage": "https://github.com/windingtree/org.id-resolver#README",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:windingtree/org.id-resolver.git"
+  },
+  "scripts": {
+    "lint": "npx eslint . --ext .ts",
+    "lint:fix": "npx eslint . --ext .ts --fix",
+    "build": "rm -rf dist && npx tsc -p tsconfig-build.json",
+    "test": "npx hardhat test",
+    "test:coverage": "npx nyc --reporter=html --reporter=lcov hardhat test"
+  },
+  "dependencies": {
+    "@windingtree/org.id": "3.0.0-beta.5",
+    "@windingtree/org.id-auth": "1.0.0-beta.7",
+    "ethers": "5.5.1"
+  },
+  "devDependencies": {
+    "@windingtree/org.id-test-setup": "1.0.0-beta.7",
+    "@istanbuljs/nyc-config-typescript": "1.0.1",
+    "@nomiclabs/hardhat-ethers": "2.0.2",
+    "@types/mocha": "9.0.0",
+    "@types/chai": "4.2.22",
+    "@types/chai-as-promised": "7.1.4",
+    "eslint": "8.1.0",
+    "hardhat": "2.6.7",
+    "nyc": "15.1.0",
+    "ts-node": "10.4.0",
+    "typescript": "4.4.4"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "id": "aaf6790f-7b33-4a47-9eea-fbb233fe1c57",
+  "type": [
+    "VerifiableCredential",
+    "OrgJson"
+  ],
+  "issuer": "did:orgid:4:0x9300bad07f0b9d904b23781e8bbb05c1219530c51e7e494701db2539b7a5a119",
+  "issuanceDate": "2021-06-19T22:45:04.167+03:00",
+  "credentialSubject": {
+    "schemaVersion": "0.5.5",
+    "@context": [
+      "https://www.w3.org/ns/did/v1",
+      "https://windingtree.com/ns/orgid/v1"
+    ],
+    "id": "did:orgid:4:0x9300bad07f0b9d904b23781e8bbb05c1219530c51e7e494701db2539b7a5a119",
+    "created": "2021-06-19T19:45:04.157Z",
+    "updated": "2021-06-19T19:45:04.157Z",
+    "verificationMethod": [
+      {
+        "id": "did:orgid:4:0x9300bad07f0b9d904b23781e8bbb05c1219530c51e7e494701db2539b7a5a119#key-1",
+        "controller": "did:orgid:4:0x9300bad07f0b9d904b23781e8bbb05c1219530c51e7e494701db2539b7a5a119",
+        "type": "EcdsaSecp256k1RecoveryMethod2020",
+        "blockchainAccountId": "0xBfD9EebE27d5a2F1113220b53844E5066889035C@eip155:1337"
+      }
+    ],
+    "service": [],
+    "payment": [],
+    "trustAssertions": [],
+    "credentials": [],
+    "legalEntity": {
+      "legalName": "Acme, Corp.",
+      "alternativeName": "Acme",
+      "registryCode": "US12345567",
+      "identifiers": [
+        {
+          "type": "IATA",
+          "value": "123456"
+        },
+        {
+          "type": "Trade License",
+          "value": "98765431"
+        }
+      ],
+      "legalType": "GmBH",
+      "registeredAddress": {
+        "country": "CZ",
+        "subdivision": "71",
+        "locality": "Jihlava",
+        "postalCode": "71354",
+        "streetAddress": "3150 Main St.",
+        "premise": "STE 100"
+      },
+      "locations": [
+        {
+          "name": "Main Office",
+          "description": "This is our main office",
+          "address": {
+            "country": "CZ",
+            "subdivision": "71",
+            "locality": "Jihlava",
+            "postalCode": "71354",
+            "streetAddress": "3150 Main St.",
+            "premise": "STE 100",
+            "gps": "50.087070,14.417210",
+            "geocodes": [
+              {
+                "type": "olc",
+                "value": "3CQ9+F2 Prague"
+              },
+              {
+                "type": "what3words",
+                "value": "printers.torn.images"
+              }
+            ]
+          },
+          "openingHours": [
+            {
+              "weekDay": "mon,tue,wed",
+              "hours": "9:00-18:00"
+            },
+            {
+              "weekDay": "fri",
+              "hours": "10:00-16:00"
+            }
+          ],
+          "contacts": [
+            {
+              "function": "Reception",
+              "name": "John Smith",
+              "phone": "+1234567890",
+              "email": "email@spam.com",
+              "messengers": [
+                {
+                  "type": "whatsapp",
+                  "value": "+1234567890"
+                },
+                {
+                  "type": "whatsapp",
+                  "value": "+1234567890"
+                },
+                {
+                  "type": "telegram",
+                  "value": "acme.ny.reception"
+                },
+                {
+                  "type": "viber",
+                  "value": "+1234567890"
+                },
+                {
+                  "type": "wechat",
+                  "value": "acme.ny.reception"
+                },
+                {
+                  "type": "messenger",
+                  "value": "acme.ny.reception"
+                },
+                {
+                  "type": "line",
+                  "value": "acme.ny.reception"
+                },
+                {
+                  "type": "kik",
+                  "value": "acme.ny.reception"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "contacts": [
+        {
+          "function": "Customer Service",
+          "name": "John Smith",
+          "phone": "+1234567890",
+          "email": "email@spam.com"
+        },
+        {
+          "function": "Sales",
+          "name": "Jenna Smith",
+          "phone": "+1234567890",
+          "email": "email@spam.com"
+        },
+        {
+          "function": "Press",
+          "phone": "+1234567890",
+          "email": "email@spam.com"
+        }
+      ]
+    }
+  },
+  "proof": {
+    "type": "EcdsaSecp256k1RecoverySignature2020",
+    "created": "2021-06-19T22:45:04.211+03:00",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "did:orgid:4:0x9300bad07f0b9d904b23781e8bbb05c1219530c51e7e494701db2539b7a5a119#key-1",
+    "jws": "eyJhbGciOiJFUzI1NksiLCJraWQiOiJkaWQ6b3JnaWQ6dGVzdDoweDkzMDBiYWQwN2YwYjlkOTA0YjIzNzgxZThiYmIwNWMxMjE5NTMwYzUxZTdlNDk0NzAxZGIyNTM5YjdhNWExMTkja2V5LTEiLCJ0eXAiOiJKV1MifQ.eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSJdLCJpZCI6ImFhZjY3OTBmLTdiMzMtNGE0Ny05ZWVhLWZiYjIzM2ZlMWM1NyIsInR5cGUiOlsiVmVyaWZpYWJsZUNyZWRlbnRpYWwiLCJPUkcuSlNPTiJdLCJpc3N1ZXIiOiJkaWQ6b3JnaWQ6dGVzdDoweDkzMDBiYWQwN2YwYjlkOTA0YjIzNzgxZThiYmIwNWMxMjE5NTMwYzUxZTdlNDk0NzAxZGIyNTM5YjdhNWExMTkiLCJpc3N1YW5jZURhdGUiOiIyMDIxLTA2LTE5VDIyOjQ1OjA0LjE2NyswMzowMCIsImNyZWRlbnRpYWxTdWJqZWN0Ijp7InNjaGVtYVZlcnNpb24iOiIwLjUuNSIsIkBjb250ZXh0IjpbImh0dHBzOi8vd3d3LnczLm9yZy9ucy9kaWQvdjEiLCJodHRwczovL3dpbmRpbmd0cmVlLmNvbS9ucy9vcmdpZC92MSJdLCJpZCI6ImRpZDpvcmdpZDp0ZXN0OjB4OTMwMGJhZDA3ZjBiOWQ5MDRiMjM3ODFlOGJiYjA1YzEyMTk1MzBjNTFlN2U0OTQ3MDFkYjI1MzliN2E1YTExOSIsImNyZWF0ZWQiOiIyMDIxLTA2LTE5VDE5OjQ1OjA0LjE1N1oiLCJ1cGRhdGVkIjoiMjAyMS0wNi0xOVQxOTo0NTowNC4xNTdaIiwidmVyaWZpY2F0aW9uTWV0aG9kIjpbeyJpZCI6ImRpZDpvcmdpZDp0ZXN0OjB4OTMwMGJhZDA3ZjBiOWQ5MDRiMjM3ODFlOGJiYjA1YzEyMTk1MzBjNTFlN2U0OTQ3MDFkYjI1MzliN2E1YTExOSNrZXktMSIsImNvbnRyb2xsZXIiOiJkaWQ6b3JnaWQ6dGVzdDoweDkzMDBiYWQwN2YwYjlkOTA0YjIzNzgxZThiYmIwNWMxMjE5NTMwYzUxZTdlNDk0NzAxZGIyNTM5YjdhNWExMTkiLCJ0eXBlIjoiRWNkc2FTZWNwMjU2azFSZWNvdmVyeU1ldGhvZDIwMjAiLCJibG9ja2NoYWluQWNjb3VudElkIjoiMHhCZkQ5RWViRTI3ZDVhMkYxMTEzMjIwYjUzODQ0RTUwNjY4ODkwMzVDQGVpcDE1NToxMzM3In1dLCJzZXJ2aWNlIjpbXSwicGF5bWVudCI6W10sInRydXN0QXNzZXJ0aW9ucyI6W10sImNyZWRlbnRpYWxzIjpbXSwibGVnYWxFbnRpdHkiOnsibGVnYWxOYW1lIjoiQWNtZSwgQ29ycC4iLCJhbHRlcm5hdGl2ZU5hbWUiOiJBY21lIiwicmVnaXN0cnlDb2RlIjoiVVMxMjM0NTU2NyIsImlkZW50aWZpZXJzIjpbeyJ0eXBlIjoiSUFUQSIsInZhbHVlIjoiMTIzNDU2In0seyJ0eXBlIjoiVHJhZGUgTGljZW5zZSIsInZhbHVlIjoiOTg3NjU0MzEifV0sImxlZ2FsVHlwZSI6IkdtQkgiLCJyZWdpc3RlcmVkQWRkcmVzcyI6eyJjb3VudHJ5IjoiQ1oiLCJzdWJkaXZpc2lvbiI6IjcxIiwibG9jYWxpdHkiOiJKaWhsYXZhIiwicG9zdGFsQ29kZSI6IjcxMzU0Iiwic3RyZWV0QWRkcmVzcyI6IjMxNTAgTWFpbiBTdC4iLCJwcmVtaXNlIjoiU1RFIDEwMCJ9LCJsb2NhdGlvbnMiOlt7Im5hbWUiOiJNYWluIE9mZmljZSIsImRlc2NyaXB0aW9uIjoiVGhpcyBpcyBvdXIgbWFpbiBvZmZpY2UiLCJhZGRyZXNzIjp7ImNvdW50cnkiOiJDWiIsInN1YmRpdmlzaW9uIjoiNzEiLCJsb2NhbGl0eSI6IkppaGxhdmEiLCJwb3N0YWxDb2RlIjoiNzEzNTQiLCJzdHJlZXRBZGRyZXNzIjoiMzE1MCBNYWluIFN0LiIsInByZW1pc2UiOiJTVEUgMTAwIiwiZ3BzIjoiNTAuMDg3MDcwLDE0LjQxNzIxMCIsImdlb2NvZGVzIjpbeyJ0eXBlIjoib2xjIiwidmFsdWUiOiIzQ1E5K0YyIFByYWd1ZSJ9LHsidHlwZSI6IndoYXQzd29yZHMiLCJ2YWx1ZSI6InByaW50ZXJzLnRvcm4uaW1hZ2VzIn1dfSwib3BlbmluZ0hvdXJzIjpbeyJ3ZWVrRGF5IjoibW9uLHR1ZSx3ZWQiLCJob3VycyI6Ijk6MDAtMTg6MDAifSx7IndlZWtEYXkiOiJmcmkiLCJob3VycyI6IjEwOjAwLTE2OjAwIn1dLCJjb250YWN0cyI6W3siZnVuY3Rpb24iOiJSZWNlcHRpb24iLCJuYW1lIjoiSm9obiBTbWl0aCIsInBob25lIjoiKzEyMzQ1Njc4OTAiLCJlbWFpbCI6ImVtYWlsQHNwYW0uY29tIiwibWVzc2VuZ2VycyI6W3sidHlwZSI6IndoYXRzYXBwIiwidmFsdWUiOiIrMTIzNDU2Nzg5MCJ9LHsidHlwZSI6IndoYXRzYXBwIiwidmFsdWUiOiIrMTIzNDU2Nzg5MCJ9LHsidHlwZSI6InRlbGVncmFtIiwidmFsdWUiOiJhY21lLm55LnJlY2VwdGlvbiJ9LHsidHlwZSI6InZpYmVyIiwidmFsdWUiOiIrMTIzNDU2Nzg5MCJ9LHsidHlwZSI6IndlY2hhdCIsInZhbHVlIjoiYWNtZS5ueS5yZWNlcHRpb24ifSx7InR5cGUiOiJtZXNzZW5nZXIiLCJ2YWx1ZSI6ImFjbWUubnkucmVjZXB0aW9uIn0seyJ0eXBlIjoibGluZSIsInZhbHVlIjoiYWNtZS5ueS5yZWNlcHRpb24ifSx7InR5cGUiOiJraWsiLCJ2YWx1ZSI6ImFjbWUubnkucmVjZXB0aW9uIn1dfV19XSwiY29udGFjdHMiOlt7ImZ1bmN0aW9uIjoiQ3VzdG9tZXIgU2VydmljZSIsIm5hbWUiOiJKb2huIFNtaXRoIiwicGhvbmUiOiIrMTIzNDU2Nzg5MCIsImVtYWlsIjoiZW1haWxAc3BhbS5jb20ifSx7ImZ1bmN0aW9uIjoiU2FsZXMiLCJuYW1lIjoiSmVubmEgU21pdGgiLCJwaG9uZSI6IisxMjM0NTY3ODkwIiwiZW1haWwiOiJlbWFpbEBzcGFtLmNvbSJ9LHsiZnVuY3Rpb24iOiJQcmVzcyIsInBob25lIjoiKzEyMzQ1Njc4OTAiLCJlbWFpbCI6ImVtYWlsQHNwYW0uY29tIn1dfX19.MHgzYjU5YTg4MzZjMDViNWRjM2EyNTVkYzQ5NzQxZGJmYjZjNDgzYTRlYmU4OTBkNDhiNmMyMTFhMjczZDAyYTRlMDlkNTFiODRhODNhZWU2YWRmZjM4YjEyZDAyNWI5ODdjNjg2NDUxODlmMzE4OGIyOGFmNmE0OTIyMWMzMmQ1YjAx"
+  }
+}

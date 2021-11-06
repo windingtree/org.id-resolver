@@ -2,28 +2,13 @@
   "name": "@windingtree/org.id-resolver",
   "version": "3.0.0-beta.1",
   "description": "ORGiD DID resolver",
-  "publishConfig": {
-    "access": "public"
-  },
-  "keywords": [
-    "orgid",
-    "did",
-    "resolver",
-    "javascript"
-  ],
   "main": "dist/index.js",
-  "bin": {
-    "did-resolver": "./dist/cli.js"
-  },
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "author": "Kostiantyn Smyrnov <kostysh@gmail.com>",
-  "homepage": "https://github.com/windingtree/org.id-resolver#README",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:windingtree/org.id-resolver.git"
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "lint": "npx eslint . --ext .ts",
@@ -32,20 +17,41 @@
     "test": "npx hardhat test",
     "test:coverage": "npx nyc --reporter=html --reporter=lcov hardhat test"
   },
+  "keywords": [
+    "windingtree",
+    "orgid",
+    "did",
+    "resolver",
+    "typescript"
+  ],
+  "author": "Kostiantyn Smyrnov <kostysh@gmail.com>",
+  "homepage": "https://github.com/windingtree/org.id-resolver#README",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:windingtree/org.id-resolver.git"
+  },
   "dependencies": {
     "@windingtree/org.id": "3.0.0-beta.5",
-    "@windingtree/org.id-auth": "1.0.0-beta.7",
+    "@windingtree/org.id-core": "1.0.0-beta.10",
+    "@windingtree/org.id-auth": "1.0.0-beta.10",
+    "@windingtree/org.json-schema": "1.0.0-beta.4",
+    "@windingtree/org.id-utils": "1.0.0-beta.10",
+    "luxon": "2.0.2",
     "ethers": "5.5.1"
   },
   "devDependencies": {
-    "@windingtree/org.id-test-setup": "1.0.0-beta.7",
+    "@windingtree/org.id-test-setup": "1.0.0-beta.10",
     "@istanbuljs/nyc-config-typescript": "1.0.1",
     "@nomiclabs/hardhat-ethers": "2.0.2",
+    "@types/luxon": "2.0.5",
     "@types/mocha": "9.0.0",
     "@types/chai": "4.2.22",
     "@types/chai-as-promised": "7.1.4",
+    "chai": "4.3.4",
+    "chai-as-promised": "7.1.1",
     "eslint": "8.1.0",
-    "hardhat": "2.6.7",
+    "hardhat": "2.6.8",
     "nyc": "15.1.0",
     "ts-node": "10.4.0",
     "typescript": "4.4.4"

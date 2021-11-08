@@ -66,7 +66,6 @@ export interface DidResolutionMetaData {
   retrieved: string;
   duration: number;
   resolverVersion: string;
-  orgId?: NormalizedOrgIdData;
   credential?: ORGJSONVCNFT;
   error?: string;
 }
@@ -75,13 +74,15 @@ export interface DidDocumentMetadata {
   created?: string;
   updated?: string;
   deactivated?: boolean;
+  data?: NormalizedOrgIdData;
 }
 
 export interface DidResolutionResponse {
   '@context': DidResolutionContext;
-  didDocument?: ORGJSON | undefined;
+  did: string;
+  didDocument?: ORGJSON | null;
   didResolutionMetadata: DidResolutionMetaData;
-  didDocumentMetadata: DidDocumentMetadata;
+  didDocumentMetadata: DidDocumentMetadata | null;
 }
 
 export interface OrgIdResolverAPI {
@@ -109,7 +110,7 @@ export interface IpfsUriGroupedResult extends RegExpExecArray {
 export interface ParsedDid {
   did: string;
   method: string;
-  network?: string;
+  network: string;
   orgId: string;
   query?: string;
   fragment?: string;
@@ -252,17 +253,18 @@ export const buildHttpFetcherConfig = (): FetcherConfig => ({
 
 // Build DID resolver response
 export const buildDidResolutionResponse = (
+  did: string,
   resolutionStart: number,
   orgId?: OrgIdData,
-  credential?: ORGJSONVCNFT,
   didDocument?: ORGJSON,
   error?: string
 ): DidResolutionResponse => ({
   '@context': 'https://w3id.org/did-resolution/v1',
+  did,
   ...(
     didDocument
       ? { didDocument }
-      : {}
+      : { didDocument: null }
   ),
   didResolutionMetadata: {
     contentType: 'application/did+ld+json',
@@ -270,47 +272,47 @@ export const buildDidResolutionResponse = (
     duration: Date.now() - resolutionStart,
     resolverVersion: version,
     ...(
-      orgId
-        ? {
-          orgId: {
-            ...orgId,
-            tokenId: orgId.tokenId.toString()
-          }
-        }
-        : {}
-    ),
-    ...(
-      credential
-        ? { credential }
-        : {}
-    ),
-    ...(
       error
         ? { error }
         : {}
     )
   },
-  didDocumentMetadata: {
-    ...(
-      didDocument?.created
-        ? { created: didDocument.created }
-        : {}
-    ),
-    ...(
-      didDocument?.updated
-        ? { updated: didDocument.updated }
-        : {}
-    ),
-    ...(
-      didDocument?.deactivated
-        ? { deactivated: !!didDocument.deactivated }
-        : {}
-    )
-  }
+  didDocumentMetadata:
+    didDocument
+      ? {
+        ...(
+          didDocument.created
+            ? { created: didDocument.created }
+            : {}
+        ),
+        ...(
+          didDocument.updated
+            ? { updated: didDocument.updated }
+            : {}
+        ),
+        ...(
+          didDocument.deactivated
+            ? { deactivated: !!didDocument.deactivated }
+            : {}
+        ),
+        ...(
+          orgId
+            ? {
+              data: {
+                ...orgId,
+                tokenId: orgId.tokenId.toString()
+              }
+            }
+            : {}
+        )
+      }
+      : null
 });
 
 /**
- * ORGiD resolver
+ * ORGiD resolver implementation
+ * according to https://w3c-ccg.github.io/did-resolution
+ * and https://www.w3.org/TR/did-core/#did-resolution
  */
 export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
   const chains = setupChains(options.chains);
@@ -327,11 +329,6 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
 
       try {
         const { network, orgId } = parseDid(did);
-
-        if (!network) {
-          throw new Error(`Invalid DID blockchain Id: ${network}`);
-        }
-
         const selectedChain = chains[network];
 
         if (!selectedChain) {
@@ -341,6 +338,11 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
         // Fetch ORGiD data from defined chain
         orgIdData =
           await selectedChain.resolver.getOrgId(orgId) as OrgIdData;
+
+        if (!orgIdData) {
+          throw new Error(`Organization with Id ${orgId} not found`);
+        }
+
         const { orgJsonUri, owner: orgIdOwner } = orgIdData;
 
         const {
@@ -366,19 +368,19 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
         }
 
         // Extract verification method from the VC proof
-        const verificationMethod = object.getDeepValue(
+        const vcVerificationMethod = object.getDeepValue(
           rawOrgJsonVc,
           'proof.verificationMethod'
         ) as string;
 
-        if (!verificationMethod) {
+        if (!vcVerificationMethod || vcVerificationMethod === '') {
           throw new Error('Verification method not found in VC proof');
         }
 
         const {
           orgId: verificationOrgId,
           network: verificationNetwork
-        } = parseDid(verificationMethod);
+        } = parseDid(vcVerificationMethod);
 
         let publicKey = '';
 
@@ -402,12 +404,12 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
           }
 
           const orgJsonVerificationMethod = orgJsonVerificationMethods.filter(
-            v => v.id === verificationMethod
+            v => v.id === vcVerificationMethod
           )[0];
 
           if (!orgJsonVerificationMethod) {
             throw new Error(
-              `Verification method ${verificationMethod} not found in ORG.JSON`
+              `Verification method ${vcVerificationMethod} not found in ORG.JSON`
             );
           }
 
@@ -466,9 +468,9 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
       // @todo Implement caching of resolved ORGiDs
 
       return buildDidResolutionResponse(
+        did,
         resolutionStart,
         orgIdData,
-        rawOrgJsonVc,
         didDocument,
         error
       );

@@ -871,10 +871,10 @@
     jose "4.1.4"
     luxon "2.0.2"
 
-"@windingtree/org.id-core@1.0.0-beta.10":
-  version "1.0.0-beta.10"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-1.0.0-beta.10.tgz#068d66fab485684fb33bb65f827ccc2b9936e489"
-  integrity sha512-ROpDWPhjQAjD0raliMwsKt7/T1MonBvhhCXSbdcqTRI2dIq0xcEp8vRxQB2/eDohD4iHqGN+bQP/vY0vJIW7cw==
+"@windingtree/org.id-core@1.0.0-beta.16":
+  version "1.0.0-beta.16"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-1.0.0-beta.16.tgz#9a3107909e217eeea75ed7eebc457a3d53541628"
+  integrity sha512-HhQnFJVl4qj0ZqpdTOL7HVKzRYNlO0g9tlqBTKbJ6OZwlZed+kM3bbkpCqDkSHnGjnVG6VwGSAedjv5ejeMKdw==
   dependencies:
     "@windingtree/org.id" "3.0.0-beta.5"
     "@windingtree/org.id-utils" "^1.0.0-beta.10"
@@ -885,10 +885,10 @@
   resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-http-server/-/org.id-test-http-server-1.0.0-beta.7.tgz#75be8b7abd98c7863ff9529b8c835719a6531499"
   integrity sha512-FDNayWm3Az3Dmn1G8tGopc4EpzDaZrBYvPnjDyi9wnuJJNDrECGDGq4xVXRqJJAHAJPDIl310L121Q/mwvOhSg==
 
-"@windingtree/org.id-test-setup@1.0.0-beta.10":
-  version "1.0.0-beta.10"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-setup/-/org.id-test-setup-1.0.0-beta.10.tgz#4e1bd69abf3e2a22fcb7c7638cff71b557893f24"
-  integrity sha512-FHrLDLKjrrx0SYJ+XejfR4dxIH53KfkKC6B7nNK7iMU0SeYsC3LWHkeAdA7jyx9enMYcZaRisFPJu9qP+u6gGA==
+"@windingtree/org.id-test-setup@1.0.0-beta.16":
+  version "1.0.0-beta.16"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-setup/-/org.id-test-setup-1.0.0-beta.16.tgz#bb537ca54582365ddea9032291e5cc8c02fe3ec7"
+  integrity sha512-hJmWa7t1smGlxudessZzyCtScssgDCfogeeKalG9VOX4YpcFpVibwDuCR8T9UR82MAomEtA4f4L7tTEFiBxQgQ==
   dependencies:
     "@nomiclabs/hardhat-ethers" "2.0.2"
     "@windingtree/org.id" "3.0.0-beta.5"

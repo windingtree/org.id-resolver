@@ -871,12 +871,12 @@
     jose "4.1.4"
     luxon "2.0.2"
 
-"@windingtree/org.id-core@1.0.0-beta.16":
-  version "1.0.0-beta.16"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-1.0.0-beta.16.tgz#9a3107909e217eeea75ed7eebc457a3d53541628"
-  integrity sha512-HhQnFJVl4qj0ZqpdTOL7HVKzRYNlO0g9tlqBTKbJ6OZwlZed+kM3bbkpCqDkSHnGjnVG6VwGSAedjv5ejeMKdw==
+"@windingtree/org.id-core@1.0.0-beta.19":
+  version "1.0.0-beta.19"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-1.0.0-beta.19.tgz#377f1e8d543a61cf18bbbb39b8039c1f670a9e4d"
+  integrity sha512-9BTJISJ40pL25UG+hRifcOTLfpfUqypdJcYZ6LeTXgtZiW+4GGBjassm/n8sOQitGI0kKOWbFWxWAW2V7wzeAQ==
   dependencies:
-    "@windingtree/org.id" "3.0.0-beta.5"
+    "@windingtree/org.id" "3.0.0-beta.6"
     "@windingtree/org.id-utils" "^1.0.0-beta.10"
     ethers "5.5.1"
 
@@ -885,13 +885,13 @@
   resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-http-server/-/org.id-test-http-server-1.0.0-beta.7.tgz#75be8b7abd98c7863ff9529b8c835719a6531499"
   integrity sha512-FDNayWm3Az3Dmn1G8tGopc4EpzDaZrBYvPnjDyi9wnuJJNDrECGDGq4xVXRqJJAHAJPDIl310L121Q/mwvOhSg==
 
-"@windingtree/org.id-test-setup@1.0.0-beta.16":
-  version "1.0.0-beta.16"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-setup/-/org.id-test-setup-1.0.0-beta.16.tgz#bb537ca54582365ddea9032291e5cc8c02fe3ec7"
-  integrity sha512-hJmWa7t1smGlxudessZzyCtScssgDCfogeeKalG9VOX4YpcFpVibwDuCR8T9UR82MAomEtA4f4L7tTEFiBxQgQ==
+"@windingtree/org.id-test-setup@1.0.0-beta.19":
+  version "1.0.0-beta.19"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-setup/-/org.id-test-setup-1.0.0-beta.19.tgz#0b6cc727323f8dd9ca6dd098d3b54292f6e36168"
+  integrity sha512-TDcNARu8oITLqxiQVTYCZ2jP8Avf66RlsMEdxQIeT8aQS/6Pho/6/bx+KyJfLfb1mtQ383ryTPho8pok4Rd1oQ==
   dependencies:
     "@nomiclabs/hardhat-ethers" "2.0.2"
-    "@windingtree/org.id" "3.0.0-beta.5"
+    "@windingtree/org.id" "3.0.0-beta.6"
     "@windingtree/org.id-auth" "^1.0.0-beta.10"
     "@windingtree/org.id-test-http-server" "^1.0.0-beta.7"
     "@windingtree/org.id-utils" "^1.0.0-beta.10"
@@ -914,6 +914,13 @@
   version "3.0.0-beta.5"
   resolved "https://registry.yarnpkg.com/@windingtree/org.id/-/org.id-3.0.0-beta.5.tgz#1164377287eedd0e129f273086195061146c9c9f"
   integrity sha512-zFl2XQe5LIsVpZqoHcNbnIFyUx9u8UAS0gG4pOz5qfUpxqjDO5ZuA4gl+Q5bhlDxGp22P8S6CPaUbeKLlsThPg==
+  dependencies:
+    "@openzeppelin/contracts-upgradeable" "4.3.2"
+
+"@windingtree/org.id@3.0.0-beta.6":
+  version "3.0.0-beta.6"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id/-/org.id-3.0.0-beta.6.tgz#0ccaca8a72c5e8a2ca3843de75ac68a229c57c3e"
+  integrity sha512-BnL4KOmu5CyJiGhvQA5vYQNEw3TCpkQ2A6Y8Ow22mYIAfJ8VVi3Pcw+OXwSOXpNRyLe1COoECGwOqLh22VH4xA==
   dependencies:
     "@openzeppelin/contracts-upgradeable" "4.3.2"
 

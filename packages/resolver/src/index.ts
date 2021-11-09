@@ -1,6 +1,7 @@
 import type { ORGJSONVCNFT } from '@windingtree/org.json-schema/types/orgVc';
 import type { ORGJSON, VerificationMethodReference } from '@windingtree/org.json-schema/types/org.json';
 import type { SignedVC } from '@windingtree/org.id-auth/dist/vc';
+import type { JWK } from '@windingtree/org.id-auth/dist/keys';
 import type { OrgIdData, KnownProvider } from '@windingtree/org.id-core';
 import { parseBlockchainAccountId, verifyVC } from '@windingtree/org.id-auth/dist/vc';
 import { OrgIdContract } from '@windingtree/org.id-core';
@@ -31,6 +32,7 @@ export interface FetcherConfig {
 export interface ResolverOptions {
   chains: ChainConfig[];
   fetchers: FetcherConfig[];
+  maxDepth?: number;
 }
 
 export interface Chains {
@@ -80,7 +82,7 @@ export interface DidDocumentMetadata {
 export interface DidResolutionResponse {
   '@context': DidResolutionContext;
   did: string;
-  didDocument?: ORGJSON | null;
+  didDocument: ORGJSON | null;
   didResolutionMetadata: DidResolutionMetaData;
   didDocumentMetadata: DidDocumentMetadata | null;
 }
@@ -121,7 +123,11 @@ export interface ParsedUri {
   type: string;
 }
 
-const resolverMethod = 'orgid';
+export interface ResolverCache {
+  [did: string]: DidResolutionResponse
+}
+
+export type VerificationMethodPublicKey = JWK | string;
 
 // Initialize ORGiD chains
 export const setupChains = (chains: ChainConfig[]): Chains =>
@@ -171,14 +177,6 @@ export const parseDid = (did: string): ParsedDid => {
     fragment
   } = groupedCheck.groups;
 
-  if (!method || method !== resolverMethod) {
-    throw new Error(`Invalid DID method: ${method}`);
-  }
-
-  if (!regexp.bytes32.exec(id)) {
-    throw new Error(`Invalid ORGiD: ${id}`);
-  }
-
   return {
     did,
     method,
@@ -200,12 +198,13 @@ export const parseUri = (uri: string): ParsedUri => {
   } else if (regexp.ipfs.exec(uri) || regexp.ipfsUri.exec(uri)) {
     type = 'ipfs';
 
-    if (regexp.ipfs.exec(uri)) {
+    if (!regexp.ipfsUri.exec(uri)) {
       parsedUri = uri;
     } else {
       const ipfsGroupedResult = regexp.ipfsUriGrouped.exec(uri) as IpfsUriGroupedResult;
 
       if (!ipfsGroupedResult) {
+        // should never happen because it checked twice
         throw new Error(`Unable to extract CID from IPFS URI: ${uri}`);
       }
 
@@ -309,6 +308,8 @@ export const buildDidResolutionResponse = (
       : null
 });
 
+const resolverCache: ResolverCache = {};
+
 /**
  * ORGiD resolver implementation
  * according to https://w3c-ccg.github.io/did-resolution
@@ -317,163 +318,294 @@ export const buildDidResolutionResponse = (
 export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
   const chains = setupChains(options.chains);
   const fetchers = setupFetchers(options.fetchers);
+  const maxDepth = options.maxDepth || 2;
 
-  return {
-    resolve: async (did: string): Promise<DidResolutionResponse> => {
-      let error: string | undefined;
-      let orgIdData: OrgIdData | undefined;
-      let rawOrgJsonVc: ORGJSONVCNFT | undefined;
-      let safeOrgJsonVc: ORGJSONVCNFT | undefined;
-      let didDocument: ORGJSON | undefined;
-      const resolutionStart = Date.now();
+  const resolve = async (
+    rawDid: string,
+    level = 0,
+    rootResolutionDid?: string
+  ): Promise<DidResolutionResponse> => {
+    let did = rawDid;
 
-      try {
-        const { network, orgId } = parseDid(did);
-        const selectedChain = chains[network];
+    // Return cached response
+    if (resolverCache[did]) {
+      return resolverCache[did];
+    }
 
-        if (!selectedChain) {
-          throw new Error(`Unsupported blockchain Id: ${network}`);
-        }
+    if (level >= maxDepth) {
+      throw new Error('Maximum depth of capability delegation is reached');
+    }
 
-        // Fetch ORGiD data from defined chain
-        orgIdData =
-          await selectedChain.resolver.getOrgId(orgId) as OrgIdData;
+    // Capability delegates resolver
+    const getDelegatedPublicKey = async (
+      parentOrgJsonVc: ORGJSONVCNFT,
+      verificationMethodId: string,
+      orgIdData: OrgIdData,
+      level: number
+    ): Promise<VerificationMethodPublicKey> => {
 
-        if (!orgIdData) {
-          throw new Error(`Organization with Id ${orgId} not found`);
-        }
-
-        const { orgJsonUri, owner: orgIdOwner } = orgIdData;
-
-        const {
-          uri,
-          type: uriType
-        } = parseUri(orgJsonUri);
-
-        const selectedFetcher = fetchers[uriType];
-
-        if (!selectedFetcher) {
-          throw new Error(`Unsupported URI fetcher: ${uriType}`);
-        }
-
-        // Fetching of the ORG.JSON by defined fetcher
-        rawOrgJsonVc =
-          await selectedFetcher.resolver.getOrgJson(uri) as ORGJSONVCNFT;
-
-        const vcTypes = object.getDeepValue(rawOrgJsonVc, 'type');
-
-        // VC must include type OrgJson
-        if (!Array.isArray(vcTypes) || !vcTypes.includes('OrgJson')) {
-          throw new Error('VC must include OrgJson type');
-        }
-
-        // Extract verification method from the VC proof
-        const vcVerificationMethod = object.getDeepValue(
-          rawOrgJsonVc,
-          'proof.verificationMethod'
-        ) as string;
-
-        if (!vcVerificationMethod || vcVerificationMethod === '') {
-          throw new Error('Verification method not found in VC proof');
-        }
-
-        const {
-          orgId: verificationOrgId,
-          network: verificationNetwork
-        } = parseDid(vcVerificationMethod);
-
-        let publicKey = '';
-
-        if (
-          verificationOrgId === orgId &&
-          verificationNetwork === selectedChain.config.blockchainId
-        ) {
-          // Extract verification method from the credential subject (ORG.JSON)
-          const orgJsonVerificationMethods = object.getDeepValue(
-            rawOrgJsonVc,
-            'credentialSubject.verificationMethod'
-          ) as VerificationMethodReference[];
-
-          if (
-            !Array.isArray(orgJsonVerificationMethods) ||
-            orgJsonVerificationMethods.length === 0
-          ) {
-            throw new Error(
-              'Verification methods definition not found in ORG.JSON'
-            );
-          }
-
-          const orgJsonVerificationMethod = orgJsonVerificationMethods.filter(
-            v => v.id === vcVerificationMethod
-          )[0];
-
-          if (!orgJsonVerificationMethod) {
-            throw new Error(
-              `Verification method ${vcVerificationMethod} not found in ORG.JSON`
-            );
-          }
-
-          // Check verification method revocation status
-          if (orgJsonVerificationMethod.verificationMethodRevocation) {
-            throw new Error(
-              `Verification method ${orgJsonVerificationMethod.id} is revoked at ${orgJsonVerificationMethod.verificationMethodRevocation.invalidityDate}`
-            );
-          }
-
-          if (orgJsonVerificationMethod.type === 'EcdsaSecp256k1RecoveryMethod2020') {
-
-            if (!orgJsonVerificationMethod.blockchainAccountId) {
-              throw new Error(
-                'Verification method of type EcdsaSecp256k1RecoveryMethod2020 must include blockchainAccountId'
-              );
-            }
-
-            const {
-              accountId,
-              blockchainType,
-              blockchainId
-            } = parseBlockchainAccountId(orgJsonVerificationMethod.blockchainAccountId);
-
-            if (accountId === orgIdOwner) {
-
-              if (
-                blockchainType !== selectedChain.config.blockchainType ||
-                blockchainId !== selectedChain.config.blockchainId
-              ) {
-                throw new Error('Invalid verification method blockchain');
-              }
-
-              publicKey = orgJsonVerificationMethod.blockchainAccountId;
-            } else {
-              // @todo Implement the capability delegation flow
-            }
-          } else {
-            // @todo Implement the capability delegation flow
-          }
-        } else {
-          // @todo Implement the capability delegation flow
-        }
-
-        safeOrgJsonVc = await verifyVC(
-          rawOrgJsonVc as SignedVC,
-          publicKey
-        ) as ORGJSONVCNFT;
-
-        didDocument = safeOrgJsonVc?.credentialSubject as ORGJSON;
-
-      } catch(err) {
-        error = err.message;
+      if (
+        orgIdData.delegates.length === 0 ||
+        !orgIdData.delegates.includes(verificationMethodId)
+      ) {
+        throw new Error(`${verificationMethodId} not found in delegates list`);
       }
 
-      // @todo Implement caching of resolved ORGiDs
+      const { did } = parseDid(verificationMethodId);
+      const parentDid = object.getDeepValue(
+        parentOrgJsonVc,
+        'credentialSubject.id'
+      ) as string;
 
-      return buildDidResolutionResponse(
-        did,
-        resolutionStart,
-        orgIdData,
-        didDocument,
-        error
-      );
+      let verificationMethodResolution: DidResolutionResponse;
+      let delegateVerificationMethods: VerificationMethodReference[];
+
+      if (did !== parentDid) {
+        // Resolve verificationMethodId
+        verificationMethodResolution = await resolve(
+          verificationMethodId,
+          level + 1,
+          did
+        );
+
+        if (!verificationMethodResolution.didDocument) {
+          throw new Error(`Unable to resolve verificationMethod: ${verificationMethodId}`);
+        }
+
+        delegateVerificationMethods = object.getDeepValue(
+          verificationMethodResolution.didDocument,
+          'verificationMethod'
+        ) as VerificationMethodReference[];
+      } else {
+
+        delegateVerificationMethods = object.getDeepValue(
+          parentOrgJsonVc,
+          'credentialSubject.verificationMethod'
+        ) as VerificationMethodReference[];
+      }
+
+      if (!delegateVerificationMethods) {
+        throw new Error('Unable to get verificationMethods of delegate');
+      }
+
+      const verificationMethod = delegateVerificationMethods.filter(
+        v => v.id === verificationMethodId
+      )[0];
+
+      if (!verificationMethod) {
+        throw new Error('Unable to get verificationMethod of delegate');
+      }
+
+      switch (verificationMethod.type) {
+        case 'EcdsaSecp256k1RecoveryMethod2020':
+        case 'JsonWebKey2020':
+        case 'EcdsaSecp256k1VerificationKey2019':
+        // case 'Ed25519VerificationKey2018':
+        // case 'RsaVerificationKey2018':
+        // case 'X25519KeyAgreementKey2019':
+
+          const publicKey =
+            verificationMethod.blockchainAccountId ||
+            verificationMethod.publicKeyJwk;
+
+          // The following key types are not supported yet
+          // - publicKeyPem
+          // - publicKeyBase58
+
+          return publicKey || '';
+        default:
+          throw new Error(`Unknown verificationMethod type ${verificationMethod.type}`)
+      }
+    };
+
+    let error: string | undefined;
+    let orgIdData: OrgIdData | undefined;
+    let rawOrgJsonVc: ORGJSONVCNFT | undefined;
+    let safeOrgJsonVc: ORGJSONVCNFT | undefined;
+    let didDocument: ORGJSON | undefined;
+
+    const resolutionStart = Date.now();
+
+    try {
+      const { did: parsedDid, network, orgId } = parseDid(did);
+      did = parsedDid;
+
+      if (did === rootResolutionDid) {
+        throw new Error('Capability delegation recursion detected');
+      }
+
+      const selectedChain = chains[network];
+
+      if (!selectedChain) {
+        throw new Error(`Unsupported blockchain Id: ${network}`);
+      }
+
+      // Fetch ORGiD data from defined chain
+      orgIdData =
+        await selectedChain.resolver.getOrgId(orgId) as OrgIdData;
+
+      if (!orgIdData) {
+        throw new Error(`Organization with Id ${orgId} not found`);
+      }
+
+      const { orgJsonUri, owner: orgIdOwner } = orgIdData;
+
+      const {
+        uri,
+        type: uriType
+      } = parseUri(orgJsonUri);
+
+      const selectedFetcher = fetchers[uriType];
+
+      if (!selectedFetcher) {
+        throw new Error(`Unsupported URI fetcher: ${uriType}`);
+      }
+
+      // Fetching of the ORG.JSON by defined fetcher
+      rawOrgJsonVc =
+        await selectedFetcher.resolver.getOrgJson(uri) as ORGJSONVCNFT;
+
+      const vcTypes = object.getDeepValue(rawOrgJsonVc, 'type');
+
+      // VC must include type OrgJson
+      if (!Array.isArray(vcTypes) || !vcTypes.includes('OrgJson')) {
+        throw new Error('VC must include OrgJson type');
+      }
+
+      // Extract verification method from the VC proof
+      const vcVerificationMethod = object.getDeepValue(
+        rawOrgJsonVc,
+        'proof.verificationMethod'
+      ) as string;
+
+      if (!vcVerificationMethod || vcVerificationMethod === '') {
+        throw new Error('Verification method not found in VC proof');
+      }
+
+      const {
+        orgId: verificationOrgId,
+        network: verificationNetwork
+      } = parseDid(vcVerificationMethod);
+
+      let publicKey: VerificationMethodPublicKey = '';
+
+      if (
+        verificationOrgId === orgId &&
+        verificationNetwork === selectedChain.config.blockchainId
+      ) {
+        // Extract verification method from the credential subject (ORG.JSON)
+        const orgJsonVerificationMethods = object.getDeepValue(
+          rawOrgJsonVc,
+          'credentialSubject.verificationMethod'
+        ) as VerificationMethodReference[];
+
+        if (
+          !Array.isArray(orgJsonVerificationMethods) ||
+          orgJsonVerificationMethods.length === 0
+        ) {
+          throw new Error(
+            'Verification methods definition not found in ORG.JSON'
+          );
+        }
+
+        const orgJsonVerificationMethod = orgJsonVerificationMethods.filter(
+          v => v.id === vcVerificationMethod
+        )[0];
+
+        if (!orgJsonVerificationMethod) {
+          throw new Error(
+            `Verification method ${vcVerificationMethod} not found in ORG.JSON`
+          );
+        }
+
+        // Check verification method revocation status
+        if (orgJsonVerificationMethod.verificationMethodRevocation) {
+          throw new Error(
+            `Verification method ${orgJsonVerificationMethod.id} is revoked at ${orgJsonVerificationMethod.verificationMethodRevocation.invalidityDate}`
+          );
+        }
+
+        if (orgJsonVerificationMethod.type === 'EcdsaSecp256k1RecoveryMethod2020') {
+
+          if (!orgJsonVerificationMethod.blockchainAccountId) {
+            throw new Error(
+              'Verification method of type EcdsaSecp256k1RecoveryMethod2020 must include blockchainAccountId'
+            );
+          }
+
+          const {
+            accountId,
+            blockchainType,
+            blockchainId
+          } = parseBlockchainAccountId(orgJsonVerificationMethod.blockchainAccountId);
+
+          if (accountId === orgIdOwner) {
+
+            if (
+              blockchainType !== selectedChain.config.blockchainType ||
+              blockchainId !== selectedChain.config.blockchainId
+            ) {
+              throw new Error('Invalid verification method blockchain');
+            }
+
+            publicKey = orgJsonVerificationMethod.blockchainAccountId;
+          } else {
+            // Capability delegation flow
+            publicKey = await getDelegatedPublicKey(
+              rawOrgJsonVc,
+              orgJsonVerificationMethod.id,
+              orgIdData,
+              level
+            );
+          }
+        } else {
+          // Capability delegation flow
+          publicKey = await getDelegatedPublicKey(
+            rawOrgJsonVc,
+            orgJsonVerificationMethod.id,
+            orgIdData,
+            level
+          );
+        }
+      } else {
+        // Capability delegation flow
+        publicKey = await getDelegatedPublicKey(
+          rawOrgJsonVc,
+          vcVerificationMethod,
+          orgIdData,
+          level
+        );
+      }
+
+      safeOrgJsonVc = await verifyVC(
+        rawOrgJsonVc as SignedVC,
+        publicKey
+      ) as ORGJSONVCNFT;
+
+      didDocument = safeOrgJsonVc?.credentialSubject as ORGJSON;
+
+    } catch(err) {
+      error = err.message;
     }
+
+    const resolutionResult = buildDidResolutionResponse(
+      did,
+      resolutionStart,
+      orgIdData,
+      didDocument,
+      error
+    );
+
+    if (!error) {
+      // Simple in-memory cache version
+      // @todo Implement plugable caching solution
+      resolverCache[did] = resolutionResult;
+    }
+
+    return resolutionResult;
+  }
+
+  return {
+    resolve
   };
 }

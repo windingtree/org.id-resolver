@@ -12,9 +12,15 @@ import type {
 } from '../../src';
 import { orgIdSetup } from '@windingtree/org.id-test-setup';
 import {
+  generateSalt,
+  generateOrgIdWithSigner
+} from '@windingtree/org.id-utils/dist/common';
+import {
   OrgIdResolver,
   buildEvmChainConfig,
-  buildHttpFetcherConfig
+  buildHttpFetcherConfig,
+  parseDid,
+  parseUri
 } from '../../src';
 import chai, { expect } from 'chai';
 import chp from 'chai-as-promised';
@@ -59,6 +65,106 @@ describe('ORGiD DID Resolver', () => {
 
   after(async () => {
     setup.close();
+  });
+
+  describe('#parseDid',  () => {
+
+    it('should throw if invalid DID provided', async () => {
+      const invalidDids = [
+        'invalid:did',
+        'did:123456:qwerty',
+        'did:qwerty:4:0x9300bad07f0b9d904b23781e8bbb05c1219530c51e7e494701db2539b7a5a119',
+        'did:orgid:4:0x9300bad07',
+        'did:orgid:ropsten:0x9300bad07f0b9d904b23781e8bbb05c1219530c51e7e494701db2539b7a5a119'
+      ];
+      invalidDids.forEach(did => {
+        expect(() => parseDid(did)).to.Throw(`Invalid DID format: ${did}`);
+      });
+    });
+
+    it('should parse DID', async () => {
+      const did = 'did:orgid:0x7b15197de62b0bc73da908b215666c48e1e49ed38e4486f5f6f094458786412d?service=files&relative-ref=%2Fmyresume%2Fdoc%3Fversion%3Dlatest#intro';
+      const didParsed = {
+        did: 'did:orgid:0x7b15197de62b0bc73da908b215666c48e1e49ed38e4486f5f6f094458786412d?service=files&relative-ref=%2Fmyresume%2Fdoc%3Fversion%3Dlatest#intro',
+        method: 'orgid',
+        orgId: '0x7b15197de62b0bc73da908b215666c48e1e49ed38e4486f5f6f094458786412d',
+        query: 'service=files&relative-ref=%2Fmyresume%2Fdoc%3Fversion%3Dlatest',
+        fragment: 'intro'
+      };
+      const result = parseDid(did);
+      Object.keys(didParsed).forEach(key => {
+        expect(result).to.haveOwnProperty(key).to.equal(didParsed[key]);
+      });
+    });
+  });
+
+  describe('#parseUri', () => {
+
+    it('should throw if invalid URI provided', async () => {
+      const invalidUris = [
+        'https://blaqwert1-as^dsad.domain1-2-aaa.io:8080/path/to/file?user=allowed#readme',
+        'https://blaqwert1-asdsad.domain1-2-aaa.io@8080/path/to?user=allowed#readme',
+        'hzzz://blaqwert1-asdsad.domain1-2-aaa.io@8080/path/to?user=allowed#readme',
+        'ws://0.0.0.0',
+        'wss://0.0.0.0',
+        'ifps://QMYjtig7VJQ6XsnUjqqJvj7QaMcCAwtrgNdahSiFofrE7o'
+      ];
+      invalidUris.forEach(uri => {
+        expect(() => parseUri(uri)).to.Throw(`Invalid URI: ${uri}`);
+      });
+    });
+
+    it('should parse URI', async () => {
+      const validUris = [
+        'https://blaqwert1-asdsad.domain1-2-aaa.io:8080/path/to/file?user=allowed#readme',
+        'http://blaqwert1-asdsad.domain1-2-aaa.io:8080/path/to?user=allowed#readme',
+        'QMYjtig7VJQ6XsnUjqqJvj7QaMcCAwtrgNdahSiFofrE7o',
+        'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q',
+        'zdj7WWeQ43G6JJvLWQWZpyHuAMq6uYWRjkBXFad11vE2LHhQ7',
+        'ipfs://QMYjtig7VJQ6XsnUjqqJvj7QaMcCAwtrgNdahSiFofrE7o',
+        'ipfs://bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q',
+        'ipfs://zdj7WWeQ43G6JJvLWQWZpyHuAMq6uYWRjkBXFad11vE2LHhQ7'
+      ];
+      const parsedUris = [
+        {
+          uri: 'https://blaqwert1-asdsad.domain1-2-aaa.io:8080/path/to/file?user=allowed#readme',
+          type: 'http'
+        },
+        {
+          uri: 'http://blaqwert1-asdsad.domain1-2-aaa.io:8080/path/to?user=allowed#readme',
+          type: 'http'
+        },
+        {
+          uri: 'QMYjtig7VJQ6XsnUjqqJvj7QaMcCAwtrgNdahSiFofrE7o',
+          type: 'ipfs'
+        },
+        {
+          uri: 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q',
+          type: 'ipfs'
+        },
+        {
+          uri: 'zdj7WWeQ43G6JJvLWQWZpyHuAMq6uYWRjkBXFad11vE2LHhQ7',
+          type: 'ipfs'
+        },
+        {
+          uri: 'QMYjtig7VJQ6XsnUjqqJvj7QaMcCAwtrgNdahSiFofrE7o',
+          type: 'ipfs'
+        },
+        {
+          uri: 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q',
+          type: 'ipfs'
+        },
+        {
+          uri: 'zdj7WWeQ43G6JJvLWQWZpyHuAMq6uYWRjkBXFad11vE2LHhQ7',
+          type: 'ipfs'
+        }
+      ];
+      validUris.forEach((uri, index) => {
+        const result = parseUri(uri);
+        expect(result).to.haveOwnProperty('uri').to.equal(parsedUris[index].uri);
+        expect(result).to.haveOwnProperty('type').to.equal(parsedUris[index].type);
+      });
+    });
   });
 
   describe('#resolve', () => {
@@ -168,6 +274,54 @@ describe('ORGiD DID Resolver', () => {
         .to.contain(
           `is revoked at ${invalidityDate}`
         );
+    });
+
+    it('should return error if proofs verificationMethod in orgJson has missed blockchainAccountId', async () => {
+      const owner = signers[0];
+      const orgIdSalt = generateSalt();
+      const orgIdHash = await generateOrgIdWithSigner(owner, orgIdSalt);
+      const overrides: TestOverrideOptions = {
+        orgIdSalt,
+        vcProofVerificationMethod: `did:orgid:1337:${orgIdHash}#key-111`,
+        orgJsonVerificationMethod: [// Fake method
+          {
+            "id": `did:orgid:1337:${orgIdHash}#key-111`,
+            "controller": `did:orgid:1337:${orgIdHash}`,
+            "type": "EcdsaSecp256k1RecoveryMethod2020"
+          }
+        ]
+      };
+      const orgIdData = await setup.registerOrgId(signers[0] as VoidSigner, overrides)
+      // console.log(JSON.stringify(orgIdData, null, 2));
+      const response = await resolver.resolve(orgIdData.orgJson.issuer);
+      const verificationMethod = orgIdData.orgJson.proof.verificationMethod;
+      expect(response.didResolutionMetadata.error)
+        .to.equal('Verification method of type EcdsaSecp256k1RecoveryMethod2020 must include blockchainAccountId');
+    });
+
+    it('should return error if verificationMethod in orgJson has invalid blockchainId', async () => {
+      const owner = signers[0];
+      const ownerAddress = await signers[0].getAddress();
+      const orgIdSalt = generateSalt();
+      const orgIdHash = await generateOrgIdWithSigner(owner, orgIdSalt);
+      const overrides: TestOverrideOptions = {
+        orgIdSalt,
+        vcProofVerificationMethod: `did:orgid:1337:${orgIdHash}#key-111`,
+        orgJsonVerificationMethod: [
+          {
+            "id": `did:orgid:1337:${orgIdHash}#key-111`,
+            "controller": `did:orgid:1337:${orgIdHash}`,
+            "type": "EcdsaSecp256k1RecoveryMethod2020",
+            "blockchainAccountId": `${ownerAddress}@unknown:1337`
+          }
+        ]
+      };
+      const orgIdData = await setup.registerOrgId(signers[0] as VoidSigner, overrides)
+      // console.log(JSON.stringify(orgIdData, null, 2));
+      const response = await resolver.resolve(orgIdData.orgJson.issuer);
+      const verificationMethod = orgIdData.orgJson.proof.verificationMethod;
+      expect(response.didResolutionMetadata.error)
+        .to.equal('Invalid verification method blockchain');
     });
 
     // it('should throw if', async () => {});

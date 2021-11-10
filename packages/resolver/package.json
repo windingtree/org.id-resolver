@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@windingtree/org.id": "3.0.0-beta.5",
-    "@windingtree/org.id-core": "1.0.0-beta.19",
+    "@windingtree/org.id-core": "1.0.0-beta.21",
     "@windingtree/org.id-auth": "1.0.0-beta.10",
     "@windingtree/org.json-schema": "1.0.0-beta.4",
     "@windingtree/org.id-utils": "1.0.0-beta.10",
@@ -41,7 +41,7 @@
     "ethers": "5.5.1"
   },
   "devDependencies": {
-    "@windingtree/org.id-test-setup": "1.0.0-beta.19",
+    "@windingtree/org.id-test-setup": "1.0.0-beta.21",
     "@istanbuljs/nyc-config-typescript": "1.0.1",
     "@nomiclabs/hardhat-ethers": "2.0.2",
     "@types/luxon": "2.0.5",

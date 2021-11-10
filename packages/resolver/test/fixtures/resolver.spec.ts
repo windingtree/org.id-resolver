@@ -4,6 +4,7 @@ import type {
   OrgIdRegistrationResult,
   TestOverrideOptions
 } from '@windingtree/org.id-test-setup';
+import type { ORGJSONVCNFT } from '@windingtree/org.json-schema/types/orgVc';
 import type {
   ChainConfig,
   FetcherConfig,
@@ -178,7 +179,7 @@ describe('ORGiD DID Resolver', () => {
         'did:orgid:0xd097e8f7a4ff4a11fb3dcfe38a212f0d9fd56373e925a8c8a4f716567606b207'
       )
       expect(response.didResolutionMetadata.error)
-        .to.equal('Unsupported blockchain Id: 1');
+        .to.equal('Unsupported blockchain Id "1"');
     });
 
     it('should return error if DID with unsupported blockchain Id provided', async () => {
@@ -187,7 +188,7 @@ describe('ORGiD DID Resolver', () => {
         `did:orgid:${invalidNetwork}:0xd097e8f7a4ff4a11fb3dcfe38a212f0d9fd56373e925a8c8a4f716567606b207`
       )
       expect(response.didResolutionMetadata.error)
-        .to.equal(`Unsupported blockchain Id: ${invalidNetwork}`);
+        .to.equal(`Unsupported blockchain Id "${invalidNetwork}"`);
     });
 
     it('should return error if DID with unknown ORGiD provided', async () => {
@@ -196,7 +197,7 @@ describe('ORGiD DID Resolver', () => {
         `did:orgid:1337:${unknownId}`
       )
       expect(response.didResolutionMetadata.error)
-        .to.equal(`Organization with Id ${unknownId} not found`);
+        .to.equal(`ORGiD "${unknownId}" not found`);
     });
 
     it('should return error if unsupported orgJson URI provided', async () => {
@@ -209,7 +210,7 @@ describe('ORGiD DID Resolver', () => {
       const resolver = OrgIdResolver(resolverOptions);
       const response = await resolver.resolve(orgIds[0].orgJson.issuer);
       expect(response.didResolutionMetadata.error)
-        .to.equal(`Unsupported URI fetcher: http`);
+        .to.equal(`Unsupported URI fetcher "http"`);
     });
 
     it('should return error if OrgJson type not found in VC', async () => {
@@ -219,7 +220,7 @@ describe('ORGiD DID Resolver', () => {
       const orgIdData = await setup.registerOrgId(signers[0] as VoidSigner, overrides)
       const response = await resolver.resolve(orgIdData.orgJson.issuer);
       expect(response.didResolutionMetadata.error)
-        .to.equal('VC must include OrgJson type');
+        .to.equal('VC must include "OrgJson" type');
     });
 
     it('should return error if verificationMethod definition not found in VC proof', async () => {
@@ -229,7 +230,7 @@ describe('ORGiD DID Resolver', () => {
       const orgIdData = await setup.registerOrgId(signers[0] as VoidSigner, overrides)
       const response = await resolver.resolve(orgIdData.orgJson.issuer);
       expect(response.didResolutionMetadata.error)
-        .to.equal('Verification method not found in VC proof');
+        .to.equal('Verification method definition not found in VC proof');
     });
 
     it('should return error if verificationMethods definition not found in orgJson', async () => {
@@ -257,7 +258,7 @@ describe('ORGiD DID Resolver', () => {
       const response = await resolver.resolve(orgIdData.orgJson.issuer);
       const verificationMethod = orgIdData.orgJson.proof.verificationMethod;
       expect(response.didResolutionMetadata.error)
-        .to.equal(`Verification method ${verificationMethod} not found in ORG.JSON`);
+        .to.equal(`Verification method "${verificationMethod}" not found in ORG.JSON`);
     });
 
     it('should return error if ORG.JSON verificationMethod revoked', async () => {
@@ -272,7 +273,7 @@ describe('ORGiD DID Resolver', () => {
       const response = await resolver.resolve(orgIdData.orgJson.issuer);
       expect(response.didResolutionMetadata.error)
         .to.contain(
-          `is revoked at ${invalidityDate}`
+          `is revoked at "${invalidityDate}"`
         );
     });
 
@@ -296,7 +297,9 @@ describe('ORGiD DID Resolver', () => {
       const response = await resolver.resolve(orgIdData.orgJson.issuer);
       const verificationMethod = orgIdData.orgJson.proof.verificationMethod;
       expect(response.didResolutionMetadata.error)
-        .to.equal('Verification method of type EcdsaSecp256k1RecoveryMethod2020 must include blockchainAccountId');
+        .to.equal(
+          'Verification method of type "EcdsaSecp256k1RecoveryMethod2020" must include blockchainAccountId'
+        );
     });
 
     it('should return error if verificationMethod in orgJson has invalid blockchainId', async () => {
@@ -304,6 +307,7 @@ describe('ORGiD DID Resolver', () => {
       const ownerAddress = await signers[0].getAddress();
       const orgIdSalt = generateSalt();
       const orgIdHash = await generateOrgIdWithSigner(owner, orgIdSalt);
+      const invalidBlockchainType = 'unknown';
       const overrides: TestOverrideOptions = {
         orgIdSalt,
         vcProofVerificationMethod: `did:orgid:1337:${orgIdHash}#key-111`,
@@ -312,7 +316,7 @@ describe('ORGiD DID Resolver', () => {
             "id": `did:orgid:1337:${orgIdHash}#key-111`,
             "controller": `did:orgid:1337:${orgIdHash}`,
             "type": "EcdsaSecp256k1RecoveryMethod2020",
-            "blockchainAccountId": `${ownerAddress}@unknown:1337`
+            "blockchainAccountId": `${ownerAddress}@${invalidBlockchainType}:1337`
           }
         ]
       };
@@ -321,16 +325,63 @@ describe('ORGiD DID Resolver', () => {
       const response = await resolver.resolve(orgIdData.orgJson.issuer);
       const verificationMethod = orgIdData.orgJson.proof.verificationMethod;
       expect(response.didResolutionMetadata.error)
-        .to.equal('Invalid verification method blockchain');
+        .to.equal(
+          `Verification method blockchain type "eip155" and Id "1337" are expected but found "${invalidBlockchainType}" and "1337" in the VC proof`
+        );
     });
-
-    // it('should throw if', async () => {});
-
-    // it('should throw if', async () => {});
 
     it('should resolve did', async () => {
       const didResponse = await resolver.resolve(orgIds[0].orgJson.issuer);
       // console.log(JSON.stringify(didResponse, null, 2));
+    });
+
+    it('should resolve did that uses capability delegation (1 level)', async () => {
+      // Create delegate ORGID
+      const delegateOwner = setup.signers[3];
+      const { orgJson } = await setup.registerOrgId(delegateOwner as VoidSigner);
+
+      // Create ORGiD
+      const overrides: TestOverrideOptions = {
+        signWithDelegate: {
+          delegate: orgJson as ORGJSONVCNFT,
+          signer: delegateOwner as VoidSigner
+        }
+      };
+      const owner = setup.signers[4];
+      const { orgJson: delegatedOrgJson } = await setup.registerOrgId(owner as VoidSigner, overrides);
+      const didResponse = await resolver.resolve(delegatedOrgJson.credentialSubject.id as string);
+
+      // console.log(didResponse);
+    });
+
+    it('should resolve did that uses capability delegation (2 level)', async () => {
+      // Level 0 (delegate of Level 1)
+      const owner0 = setup.signers[3];
+      const { orgJson: orgJson0 } = await setup.registerOrgId(owner0 as VoidSigner);
+
+      // Level 1 (delegate of Level 2)
+      const overrides1: TestOverrideOptions = {
+        signWithDelegate: {
+          delegate: orgJson0 as ORGJSONVCNFT,
+          signer: owner0 as VoidSigner
+        }
+      };
+      const owner1 = setup.signers[4];
+      const { orgJson: orgJson1 } = await setup.registerOrgId(owner1 as VoidSigner, overrides1);
+
+      // Level 2
+      const overrides2: TestOverrideOptions = {
+        signWithDelegate: {
+          delegate: orgJson1 as ORGJSONVCNFT,
+          signer: owner1 as VoidSigner
+        }
+      };
+      const owner2 = setup.signers[5];
+      const { orgJson: orgJson2 } = await setup.registerOrgId(owner2 as VoidSigner, overrides2);
+
+      const didResponse = await resolver.resolve(orgJson2.credentialSubject.id as string);
+
+      // console.log(didResponse);
     });
   });
 });

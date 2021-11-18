@@ -15,6 +15,12 @@ A utility for ORGiD DID resolution according to [Decentralized Identifier Resolu
 yarn install
 ```
 
+## Build
+
+```bash
+yarn build
+```
+
 ## Linting & Testing
 
 ```bash

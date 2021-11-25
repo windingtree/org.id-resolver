@@ -5,7 +5,7 @@ A utility for ORGiD DID resolution according to [Decentralized Identifier Resolu
 ## Setup
 
 ```bash
-yarn add @windingtree/org.id-resolver@3.0.0-beta.4
+yarn add @windingtree/org.id-resolver
 ```
 
 ## Typescript typings

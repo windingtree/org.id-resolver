@@ -860,10 +860,10 @@
   dependencies:
     "@types/node" "*"
 
-"@windingtree/org.id-auth@1.0.0-beta.26", "@windingtree/org.id-auth@^1.0.0-beta.26":
-  version "1.0.0-beta.26"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-auth/-/org.id-auth-1.0.0-beta.26.tgz#7fbca3bbe7aca8aeb2614b9443179db420864818"
-  integrity sha512-VKbSD0WQq6ZEq0sDiK6Wjg8G/qv9IHQwIsX3wiy6W+QVUpRYgOXfrYNQ43xhrItyw9+JkuA7LHR6KeCzYLXztQ==
+"@windingtree/org.id-auth@1.0.0-beta.27", "@windingtree/org.id-auth@^1.0.0-beta.27":
+  version "1.0.0-beta.27"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-auth/-/org.id-auth-1.0.0-beta.27.tgz#29b1037c2bc4c1d2cfcde13a28b50413dcff5800"
+  integrity sha512-2IAAqAD+ZomTq6WV/pRzeT2CyQMC4TfhA1g26FzBUiNUDQEhK67FR/OZjtZJcyBk5htLqQSaIjvRpw4vWN4LSQ==
   dependencies:
     "@windingtree/org.id-utils" "^1.0.0-beta.26"
     "@windingtree/org.json-schema" "1.0.0-beta.5"
@@ -871,10 +871,10 @@
     jose "4.3.6"
     luxon "2.1.1"
 
-"@windingtree/org.id-core@1.0.0-beta.26":
-  version "1.0.0-beta.26"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-1.0.0-beta.26.tgz#54088c2cb16e9f39aa068d41a3142d2b5b60ef4b"
-  integrity sha512-dUOmDnFch4Y/kOMsCGFdhsoDzBJETJRHEzCr1nikP4cRX9rnjRBqSX3SLKICS4Zx1llDG1myAQZEls2duM0Lmw==
+"@windingtree/org.id-core@1.0.0-beta.27":
+  version "1.0.0-beta.27"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-1.0.0-beta.27.tgz#259464a587d6da0030c1fd68ff1267979c69dcfa"
+  integrity sha512-UXcwPXP3mB9e4VhhuRBVWVLi33LfzoIMQeRq/D1jg/1zIIKezX/Vo7I/s5sUeD2WvMqofnpGdsC9zMGB53EQPg==
   dependencies:
     "@windingtree/org.id" "3.0.0-beta.6"
     "@windingtree/org.id-utils" "^1.0.0-beta.26"
@@ -885,18 +885,18 @@
   resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-http-server/-/org.id-test-http-server-1.0.0-beta.26.tgz#8770a70b7049a0e965f34ff106b876ccdf99a858"
   integrity sha512-mtFeyaDEVUP01au9rjUSicqBd60GDAIo318ixXDeR78lhdZDzK+depiOG0b9ks/ohtNecyZ6UqyPyJAlZjiTFQ==
 
-"@windingtree/org.id-test-setup@1.0.0-beta.26":
-  version "1.0.0-beta.26"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-setup/-/org.id-test-setup-1.0.0-beta.26.tgz#d531af6739a87651aed802866441110c785b6adc"
-  integrity sha512-qr87/W79AdPHhU2pCsEv8igLByX7lPCcYegTiF9ANQ/55MoRVx9xhDzR6QsEQID+7BPxtgoDuuzJaTbd3zRmhg==
+"@windingtree/org.id-test-setup@1.0.0-beta.27":
+  version "1.0.0-beta.27"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-setup/-/org.id-test-setup-1.0.0-beta.27.tgz#9e3515f084bd02a0b2275d2c4f1a346d6fe23338"
+  integrity sha512-SI4Am3N/1jVuuvLWVH6VNNzFDL0KSCSTvfn3C68hXjMrI4ZBwnJmkFV8I1QImrJNgnzeXl7bp56y/Z7D63Rsvg==
   dependencies:
     "@nomiclabs/hardhat-ethers" "2.0.2"
     "@windingtree/org.id" "3.0.0-beta.6"
-    "@windingtree/org.id-auth" "^1.0.0-beta.26"
+    "@windingtree/org.id-auth" "^1.0.0-beta.27"
     "@windingtree/org.id-test-http-server" "^1.0.0-beta.26"
     "@windingtree/org.id-utils" "^1.0.0-beta.26"
     "@windingtree/org.json-schema" "1.0.0-beta.5"
-    "@windingtree/org.json-utils" "^1.0.0-beta.26"
+    "@windingtree/org.json-utils" "^1.0.0-beta.27"
     ethers "5.5.1"
     hardhat "2.6.8"
 
@@ -927,12 +927,12 @@
   resolved "https://registry.yarnpkg.com/@windingtree/org.json-schema/-/org.json-schema-1.0.0-beta.5.tgz#94932b2d2a4cb01b42dee27f8778079c79b778ed"
   integrity sha512-Y6nAErTGKFtlmQkHNCMbM4Nnk/BMhrULururpQc/TimnPhDeUoItVLsKvkIbWmE3XLgY3q0/AVLwEFoqEPMLIg==
 
-"@windingtree/org.json-utils@^1.0.0-beta.26":
-  version "1.0.0-beta.26"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.json-utils/-/org.json-utils-1.0.0-beta.26.tgz#5c8750721f5d03b0488bd8e5484bb48f14cdb4db"
-  integrity sha512-Gm72Io57BONhfEH7pSlMQ3H7Yv+KhsnadLyB9JhhXKrMwKFvM72dXWjXbMErctq6M327snqjA8YUCy1gWmESZA==
+"@windingtree/org.json-utils@^1.0.0-beta.27":
+  version "1.0.0-beta.27"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.json-utils/-/org.json-utils-1.0.0-beta.27.tgz#a6150a7e8cc664a521bf7c0bcecd770a9298bf07"
+  integrity sha512-BTwZE54RHupEwl/yOzVGvC7YR+3RwrNG/dbAsxqosFy4dEXrAn75w1YtLPqNs8dgjwiAulm/noA8ttgdb9D1Fg==
   dependencies:
-    "@windingtree/org.id-auth" "^1.0.0-beta.26"
+    "@windingtree/org.id-auth" "^1.0.0-beta.27"
     "@windingtree/org.id-utils" "^1.0.0-beta.26"
     "@windingtree/org.json-schema" "1.0.0-beta.4"
 

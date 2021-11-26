@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/org.id-resolver",
-  "version": "3.0.0-beta.7",
+  "version": "3.0.0-beta.8",
   "description": "ORGiD DID resolver",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -33,8 +33,8 @@
   },
   "dependencies": {
     "@windingtree/org.id": "3.0.0-beta.6",
-    "@windingtree/org.id-auth": "1.0.0-beta.26",
-    "@windingtree/org.id-core": "1.0.0-beta.26",
+    "@windingtree/org.id-auth": "1.0.0-beta.27",
+    "@windingtree/org.id-core": "1.0.0-beta.27",
     "@windingtree/org.id-utils": "1.0.0-beta.26",
     "@windingtree/org.json-schema": "1.0.0-beta.5",
     "ethers": "5.5.1",
@@ -47,7 +47,7 @@
     "@types/chai-as-promised": "7.1.4",
     "@types/luxon": "2.0.7",
     "@types/mocha": "9.0.0",
-    "@windingtree/org.id-test-setup": "1.0.0-beta.26",
+    "@windingtree/org.id-test-setup": "1.0.0-beta.27",
     "chai": "4.3.4",
     "chai-as-promised": "7.1.1",
     "eslint": "8.3.0",

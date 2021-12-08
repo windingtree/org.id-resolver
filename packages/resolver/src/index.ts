@@ -166,6 +166,7 @@ export const setupFetchers = (fetchers: FetcherConfig[]): Fetchers =>
   );
 
 // Parse raw DID and extract its parts
+// @todo Move `parseDid` to SDK utils
 export const parseDid = (did: string): ParsedDid => {
   const groupedCheck = regexp.didGrouped.exec(did) as DidGroupedCheckResult;
 
@@ -192,6 +193,7 @@ export const parseDid = (did: string): ParsedDid => {
 };
 
 // Parse raw ORG.JSON uri and extract an uri type
+// @todo Move `parseUri` to SDK utils
 export const parseUri = (uri: string): ParsedUri => {
   let parsedUri: string;
   let type: string;
@@ -424,9 +426,6 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
         case 'EcdsaSecp256k1RecoveryMethod2020':
         case 'JsonWebKey2020':
         case 'EcdsaSecp256k1VerificationKey2019':
-        // case 'Ed25519VerificationKey2018':
-        // case 'RsaVerificationKey2018':
-        // case 'X25519KeyAgreementKey2019':
 
           const publicKey =
             verificationMethod.blockchainAccountId ||

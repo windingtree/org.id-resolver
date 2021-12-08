@@ -159,3 +159,7 @@ console.log(didResponse);
 //   }
 // }
 ```
+
+## TODO
+
+- Create a utility for verification of verifiable credentials and add to the resolver the feature of automatic VC verification

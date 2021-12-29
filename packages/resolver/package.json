@@ -33,27 +33,27 @@
   },
   "dependencies": {
     "@windingtree/org.id": "3.0.0-beta.6",
-    "@windingtree/org.id-auth": "1.0.0-beta.28",
-    "@windingtree/org.id-core": "1.0.0-beta.28",
-    "@windingtree/org.id-utils": "1.0.0-beta.26",
-    "@windingtree/org.json-schema": "1.0.0-beta.8",
+    "@windingtree/org.id-auth": "1.0.0-beta.32",
+    "@windingtree/org.id-core": "1.0.0-beta.32",
+    "@windingtree/org.id-utils": "1.0.0-beta.32",
+    "@windingtree/org.json-schema": "1.0.0-beta.9",
     "ethers": "5.5.2",
-    "luxon": "2.1.1"
+    "luxon": "2.2.0"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
     "@nomiclabs/hardhat-ethers": "2.0.3",
     "@types/chai": "4.3.0",
     "@types/chai-as-promised": "7.1.4",
-    "@types/luxon": "2.0.7",
+    "@types/luxon": "2.0.8",
     "@types/mocha": "9.0.0",
-    "@windingtree/org.id-test-setup": "1.0.0-beta.28",
+    "@windingtree/org.id-test-setup": "1.0.0-beta.32",
     "chai": "4.3.4",
     "chai-as-promised": "7.1.1",
-    "eslint": "8.4.1",
-    "hardhat": "2.7.0",
+    "eslint": "8.5.0",
+    "hardhat": "2.8.0",
     "nyc": "15.1.0",
     "ts-node": "10.4.0",
-    "typescript": "4.5.2"
+    "typescript": "4.5.4"
   }
 }

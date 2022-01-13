@@ -25,15 +25,21 @@ yarn test
 
 New repository version setup (according to the SDK stake should be chosen custom `prerelease` or `major` release version type from the `lerna` CLI dialog):
 
+Prerelease:
+
 ```bash
-npx lerna version prerelease --yes --sign-git-commit --sign-git-tag
-# npx lerna version major --yes --sign-git-commit --sign-git-tag
-# npx lerna version minor --yes --sign-git-commit --sign-git-tag
-# npx lerna version patch --yes --sign-git-commit --sign-git-tag
+npx lerna version --conventional-commits --conventional-prerelease --preid beta --sign-git-commit --sign-git-tag --yes
+```
+
+Major release:
+
+```bash
+npx lerna version --conventional-commits --conventional-graduate --sign-git-commit --sign-git-tag --yes
 ```
 
 Publishing of the updated packages:
 
 ```bash
+yarn build
 npx lerna publish from-git
 ```

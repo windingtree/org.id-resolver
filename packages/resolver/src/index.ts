@@ -668,7 +668,6 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
     );
 
     if (!error) {
-      // Simple in-memory cache version
       // @todo Implement plugable caching solution
       resolverCache[did] = resolutionResult;
     }

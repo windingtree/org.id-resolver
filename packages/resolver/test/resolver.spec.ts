@@ -10,7 +10,7 @@ import type {
   FetcherConfig,
   OrgIdResolverAPI,
   ResolverOptions
-} from '../../src';
+} from '../src';
 import { orgIdSetup } from '@windingtree/org.id-test-setup';
 import {
   generateSalt,
@@ -22,7 +22,7 @@ import {
   buildHttpFetcherConfig,
   parseDid,
   parseUri
-} from '../../src';
+} from '../src';
 import chai, { expect } from 'chai';
 import chp from 'chai-as-promised';
 chai.use(chp);
@@ -250,7 +250,7 @@ describe('ORGiD DID Resolver', () => {
             "id": "did:orgid:1337:0x2389deb1e582b49ab388c7ebc16b49e5a95e0b8c92ffa9c74881a9904074de9a#key-100",
             "controller": "did:orgid:1337:0x2389deb1e582b49ab388c7ebc16b49e5a95e0b8c92ffa9c74881a9904074de9a",
             "type": "EcdsaSecp256k1RecoveryMethod2020",
-            "blockchainAccountId": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266@eip155:1337"
+            "blockchainAccountId": "eip155:1337:0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
           }
         ]
       };
@@ -316,7 +316,7 @@ describe('ORGiD DID Resolver', () => {
             "id": `did:orgid:1337:${orgIdHash}#key-111`,
             "controller": `did:orgid:1337:${orgIdHash}`,
             "type": "EcdsaSecp256k1RecoveryMethod2020",
-            "blockchainAccountId": `${ownerAddress}@${invalidBlockchainType}:1337`
+            "blockchainAccountId": `${invalidBlockchainType}:1337:${ownerAddress}`
           }
         ]
       };

@@ -23,7 +23,7 @@
         "id": "did:orgid:4:0x9300bad07f0b9d904b23781e8bbb05c1219530c51e7e494701db2539b7a5a119#key-1",
         "controller": "did:orgid:4:0x9300bad07f0b9d904b23781e8bbb05c1219530c51e7e494701db2539b7a5a119",
         "type": "EcdsaSecp256k1RecoveryMethod2020",
-        "blockchainAccountId": "0xBfD9EebE27d5a2F1113220b53844E5066889035C@eip155:1337"
+        "blockchainAccountId": "eip155:1337:0xBfD9EebE27d5a2F1113220b53844E5066889035C"
       }
     ],
     "service": [],

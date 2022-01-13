@@ -625,23 +625,23 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
         }
 
         const {
-          accountId,
+          accountAddress,
           blockchainType,
-          blockchainId
+          chainId
         } = parseBlockchainAccountId(orgJsonVerificationMethod.blockchainAccountId);
 
-        if (accountId !== orgIdOwner) {
+        if (accountAddress !== orgIdOwner) {
           throw new Error(
-            `Verification method blockchain account Id "${orgIdOwner}" is expected but found "${accountId}" in the VC proof`
+            `Verification method blockchain account Id "${orgIdOwner}" is expected but found "${accountAddress}" in the VC proof`
           );
         }
 
         if (
           blockchainType !== selectedChain.config.blockchainType ||
-          blockchainId !== selectedChain.config.blockchainId
+          chainId !== selectedChain.config.blockchainId
         ) {
           throw new Error(
-            `Verification method blockchain type "${selectedChain.config.blockchainType}" and Id "${selectedChain.config.blockchainId}" are expected but found "${blockchainType}" and "${blockchainId}" in the VC proof`
+            `Verification method blockchain type "${selectedChain.config.blockchainType}" and Id "${selectedChain.config.blockchainId}" are expected but found "${blockchainType}" and "${chainId}" in the VC proof`
           );
         }
 

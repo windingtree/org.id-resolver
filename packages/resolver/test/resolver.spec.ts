@@ -17,11 +17,13 @@ import {
   generateOrgIdWithSigner
 } from '@windingtree/org.id-utils/dist/common';
 import {
-  OrgIdResolver,
-  buildEvmChainConfig,
-  buildHttpFetcherConfig,
   parseDid,
   parseUri
+} from '@windingtree/org.id-utils/dist/parsers';
+import {
+  OrgIdResolver,
+  buildEvmChainConfig,
+  buildHttpFetcherConfig
 } from '../src';
 import chai, { expect } from 'chai';
 import chp from 'chai-as-promised';

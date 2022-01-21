@@ -9,7 +9,7 @@ import type { JWK } from '@windingtree/org.id-auth/dist/keys';
 import type { OrgIdData, KnownProvider } from '@windingtree/org.id-core';
 import { parseBlockchainAccountId, verifyVC } from '@windingtree/org.id-auth/dist/vc';
 import { OrgIdContract } from '@windingtree/org.id-core';
-import { regexp, http, object } from '@windingtree/org.id-utils';
+import { regexp, http, object, parsers } from '@windingtree/org.id-utils';
 import { DateTime } from  'luxon';
 import { version } from '../package.json';
 
@@ -95,38 +95,6 @@ export interface OrgIdResolverAPI {
   resolve(orgId: string): Promise<DidResolutionResponse>;
 }
 
-export interface DidGroupedCheckResult extends RegExpExecArray {
-  groups: {
-    did: string;
-    method: string;
-    network?: string;
-    id: string;
-    query?: string;
-    fragment?: string;
-  }
-}
-
-export interface IpfsUriGroupedResult extends RegExpExecArray {
-  groups: {
-    protocol: string;
-    cid: string;
-  }
-}
-
-export interface ParsedDid {
-  did: string;
-  method: string;
-  network: string;
-  orgId: string;
-  query?: string;
-  fragment?: string;
-}
-
-export interface ParsedUri {
-  uri: string;
-  type: string;
-}
-
 export interface ResolverCache {
   [did: string]: DidResolutionResponse
 }
@@ -164,68 +132,6 @@ export const setupFetchers = (fetchers: FetcherConfig[]): Fetchers =>
     }),
     {}
   );
-
-// Parse raw DID and extract its parts
-// @todo Move `parseDid` to SDK utils
-export const parseDid = (did: string): ParsedDid => {
-  const groupedCheck = regexp.didGrouped.exec(did) as DidGroupedCheckResult;
-
-  if (!groupedCheck || !groupedCheck.groups || !groupedCheck.groups.did) {
-    throw new Error(`Invalid DID format: ${did}`);
-  }
-
-  const {
-    method,
-    network,
-    id,
-    query,
-    fragment
-  } = groupedCheck.groups;
-
-  return {
-    did,
-    method,
-    network: network || '1', // Mainnet is default value
-    orgId: id,
-    query,
-    fragment
-  };
-};
-
-// Parse raw ORG.JSON uri and extract an uri type
-// @todo Move `parseUri` to SDK utils
-export const parseUri = (uri: string): ParsedUri => {
-  let parsedUri: string;
-  let type: string;
-
-  if (regexp.uriHttp.exec(uri)) {
-    parsedUri = uri;
-    type = 'http';
-  } else if (regexp.ipfs.exec(uri) || regexp.ipfsUri.exec(uri)) {
-    type = 'ipfs';
-
-    if (!regexp.ipfsUri.exec(uri)) {
-      parsedUri = uri;
-    } else {
-      const ipfsGroupedResult = regexp.ipfsUriGrouped.exec(uri) as IpfsUriGroupedResult;
-
-      if (!ipfsGroupedResult) {
-        // should never happen because it checked twice
-        throw new Error(`Unable to extract CID from IPFS URI: ${uri}`);
-      }
-
-      parsedUri = ipfsGroupedResult.groups.cid;
-    }
-
-  } else {
-    throw new Error(`Invalid URI: ${uri}`);
-  }
-
-  return {
-    uri: parsedUri,
-    type
-  }
-};
 
 export const parseCapabilityDelegates = (
   capabilityDelegate: CapabilityDelegationReference
@@ -369,7 +275,7 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
       level: number
     ): Promise<VerificationMethodPublicKey> => {
 
-      const { did } = parseDid(verificationMethodId);
+      const { did } = parsers.parseDid(verificationMethodId);
       const parentDid = object.getDeepValue(
         parentOrgJsonVc,
         'credentialSubject.id'
@@ -451,7 +357,7 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
     const resolutionStart = Date.now();
 
     try {
-      const { did: parsedDid, network, orgId } = parseDid(did);
+      const { did: parsedDid, network, orgId } = parsers.parseDid(did);
       did = parsedDid;
 
       if (did === rootResolutionDid) {
@@ -479,7 +385,7 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
       const {
         uri,
         type: uriType
-      } = parseUri(orgJsonUri);
+      } = parsers.parseUri(orgJsonUri);
 
       const selectedFetcher = fetchers[uriType];
 
@@ -563,7 +469,7 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
         const {
           orgId: verificationOrgId,
           network: verificationNetwork
-        } = parseDid(vcVerificationMethod);
+        } = parsers.parseDid(vcVerificationMethod);
 
         if (verificationOrgId !== orgId) {
           throw new Error(

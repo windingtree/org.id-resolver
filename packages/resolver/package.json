@@ -33,9 +33,9 @@
   },
   "dependencies": {
     "@windingtree/org.id": "^3.0.0-beta.6",
-    "@windingtree/org.id-auth": "^1.0.0-beta.45",
-    "@windingtree/org.id-core": "^1.0.0-beta.45",
-    "@windingtree/org.id-utils": "^1.0.0-beta.45",
+    "@windingtree/org.id-auth": "^1.0.0-beta.46",
+    "@windingtree/org.id-core": "^1.0.0-beta.46",
+    "@windingtree/org.id-utils": "^1.0.0-beta.46",
     "@windingtree/org.json-schema": "1.0.1",
     "ethers": "5.5.3",
     "luxon": "2.3.0"
@@ -47,11 +47,11 @@
     "@types/chai-as-promised": "7.1.4",
     "@types/luxon": "2.0.9",
     "@types/mocha": "9.0.0",
-    "@windingtree/org.id-test-setup": "1.0.0-beta.44",
+    "@windingtree/org.id-test-setup": "1.0.0-beta.46",
     "chai": "4.3.4",
     "chai-as-promised": "7.1.1",
-    "eslint": "8.6.0",
-    "hardhat": "2.8.2",
+    "eslint": "8.7.0",
+    "hardhat": "2.8.3",
     "nyc": "15.1.0",
     "ts-node": "10.4.0",
     "typescript": "4.5.4"

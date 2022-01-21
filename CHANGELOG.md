@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0-beta.18](https://github.com/windingtree/org.id-resolver/compare/v3.0.0-beta.17...v3.0.0-beta.18) (2022-01-21)
+
+**Note:** Version bump only for package @windingtree/org.id-resolver-mono
+
+
+
+
+
 # [3.0.0-beta.17](https://github.com/windingtree/org.id-resolver/compare/v3.0.0-beta.16...v3.0.0-beta.17) (2022-01-21)
 
 **Note:** Version bump only for package @windingtree/org.id-resolver-mono

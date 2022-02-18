@@ -19,7 +19,7 @@
   "include": [
     "src",
     "test"
-  ],
+, "scripts/responseSchema.ts"  ],
   "exclude": [
     "node_modules"
   ]

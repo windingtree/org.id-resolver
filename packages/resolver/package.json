@@ -13,7 +13,7 @@
   "scripts": {
     "lint": "npx eslint . --ext .ts",
     "lint:fix": "npx eslint . --ext .ts --fix",
-    "build": "rm -rf dist && npx tsc -p tsconfig-build.json",
+    "build": "rm -rf dist && npx tsc -p tsconfig-build.json && npx ts-node ./scripts/responseSchema.ts > ./dist/responseSchema.json",
     "test": "npx hardhat test",
     "test:coverage": "npx nyc --reporter=html --reporter=lcov hardhat test"
   },

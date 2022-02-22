@@ -19,13 +19,27 @@ const responseSchema = {
           '$ref': '#/definitions/DIDReference'
         },
         didDocument: {
-          '$ref': '#/definitions/OrgJsonReference'
+          oneOf: [
+            {
+              type: 'null'
+            },
+            {
+              '$ref': '#/definitions/OrgJsonReference'
+            }
+          ]
         },
         didResolutionMetadata: {
           '$ref': '#/definitions/DIDResolutionMetadata'
         },
         didDocumentMetadata: {
-          '$ref': '#/definitions/DIDDocumentMetadata'
+          oneOf: [
+            {
+              type: 'null'
+            },
+            {
+              '$ref': '#/definitions/DIDDocumentMetadata'
+            }
+          ]
         }
       },
       required: [

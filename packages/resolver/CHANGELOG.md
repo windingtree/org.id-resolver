@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/windingtree/org.id-resolver/compare/v3.0.0-beta.21...v3.0.0) (2022-10-20)
+
+
+### Features
+
+* Bump magior version ([b441e05](https://github.com/windingtree/org.id-resolver/commit/b441e056b4c233d184b47e410b27da8b651a3a02))
+
+
+
+
+
 # [3.0.0-beta.21](https://github.com/windingtree/org.id-resolver/compare/v3.0.0-beta.20...v3.0.0-beta.21) (2022-10-20)
 
 

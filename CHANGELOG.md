@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0-beta.21](https://github.com/windingtree/org.id-resolver/compare/v3.0.0-beta.20...v3.0.0-beta.21) (2022-10-20)
+
+
+### Features
+
+* Actualized package ([9081407](https://github.com/windingtree/org.id-resolver/commit/9081407e2d2d316a276c3c468895e70c9dd4dc0a))
+
+
+
+
+
 # [3.0.0-beta.20](https://github.com/windingtree/org.id-resolver/compare/v3.0.0-beta.19...v3.0.0-beta.20) (2022-02-22)
 
 

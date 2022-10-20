@@ -9,7 +9,7 @@ import type { JWK } from '@windingtree/org.id-auth/dist/keys';
 import type { OrgIdData, KnownProvider } from '@windingtree/org.id-core';
 import { parseBlockchainAccountId, verifyVC } from '@windingtree/org.id-auth/dist/vc';
 import { OrgIdContract } from '@windingtree/org.id-core';
-import { regexp, http, object, parsers } from '@windingtree/org.id-utils';
+import { http, object, parsers } from '@windingtree/org.id-utils';
 import { DateTime } from  'luxon';
 import { version } from '../package.json';
 

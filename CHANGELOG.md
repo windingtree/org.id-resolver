@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.1.0](https://github.com/windingtree/org.id-resolver/compare/v3.0.1...v3.1.0) (2022-10-21)
+
+
+### Features
+
+* Updated SDK deps ([9662598](https://github.com/windingtree/org.id-resolver/commit/9662598d0df989a302533f071a528b7993a4a8b8))
+
+
+
+
+
 ## [3.0.1](https://github.com/windingtree/org.id-resolver/compare/v3.0.0...v3.0.1) (2022-10-21)
 
 **Note:** Version bump only for package @windingtree/org.id-resolver-mono

@@ -545,6 +545,32 @@
     bech32 "1.1.4"
     ws "7.4.6"
 
+"@ethersproject/providers@5.7.2":
+  version "5.7.2"
+  resolved "https://registry.yarnpkg.com/@ethersproject/providers/-/providers-5.7.2.tgz#f8b1a4f275d7ce58cf0a2eec222269a08beb18cb"
+  integrity sha512-g34EWZ1WWAVgr4aptGlVBF8mhl3VWjv+8hoAnzStu8Ah22VHBsuGzP17eb6xDVRzw895G4W7vvx60lFFur/1Rg==
+  dependencies:
+    "@ethersproject/abstract-provider" "^5.7.0"
+    "@ethersproject/abstract-signer" "^5.7.0"
+    "@ethersproject/address" "^5.7.0"
+    "@ethersproject/base64" "^5.7.0"
+    "@ethersproject/basex" "^5.7.0"
+    "@ethersproject/bignumber" "^5.7.0"
+    "@ethersproject/bytes" "^5.7.0"
+    "@ethersproject/constants" "^5.7.0"
+    "@ethersproject/hash" "^5.7.0"
+    "@ethersproject/logger" "^5.7.0"
+    "@ethersproject/networks" "^5.7.0"
+    "@ethersproject/properties" "^5.7.0"
+    "@ethersproject/random" "^5.7.0"
+    "@ethersproject/rlp" "^5.7.0"
+    "@ethersproject/sha2" "^5.7.0"
+    "@ethersproject/strings" "^5.7.0"
+    "@ethersproject/transactions" "^5.7.0"
+    "@ethersproject/web" "^5.7.0"
+    bech32 "1.1.4"
+    ws "7.4.6"
+
 "@ethersproject/random@5.7.0", "@ethersproject/random@^5.7.0":
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/@ethersproject/random/-/random-5.7.0.tgz#af19dcbc2484aae078bb03656ec05df66253280c"
@@ -1220,50 +1246,50 @@
   dependencies:
     "@types/node" "*"
 
-"@windingtree/org.id-auth@^1.0.0", "@windingtree/org.id-auth@^1.0.0-beta.48":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-auth/-/org.id-auth-1.0.0.tgz#8584dae744cca7885429681d9a9f7a28811afd0d"
-  integrity sha512-zhEdHsEFC6Trfkk9fIrpGg8U3dBBgm9vwQqUHLbLd584iZo+wm3cZfIhme0I8+LCiWotRjS7+SRQrupYVZ93tg==
+"@windingtree/org.id-auth@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-auth/-/org.id-auth-1.2.0.tgz#0f16cadfe0efd4234b7a675b47e32e58a0cbf901"
+  integrity sha512-WaGy2AI21LaPgWhRExyQuSPFmpg6l+KezfagoNo4TSOcNAW/tWNNgToeMUHwKD1sRDipXeV/vJR31pu3/CZ6Jg==
   dependencies:
-    "@windingtree/org.id-utils" "^1.0.0"
+    "@windingtree/org.id-utils" "^1.2.0"
     "@windingtree/org.json-schema" "1.0.2"
     ethers "5.7.1"
     jose "4.10.0"
     luxon "3.0.4"
 
-"@windingtree/org.id-core@^1.0.0-beta.48":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-1.0.0.tgz#fa8766b209c8aca8ecc34893023915225caf6e06"
-  integrity sha512-odmmfbG7zLNacCcah1RBv6wsjAFh/OkS+0elvr2IRyRa2UpOkZdVA/CWGHH0hFK/3S6s6/3XZvGW8B98C1HfHQ==
+"@windingtree/org.id-core@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-1.2.0.tgz#8569d92f26846be0c10c3d985c1594f085a1cfd5"
+  integrity sha512-9HpzYJS6mcqXilpe4YcIJv0GSJuXu7rmVk0QziZ/StjeR6n2gZTgSuTTIJIF2+qrBPVNoOn9uz8GDoU/ZP45yg==
   dependencies:
     "@windingtree/org.id" "3.0.1"
-    "@windingtree/org.id-utils" "^1.0.0"
+    "@windingtree/org.id-utils" "^1.2.0"
     ethers "5.7.1"
 
-"@windingtree/org.id-test-http-server@^1.0.0-beta.48":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-http-server/-/org.id-test-http-server-1.0.0.tgz#01181fcd00fd84e570f2064f6ea6b19d42aba740"
-  integrity sha512-dx1/zo8DAOt88+9ZRdN8PcEZF8OZxNf+pQZzGea4UUXNZD8Lrp88qQ6K1/Ay5+SuBM73UF5wZ4aJeoSTZs9ddA==
+"@windingtree/org.id-test-http-server@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-http-server/-/org.id-test-http-server-1.2.0.tgz#30a8318fa33c342f679220b0cb47e053de426de9"
+  integrity sha512-rK4BbMHo771LF1ovVtJNmQm9HlqYPTaxhEBesCCvf5tHkSkhjBMtXhy3Q3uwEXc+Rpl0TJANpfSWt25bfO3AYA==
 
-"@windingtree/org.id-test-setup@1.0.0-beta.48":
-  version "1.0.0-beta.48"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-setup/-/org.id-test-setup-1.0.0-beta.48.tgz#198bee5c7ef79980b92283ad30951ee7f22a6810"
-  integrity sha512-CLHSCvpgQElHIiYscC+cSTw5HLRgt5m/q2Qap7gOm6l8vyXmn7HaCQFPQs8VOBhG4eXXGHcuR+Cl11qfDuHWlw==
+"@windingtree/org.id-test-setup@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-setup/-/org.id-test-setup-1.2.0.tgz#453a9d707d4796061a1dc4411f2d58b5aa127f64"
+  integrity sha512-aba1cmGjBRdo5IzdNgepVjHBwE9v61rG71lf7HMCzX+dz1bIi5Uu0RxVKzJqJgVa37V8xqLuBJa1KJyWD8WmKg==
   dependencies:
     "@nomiclabs/hardhat-ethers" "2.2.0"
     "@windingtree/org.id" "3.0.1"
-    "@windingtree/org.id-auth" "^1.0.0-beta.48"
-    "@windingtree/org.id-test-http-server" "^1.0.0-beta.48"
-    "@windingtree/org.id-utils" "^1.0.0-beta.48"
+    "@windingtree/org.id-auth" "^1.2.0"
+    "@windingtree/org.id-test-http-server" "^1.2.0"
+    "@windingtree/org.id-utils" "^1.2.0"
     "@windingtree/org.json-schema" "1.0.2"
-    "@windingtree/org.json-utils" "^1.0.0-beta.48"
+    "@windingtree/org.json-utils" "^1.2.0"
     ethers "5.7.1"
     hardhat "2.12.0"
 
-"@windingtree/org.id-utils@^1.0.0", "@windingtree/org.id-utils@^1.0.0-beta.48":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-utils/-/org.id-utils-1.0.0.tgz#2a9bb0b29c9d5a2ca5879fa9e94b33941bd79dc5"
-  integrity sha512-Phvnhv2MsED7UuzOP4lMN/d4N9YIQfYvnC7bqoW9jvkaDbbnVeCM7UIEvUTDii0n4A2lRZWyK1xmBYBtms0sig==
+"@windingtree/org.id-utils@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-utils/-/org.id-utils-1.2.0.tgz#3472d4bcd48eb0fd1747e9444d09eebaa00bee3f"
+  integrity sha512-4Mh0O2cwW1C23iMnzhXG8OiH8t5JsbU8u1ZzQ+VaA8ayZa3z0uQG2eHHsEcddPO/9zDeYejSMpZ1Z462GorEDg==
   dependencies:
     ajv "8.11.0"
     ajv-formats "2.1.1"
@@ -1282,13 +1308,13 @@
   resolved "https://registry.yarnpkg.com/@windingtree/org.json-schema/-/org.json-schema-1.0.2.tgz#a1f738f9e067225ca1d05cd2b925bba09381812a"
   integrity sha512-q9lcSiU7wAjXpN/ux3rqlIgsnNWmUfOnOW0HtY+AlvkdJK+a7P0KYs3K69KHvFWdKN8CJJWyeIVANlaZ/6WeiQ==
 
-"@windingtree/org.json-utils@^1.0.0-beta.48":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.json-utils/-/org.json-utils-1.0.0.tgz#22569e056a30c365134cc0f5c32d0bd2b3a1b5de"
-  integrity sha512-imXjzeiIB/X2QQ2gxgA9oHkLoOoIlV1L4rPq7PASWsZ+ASmYr8Qw/Y1zlWz2VQtdj4oxTlQQJu4VSDqVaBNSQg==
+"@windingtree/org.json-utils@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.json-utils/-/org.json-utils-1.2.0.tgz#181b6d58c45f8cf7f6f8438c17af28f32ce75498"
+  integrity sha512-u0Pdi1NcIav4V9UA17nBu5IZYqb1r1Q+uynxbsNILJ6kZnciaQDSLwC4vNTjcbVAn5gs9wi94IylzD4zJpUYQw==
   dependencies:
-    "@windingtree/org.id-auth" "^1.0.0"
-    "@windingtree/org.id-utils" "^1.0.0"
+    "@windingtree/org.id-auth" "^1.2.0"
+    "@windingtree/org.id-utils" "^1.2.0"
     "@windingtree/org.json-schema" "1.0.2"
 
 abort-controller@^3.0.0:
@@ -2266,6 +2292,42 @@ ethers@5.7.1:
     "@ethersproject/web" "5.7.1"
     "@ethersproject/wordlists" "5.7.0"
 
+ethers@^5.7.2:
+  version "5.7.2"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
+  integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==
+  dependencies:
+    "@ethersproject/abi" "5.7.0"
+    "@ethersproject/abstract-provider" "5.7.0"
+    "@ethersproject/abstract-signer" "5.7.0"
+    "@ethersproject/address" "5.7.0"
+    "@ethersproject/base64" "5.7.0"
+    "@ethersproject/basex" "5.7.0"
+    "@ethersproject/bignumber" "5.7.0"
+    "@ethersproject/bytes" "5.7.0"
+    "@ethersproject/constants" "5.7.0"
+    "@ethersproject/contracts" "5.7.0"
+    "@ethersproject/hash" "5.7.0"
+    "@ethersproject/hdnode" "5.7.0"
+    "@ethersproject/json-wallets" "5.7.0"
+    "@ethersproject/keccak256" "5.7.0"
+    "@ethersproject/logger" "5.7.0"
+    "@ethersproject/networks" "5.7.1"
+    "@ethersproject/pbkdf2" "5.7.0"
+    "@ethersproject/properties" "5.7.0"
+    "@ethersproject/providers" "5.7.2"
+    "@ethersproject/random" "5.7.0"
+    "@ethersproject/rlp" "5.7.0"
+    "@ethersproject/sha2" "5.7.0"
+    "@ethersproject/signing-key" "5.7.0"
+    "@ethersproject/solidity" "5.7.0"
+    "@ethersproject/strings" "5.7.0"
+    "@ethersproject/transactions" "5.7.0"
+    "@ethersproject/units" "5.7.0"
+    "@ethersproject/wallet" "5.7.0"
+    "@ethersproject/web" "5.7.1"
+    "@ethersproject/wordlists" "5.7.0"
+
 ethjs-util@0.1.6, ethjs-util@^0.1.6:
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/ethjs-util/-/ethjs-util-0.1.6.tgz#f308b62f185f9fe6237132fb2a9818866a5cd536"
@@ -3076,7 +3138,7 @@ lru_map@^0.3.3:
   resolved "https://registry.yarnpkg.com/lru_map/-/lru_map-0.3.3.tgz#b5c8351b9464cbd750335a79650a0ec0e56118dd"
   integrity sha1-tcg1G5Rky9dQM1p5ZQoOwOVhGN0=
 
-luxon@3.0.4:
+luxon@3.0.4, luxon@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.0.4.tgz#d179e4e9f05e092241e7044f64aaa54796b03929"
   integrity sha512-aV48rGUwP/Vydn8HT+5cdr26YYQiUZ42NM6ToMoaGKwYfWbfLeRkEu1wXWMHBZT6+KyLfcbbtVcoQFCbbPjKlw==

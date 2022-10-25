@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.2](https://github.com/windingtree/org.id-resolver/compare/v3.1.1...v3.1.2) (2022-10-25)
+
+
+### Bug Fixes
+
+* Updated SDK deps versions (with fixed parseDid parser) ([ffa367b](https://github.com/windingtree/org.id-resolver/commit/ffa367b1ee5150c7fe8ebab19a28baa294c2608e))
+
+
+
+
+
 ## [3.1.1](https://github.com/windingtree/org.id-resolver/compare/v3.1.0...v3.1.1) (2022-10-25)
 
 

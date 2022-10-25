@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.1](https://github.com/windingtree/org.id-resolver/compare/v3.1.0...v3.1.1) (2022-10-25)
+
+
+### Bug Fixes
+
+* Fixed an issue with delegate verification ([cb200b7](https://github.com/windingtree/org.id-resolver/commit/cb200b7d38f48657eecc320f7f7a96b88ade8f11))
+
+
+
+
+
 # [3.1.0](https://github.com/windingtree/org.id-resolver/compare/v3.0.1...v3.1.0) (2022-10-21)
 
 

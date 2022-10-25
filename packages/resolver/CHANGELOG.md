@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.3](https://github.com/windingtree/org.id-resolver/compare/v3.1.2...v3.1.3) (2022-10-25)
+
+
+### Bug Fixes
+
+* Fixed missed build ([1217561](https://github.com/windingtree/org.id-resolver/commit/12175618edf290b8c68a717ea995cdef52e327cd))
+
+
+
+
+
 ## [3.1.2](https://github.com/windingtree/org.id-resolver/compare/v3.1.1...v3.1.2) (2022-10-25)
 
 

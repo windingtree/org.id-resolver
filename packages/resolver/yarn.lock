@@ -1246,50 +1246,50 @@
   dependencies:
     "@types/node" "*"
 
-"@windingtree/org.id-auth@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-auth/-/org.id-auth-1.2.0.tgz#0f16cadfe0efd4234b7a675b47e32e58a0cbf901"
-  integrity sha512-WaGy2AI21LaPgWhRExyQuSPFmpg6l+KezfagoNo4TSOcNAW/tWNNgToeMUHwKD1sRDipXeV/vJR31pu3/CZ6Jg==
+"@windingtree/org.id-auth@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-auth/-/org.id-auth-1.2.1.tgz#57c69cf4d5757f1c843c168660e8c0c45afa081a"
+  integrity sha512-mRAjNyT/fD58rvMSuX7A6FXZZgb3QVyYzYnVvx2E99t8bzu/fjtQ6lQu5tl0SDbvgdmUmZKVeVVP8vZZKrWCKQ==
   dependencies:
-    "@windingtree/org.id-utils" "^1.2.0"
+    "@windingtree/org.id-utils" "^1.2.1"
     "@windingtree/org.json-schema" "1.0.2"
     ethers "5.7.1"
     jose "4.10.0"
     luxon "3.0.4"
 
-"@windingtree/org.id-core@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-1.2.0.tgz#8569d92f26846be0c10c3d985c1594f085a1cfd5"
-  integrity sha512-9HpzYJS6mcqXilpe4YcIJv0GSJuXu7rmVk0QziZ/StjeR6n2gZTgSuTTIJIF2+qrBPVNoOn9uz8GDoU/ZP45yg==
+"@windingtree/org.id-core@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-core/-/org.id-core-1.2.1.tgz#ce5f6ba587cccdd19001fb2fd5a97c02dbadb100"
+  integrity sha512-uRHFHpdVGa8rJZUarzURG588UoJ1etEG39LhSmU851SDOoynfCk/i0fYrg12Eo/UvcV5KU44aNfj1FzYo9m0DA==
   dependencies:
     "@windingtree/org.id" "3.0.1"
-    "@windingtree/org.id-utils" "^1.2.0"
+    "@windingtree/org.id-utils" "^1.2.1"
     ethers "5.7.1"
 
-"@windingtree/org.id-test-http-server@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-http-server/-/org.id-test-http-server-1.2.0.tgz#30a8318fa33c342f679220b0cb47e053de426de9"
-  integrity sha512-rK4BbMHo771LF1ovVtJNmQm9HlqYPTaxhEBesCCvf5tHkSkhjBMtXhy3Q3uwEXc+Rpl0TJANpfSWt25bfO3AYA==
+"@windingtree/org.id-test-http-server@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-http-server/-/org.id-test-http-server-1.2.1.tgz#ca49b508a6731d1dbc03b53642076286a1b94033"
+  integrity sha512-bgzKsPzFmGbaxr9NDOTedFfhA2paS2MDuABQk+e4KfNfoTmXMCabszqwsZfHKpUj6LU4KUUrT0lbvi6EyMW2Lw==
 
-"@windingtree/org.id-test-setup@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-setup/-/org.id-test-setup-1.2.0.tgz#453a9d707d4796061a1dc4411f2d58b5aa127f64"
-  integrity sha512-aba1cmGjBRdo5IzdNgepVjHBwE9v61rG71lf7HMCzX+dz1bIi5Uu0RxVKzJqJgVa37V8xqLuBJa1KJyWD8WmKg==
+"@windingtree/org.id-test-setup@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-test-setup/-/org.id-test-setup-1.2.1.tgz#111db77279f41a27654e494b14c951b0ab88a6da"
+  integrity sha512-K4kMwwhvYzDFz5W+bEVr7ydmvDRPiVT7kzEW1K+9f3QnMiSmnZbObu2Q4CzhKMfUfDlHBDaX2EeipQowHi6rbw==
   dependencies:
     "@nomiclabs/hardhat-ethers" "2.2.0"
     "@windingtree/org.id" "3.0.1"
-    "@windingtree/org.id-auth" "^1.2.0"
-    "@windingtree/org.id-test-http-server" "^1.2.0"
-    "@windingtree/org.id-utils" "^1.2.0"
+    "@windingtree/org.id-auth" "^1.2.1"
+    "@windingtree/org.id-test-http-server" "^1.2.1"
+    "@windingtree/org.id-utils" "^1.2.1"
     "@windingtree/org.json-schema" "1.0.2"
-    "@windingtree/org.json-utils" "^1.2.0"
+    "@windingtree/org.json-utils" "^1.2.1"
     ethers "5.7.1"
     hardhat "2.12.0"
 
-"@windingtree/org.id-utils@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.id-utils/-/org.id-utils-1.2.0.tgz#3472d4bcd48eb0fd1747e9444d09eebaa00bee3f"
-  integrity sha512-4Mh0O2cwW1C23iMnzhXG8OiH8t5JsbU8u1ZzQ+VaA8ayZa3z0uQG2eHHsEcddPO/9zDeYejSMpZ1Z462GorEDg==
+"@windingtree/org.id-utils@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.id-utils/-/org.id-utils-1.2.1.tgz#cc0cd74222dc666150580370576e656108d1934b"
+  integrity sha512-OOGDBgvD1AkJllM3oJFLr+++D/Wv3+uyR6qSwm2gzPF3xLNZBxhMbpxFBhxqSZXYyUxmzx8Q8xXNR43XKrP8gA==
   dependencies:
     ajv "8.11.0"
     ajv-formats "2.1.1"
@@ -1308,13 +1308,13 @@
   resolved "https://registry.yarnpkg.com/@windingtree/org.json-schema/-/org.json-schema-1.0.2.tgz#a1f738f9e067225ca1d05cd2b925bba09381812a"
   integrity sha512-q9lcSiU7wAjXpN/ux3rqlIgsnNWmUfOnOW0HtY+AlvkdJK+a7P0KYs3K69KHvFWdKN8CJJWyeIVANlaZ/6WeiQ==
 
-"@windingtree/org.json-utils@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@windingtree/org.json-utils/-/org.json-utils-1.2.0.tgz#181b6d58c45f8cf7f6f8438c17af28f32ce75498"
-  integrity sha512-u0Pdi1NcIav4V9UA17nBu5IZYqb1r1Q+uynxbsNILJ6kZnciaQDSLwC4vNTjcbVAn5gs9wi94IylzD4zJpUYQw==
+"@windingtree/org.json-utils@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@windingtree/org.json-utils/-/org.json-utils-1.2.1.tgz#7a3e20f83aff7c678ffc9d73aca823928db053d4"
+  integrity sha512-i5wh41HE/SmUy/cYhGZBU2sp2dPD2zYgx1UpFev5bM03z1q0jigbGQYWUMtY97LMNfRVdAwE1xiR2KUADmLNAA==
   dependencies:
-    "@windingtree/org.id-auth" "^1.2.0"
-    "@windingtree/org.id-utils" "^1.2.0"
+    "@windingtree/org.id-auth" "^1.2.1"
+    "@windingtree/org.id-utils" "^1.2.1"
     "@windingtree/org.json-schema" "1.0.2"
 
 abort-controller@^3.0.0:

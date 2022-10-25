@@ -88,7 +88,7 @@ describe('ORGiD DID Resolver', () => {
     it('should parse DID', async () => {
       const did = 'did:orgid:0x7b15197de62b0bc73da908b215666c48e1e49ed38e4486f5f6f094458786412d?service=files&relative-ref=%2Fmyresume%2Fdoc%3Fversion%3Dlatest#intro';
       const didParsed = {
-        did: 'did:orgid:0x7b15197de62b0bc73da908b215666c48e1e49ed38e4486f5f6f094458786412d?service=files&relative-ref=%2Fmyresume%2Fdoc%3Fversion%3Dlatest#intro',
+        did: 'did:orgid:1:0x7b15197de62b0bc73da908b215666c48e1e49ed38e4486f5f6f094458786412d',
         method: 'orgid',
         orgId: '0x7b15197de62b0bc73da908b215666c48e1e49ed38e4486f5f6f094458786412d',
         query: 'service=files&relative-ref=%2Fmyresume%2Fdoc%3Fversion%3Dlatest',

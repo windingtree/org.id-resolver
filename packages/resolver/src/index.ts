@@ -275,7 +275,7 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
       level: number
     ): Promise<VerificationMethodPublicKey> => {
 
-      const { orgId: verificationMethodDid } = parsers.parseDid(verificationMethodId);
+      const { did: verificationMethodDid } = parsers.parseDid(verificationMethodId);
       const parentDid = object.getDeepValue(
         parentOrgJsonVc,
         'credentialSubject.id'

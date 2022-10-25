@@ -45,7 +45,7 @@ const provider = new ethers.providers.Web3Provider(window.ethereum);
 const orgIdContractAddress = '0xBfD9...035C';
 
 const chainConfig = buildEvmChainConfig(
-  '4', // <-- Rinkeby network
+  '5', // <-- Goerli network
   'eip155',
   orgIdContractAddress,
   provider

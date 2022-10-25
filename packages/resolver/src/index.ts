@@ -275,7 +275,7 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
       level: number
     ): Promise<VerificationMethodPublicKey> => {
 
-      const { did } = parsers.parseDid(verificationMethodId);
+      const { orgId: verificationMethodDid } = parsers.parseDid(verificationMethodId);
       const parentDid = object.getDeepValue(
         parentOrgJsonVc,
         'credentialSubject.id'
@@ -284,7 +284,7 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
       let verificationMethodResolution: DidResolutionResponse;
       let delegateVerificationMethodDefinition: VerificationMethodReference[];
 
-      if (did !== parentDid) {
+      if (verificationMethodDid !== parentDid) {
         // Resolve external verificationMethodId
         verificationMethodResolution = await resolve(
           verificationMethodId,
@@ -320,9 +320,9 @@ export const OrgIdResolver = (options: ResolverOptions): OrgIdResolverAPI => {
         throw new Error('Unable to get verificationMethods of delegate');
       }
 
-      const verificationMethod = delegateVerificationMethodDefinition.filter(
+      const verificationMethod = delegateVerificationMethodDefinition.find(
         v => v.id === verificationMethodId
-      )[0];
+      );
 
       if (!verificationMethod) {
         throw new Error('Unable to get verificationMethod of delegate');

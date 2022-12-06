@@ -35,6 +35,6 @@
   },
   "homepage": "https://github.com/windingtree/org.id-resolver#readme",
   "devDependencies": {
-    "lerna": "6.0.1"
+    "lerna": "6.1.0"
   }
 }
